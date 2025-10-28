@@ -14,7 +14,7 @@
             @endif
 
             @if ($errors->any())
-                <div class="alert alert-danger  alert-dismissible fade show">
+                <div class="alert alert-danger alert-dismissible fade show">
                     <ul class="mb-0">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -29,6 +29,7 @@
                 if (old('items')) {
                     $itemsData = old('items');
                     $discountData = old('discount', 0);
+                    $taxRateData = old('tax_rate', 7.5);
                 } elseif (isset($invoice)) {
                     $itemsData = $invoice->items
                         ->map(function ($item) {
@@ -44,6 +45,7 @@
                         })
                         ->toArray();
                     $discountData = (float) ($invoice->discount ?? 0);
+                    $taxRateData = (float) ($invoice->tax_rate ?? 7.5);
                 } else {
                     $itemsData = [
                         [
@@ -57,29 +59,28 @@
                         ],
                     ];
                     $discountData = 0;
+                    $taxRateData = 7.5;
                 }
             @endphp
 
             {{-- ✅ Alpine Form --}}
             <form action="{{ isset($invoice) ? route('invoice.update', $invoice->id) : route('invoice.store') }}"
-                method="POST"
-                x-data="invoiceForm(@js($itemsData), @js($discountData))"
-                x-init="
-                    console.log('=== INVOICE DEBUG ===');
-                    console.log('Loaded Items:', JSON.parse(JSON.stringify(items)));
-                    console.log('Discount:', globalDiscount);
-
-                    if (!{{ isset($invoice) ? 'true' : 'false' }}) {
-                        // Only auto-fill on create
-                        setTimeout(() => {
-                            items.forEach((_, i) => fillFromProduct(i));
-                            recomputeAll();
-                        }, 50);
-                    } else {
-                        // Edit mode: just recompute existing data
+                method="POST" x-data="invoiceForm(@js($itemsData), @js($discountData), @js($taxRateData))" x-init="console.log('=== INVOICE DEBUG ===');
+                console.log('Loaded Items:', JSON.parse(JSON.stringify(items)));
+                console.log('Discount:', globalDiscount);
+                console.log('Tax Rate:', taxRate);
+                console.log('Is Edit Mode:', isEditMode);
+                
+                if (!isEditMode) {
+                    // Only auto-fill on create mode (new invoice)
+                    setTimeout(() => {
+                        items.forEach((_, i) => fillFromProduct(i));
                         recomputeAll();
-                    }
-                ">
+                    }, 50);
+                } else {
+                    // Edit mode: just recompute existing data without overwriting
+                    recomputeAll();
+                }">
                 @csrf
                 @if (isset($invoice))
                     @method('PUT')
@@ -238,6 +239,13 @@
                                                 @input="recomputeAll()">
                                         </div>
 
+                                        <div class="mb-3">
+                                            <label class="form-label">VAT Rate (%)</label>
+                                            <input type="number" step="0.01" min="0" name="tax_rate"
+                                                class="form-control" x-model.number="taxRate" @input="recomputeAll()">
+                                            <small class="text-muted">Default: 7.5% (Nigerian VAT)</small>
+                                        </div>
+
                                         <hr>
 
                                         <div class="d-flex justify-content-between mb-2">
@@ -247,6 +255,14 @@
                                         <div class="d-flex justify-content-between text-danger mb-2">
                                             <span>Discount:</span>
                                             <strong x-text="formatMoney(globalDiscount)"></strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>After Discount:</span>
+                                            <strong x-text="formatMoney(afterDiscount)"></strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between text-success mb-2">
+                                            <span>VAT (<span x-text="taxRate"></span>%):</span>
+                                            <strong x-text="formatMoney(taxAmount)"></strong>
                                         </div>
                                         <hr>
                                         <div class="d-flex justify-content-between">
@@ -276,7 +292,7 @@
     <script src="//unpkg.com/alpinejs" defer></script>
 
     <script>
-        function invoiceForm(existingItems = [], existingDiscount = 0) {
+        function invoiceForm(existingItems = [], existingDiscount = 0, existingTaxRate = 7.5) {
             return {
                 items: existingItems.length ? existingItems : [{
                     product_id: '',
@@ -288,13 +304,22 @@
                     amount: 0
                 }],
                 globalDiscount: parseFloat(existingDiscount) || 0,
+                taxRate: parseFloat(existingTaxRate) || 7.5,
+                isEditMode: existingItems.length > 0 && existingItems[0].product_id !== '',
 
                 get subtotal() {
                     return this.items.reduce((sum, it) => sum + (parseFloat(it.amount || 0) || 0), 0);
                 },
-                get total() {
+                get afterDiscount() {
                     const disc = parseFloat(this.globalDiscount) || 0;
                     return Math.max(0, this.subtotal - disc);
+                },
+                get taxAmount() {
+                    const rate = parseFloat(this.taxRate) || 0;
+                    return (this.afterDiscount * rate) / 100;
+                },
+                get total() {
+                    return Math.round((this.afterDiscount + this.taxAmount) * 100) / 100;
                 },
 
                 add() {
@@ -315,14 +340,26 @@
                     }
                 },
                 fillFromProduct(index) {
+                    // ✅ Don't auto-fill in edit mode when page loads
+                    if (this.isEditMode && this.items[index].rate > 0) {
+                        return;
+                    }
+
                     const select = document.getElementsByName(`items[${index}][product_id]`)[0];
                     if (!select) return;
                     const opt = select.options[select.selectedIndex];
                     if (!opt || !opt.value) return;
 
-                    // ✅ Only update empty fields (prevents overwriting when editing)
-                    if (!this.items[index].rate) this.items[index].rate = parseFloat(opt.dataset.rate) || 0;
-                    if (!this.items[index].unit) this.items[index].unit = opt.dataset.unit || '';
+                    // ✅ Only update if the field is empty or zero
+                    const newRate = parseFloat(opt.dataset.rate) || 0;
+                    const newUnit = opt.dataset.unit || '';
+
+                    if (this.items[index].rate === 0 || this.items[index].rate === '') {
+                        this.items[index].rate = newRate;
+                    }
+                    if (this.items[index].unit === '' || this.items[index].unit === null) {
+                        this.items[index].unit = newUnit;
+                    }
 
                     this.recompute(index);
                 },

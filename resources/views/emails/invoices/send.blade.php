@@ -63,28 +63,6 @@
                                                     @endif
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td>Total Amount:</td>
-                                                <td align="right" style="color:#1d4ed8; font-size:18px; font-weight:bold;">
-                                                    {{ $invoice->currency }} {{ number_format($invoice->total_amount, 2) }}
-                                                </td>
-                                            </tr>
-                                            @if($invoice->paid > 0)
-                                            <tr>
-                                                <td>Amount Paid:</td>
-                                                <td align="right" style="color:#16a34a;">
-                                                    {{ $invoice->currency }} {{ number_format($invoice->paid, 2) }}
-                                                </td>
-                                            </tr>
-                                            @endif
-                                            @if($invoice->total_amount - $invoice->paid > 0)
-                                            <tr style="background:#fef2f2;">
-                                                <td><strong>Amount Due:</strong></td>
-                                                <td align="right" style="color:#dc2626; font-weight:bold;">
-                                                    {{ $invoice->currency }} {{ number_format($invoice->total_amount - $invoice->paid, 2) }}
-                                                </td>
-                                            </tr>
-                                            @endif
                                         </table>
                                     </td>
                                 </tr>
@@ -107,6 +85,65 @@
                                 @endif
                             </table>
                             @endif
+
+                            <!-- Invoice Breakdown -->
+                            @php
+                                $subtotal = $invoice->items->sum('amount');
+                                $afterDiscount = $subtotal - ($invoice->discount ?? 0);
+                                $taxRate = $invoice->tax_rate ?? 0;
+                                $vatAmount = ($afterDiscount * $taxRate) / 100;
+                            @endphp
+
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:25px 0; border:1px solid #e5e7eb; border-radius:6px;">
+                                <tr>
+                                    <td style="padding:20px;">
+                                        <h3 style="font-size:14px; color:#6b7280; text-transform:uppercase; margin:0 0 12px;">Payment Breakdown</h3>
+
+                                        <table width="100%" cellpadding="6" cellspacing="0" border="0" style="font-size:15px;">
+                                            <tr>
+                                                <td>Subtotal:</td>
+                                                <td align="right"><strong>{{ $invoice->currency }} {{ number_format($subtotal, 2) }}</strong></td>
+                                            </tr>
+                                            @if($invoice->discount > 0)
+                                            <tr>
+                                                <td style="color:#dc2626;">Discount:</td>
+                                                <td align="right" style="color:#dc2626;"><strong>-{{ $invoice->currency }} {{ number_format($invoice->discount, 2) }}</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td>After Discount:</td>
+                                                <td align="right"><strong>{{ $invoice->currency }} {{ number_format($afterDiscount, 2) }}</strong></td>
+                                            </tr>
+                                            @endif
+                                            <tr>
+                                                <td style="color:#16a34a;"><strong>VAT ({{ number_format($taxRate, 2) }}%):</strong></td>
+                                                <td align="right" style="color:#16a34a;"><strong>{{ $invoice->currency }} {{ number_format($vatAmount, 2) }}</strong></td>
+                                            </tr>
+                                            <tr style="background:#eff6ff; border-top:2px solid #e5e7eb;">
+                                                <td style="font-size:17px; padding-top:12px;"><strong>Total Amount:</strong></td>
+                                                <td align="right" style="color:#1d4ed8; font-size:18px; font-weight:bold; padding-top:12px;">
+                                                    {{ $invoice->currency }} {{ number_format($invoice->total_amount, 2) }}
+                                                </td>
+                                            </tr>
+                                            @if($invoice->paid > 0)
+                                            <tr>
+                                                <td style="color:#16a34a;">Amount Paid:</td>
+                                                <td align="right" style="color:#16a34a;">
+                                                    <strong>{{ $invoice->currency }} {{ number_format($invoice->paid, 2) }}</strong>
+                                                </td>
+                                            </tr>
+                                            @endif
+                                            @if($invoice->total_amount - $invoice->paid > 0)
+                                            <tr style="background:#fef2f2; border-top:2px solid #e5e7eb;">
+                                                <td style="padding-top:12px;"><strong>Amount Due:</strong></td>
+                                                <td align="right" style="color:#dc2626; font-weight:bold; font-size:17px; padding-top:12px;">
+                                                    {{ $invoice->currency }} {{ number_format($invoice->total_amount - $invoice->paid, 2) }}
+                                                </td>
+                                            </tr>
+                                            @endif
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
 
                             <!-- Notes -->
                             @if($invoice->notes)

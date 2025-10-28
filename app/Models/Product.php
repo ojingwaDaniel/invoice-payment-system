@@ -11,6 +11,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        "user_id",
         'name',
         'code',
         'category',
@@ -34,5 +35,9 @@ class Product extends Model
     public function invoiceItems()
     {
         return $this->hasMany(InvoiceItem::class);
+    }
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

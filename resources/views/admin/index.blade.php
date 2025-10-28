@@ -126,7 +126,7 @@
             <div class="card-body p-4 position-relative">
                 <div class="row align-items-center">
                     <div class="col-lg-8">
-                        <h5 class="mb-2 text-white fw-semibold">Good Morning, Jafna Cremson! 👋</h5>
+                        <h5 class="mb-2 text-white fw-semibold">Good Morning , {{ Auth::user()->name }}! 👋</h5>
                         <p class="mb-3 text-white opacity-90">You have <span class="fw-semibold">15 pending invoices</span> saved to draft that need to be sent to customers</p>
                         <div class="d-flex align-items-center flex-wrap gap-3">
                             <div class="d-flex align-items-center text-white">

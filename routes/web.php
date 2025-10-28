@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductApiController;
+use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +43,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{product}/update', [ProductController::class, 'update'])->name('update');
     });
 
+    //  Category Routes
+    Route::prefix("category")->name("category.")->group(function () {
+        Route::get("/", [CategoryController::class, "index"])->name("index");
+        Route::get("/create", [CategoryController::class, "create"])->name("create");
+        Route::post("/", [CategoryController::class, "store"])->name("store");
+        Route::put("/{category}/edit", [CategoryController::class, "edit"])->name("edit");
+        Route::post("/{category}", [CategoryController::class, "destroy"])->name("destroy");
+    });
+    // unit Routes
+    Route::prefix("unit")->name("unit.")->group(function () {
+        Route::get("/", [UnitController::class, "index"])->name("index");
+    });
     // Invoice routes
     Route::prefix('invoice')->name('invoice.')->group(function () {
         Route::get('/', [InvoiceController::class, 'index'])->name('index');

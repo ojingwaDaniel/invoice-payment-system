@@ -50,7 +50,9 @@
 
         <!-- Form -->
         <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
+            <div class="card-body p-4"
+                 x-data="{ type: '{{ old('type', $product->type ?? 'product') }}' }">
+
                 <form action="{{ isset($product) ? route('product.update', $product->id) : route('product.store') }}"
                       method="POST" enctype="multipart/form-data">
                     @csrf
@@ -67,8 +69,10 @@
                             <div class="col-md-6">
                                 <label class="form-check-card w-100">
                                     <input type="radio" name="type" value="product"
-                                        {{ old('type', $product->type ?? '') === 'product' ? 'checked' : '' }}>
-                                    <div class="card border-2 {{ old('type', $product->type ?? '') === 'product' ? 'border-primary bg-primary-subtle' : '' }}">
+                                           x-model="type"
+                                           {{ old('type', $product->type ?? '') === 'product' ? 'checked' : '' }}>
+                                    <div class="card border-2"
+                                         :class="type === 'product' ? 'border-primary bg-primary-subtle' : ''">
                                         <div class="card-body py-4 text-center">
                                             <i class="isax isax-box fs-1 mb-3 text-primary"></i>
                                             <h6 class="mb-1">Product</h6>
@@ -82,8 +86,10 @@
                             <div class="col-md-6">
                                 <label class="form-check-card w-100">
                                     <input type="radio" name="type" value="service"
-                                        {{ old('type', $product->type ?? '') === 'service' ? 'checked' : '' }}>
-                                    <div class="card border-2 {{ old('type', $product->type ?? '') === 'service' ? 'border-info bg-info-subtle' : '' }}">
+                                           x-model="type"
+                                           {{ old('type', $product->type ?? '') === 'service' ? 'checked' : '' }}>
+                                    <div class="card border-2"
+                                         :class="type === 'service' ? 'border-info bg-info-subtle' : ''">
                                         <div class="card-body py-4 text-center">
                                             <i class="isax isax-briefcase fs-1 mb-3 text-info"></i>
                                             <h6 class="mb-1">Service</h6>
@@ -143,7 +149,7 @@
 
                     <hr class="my-4">
 
-                    <!-- Pricing -->
+                    <!-- Pricing + Quantity (Dynamic) -->
                     <div class="row g-3 mb-4">
                         <div class="col-md-4">
                             <label class="form-label fw-medium">Selling Price (₦)</label>
@@ -157,17 +163,12 @@
                                    value="{{ old('purchase_price', $product->purchase_price ?? '') }}">
                         </div>
 
-                        <!-- Quantity (Only show if Product) -->
-                        @php
-                            $showQuantity = old('type', $product->type ?? '') === 'product';
-                        @endphp
-                        @if ($showQuantity)
-                            <div class="col-md-4">
-                                <label class="form-label fw-medium">Quantity</label>
-                                <input type="number" name="quantity" min="0" class="form-control"
-                                       value="{{ old('quantity', $product->quantity ?? 0) }}">
-                            </div>
-                        @endif
+                        <!-- Quantity (Only visible if Product) -->
+                        <div class="col-md-4" x-show="type === 'product'" x-transition>
+                            <label class="form-label fw-medium">Quantity</label>
+                            <input type="number" name="quantity" min="0" class="form-control"
+                                   value="{{ old('quantity', $product->quantity ?? 0) }}">
+                        </div>
                     </div>
 
                     <hr class="my-4">

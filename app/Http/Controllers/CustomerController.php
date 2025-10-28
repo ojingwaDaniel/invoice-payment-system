@@ -77,12 +77,15 @@ class CustomerController extends Controller
         ]);
 
         try {
+            $validated['user_id'] = auth()->id(); // 👈 add current logged in user
             Customer::create($validated);
+
             return redirect()->route('customer.index')->with('success', 'Customer created successfully!');
         } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Failed to create customer: ' . $e->getMessage());
         }
     }
+
 
     /**
      * Show single customer

@@ -17,9 +17,11 @@ class InvoiceController extends Controller
     /** ======================
      *  Display all invoices
      *  ====================== */
+
     public function index(Request $request)
     {
-        $query = Invoice::with('customer');
+        $userId = auth()->id();
+        $query = Invoice::with('customer')->where('user_id', $userId);
 
         // Filter by status
         if ($request->has('status') && in_array($request->status, ['paid', 'unpaid', 'partial'])) {
@@ -41,14 +43,14 @@ class InvoiceController extends Controller
             case 'due_date':
                 $query->orderBy('due_date', 'asc');
                 break;
-            default: // 'latest'
+            default:
                 $query->latest();
         }
 
         $invoices = $query->paginate(15);
 
-        // Calculate statistics
-        $allInvoices = Invoice::all();
+        // Stats only for this user
+        $allInvoices = Invoice::where('user_id', $userId)->get();
         $totalAmount = $allInvoices->sum('total_amount');
 
         $stats = [
@@ -67,29 +69,26 @@ class InvoiceController extends Controller
 
         return view('invoices.index', compact('invoices', 'stats'));
     }
-
     /** ======================
      *  Show create form
      *  ====================== */
     public function create()
     {
-        $products = Product::orderBy('name')->get();
-        $customers = Customer::orderBy('name')->get();
+        $userId = auth()->id();
+        $products = Product::where('user_id', $userId)->orderBy('name')->get();
+        $customers = Customer::where('user_id', $userId)->orderBy('name')->get();
 
-        $last = Invoice::latest('id')->first();
+        $last = Invoice::where('user_id', $userId)->latest('id')->first();
         $nextNumber = $last ? $last->id + 1 : 1;
         $invoice_number = 'INV-' . date('Y') . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
         return view('invoices.form', compact('products', 'customers', 'invoice_number'));
     }
-
     /** ======================
      *  Store new invoice
      *  ====================== */
     public function store(Request $request)
     {
-        // Add validation
-
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'invoice_number' => 'required|string|unique:invoices,invoice_number',
@@ -109,7 +108,7 @@ class InvoiceController extends Controller
         DB::beginTransaction();
 
         try {
-            // Compute total from items
+            $userId = auth()->id();
             $items = $validated['items'];
             $subtotal = 0;
 
@@ -123,17 +122,14 @@ class InvoiceController extends Controller
                 $afterDiscount = $base - $discount;
                 $taxAmount = ($taxPercent / 100) * $afterDiscount;
                 $item['amount'] = round($afterDiscount + $taxAmount, 2);
-
                 $subtotal += $item['amount'];
             }
 
-            // Calculate final total after global discount
             $globalDiscount = (float) ($validated['discount'] ?? 0);
             $total = max(0, $subtotal - $globalDiscount);
 
-            // Create invoice (removed company_id)
             $invoice = Invoice::create([
-                'user_id' => auth()->id(),
+                'user_id' => $userId,
                 'customer_id' => $validated['customer_id'],
                 'invoice_number' => $validated['invoice_number'],
                 'issue_date' => $validated['issue_date'],
@@ -145,7 +141,6 @@ class InvoiceController extends Controller
                 'status' => 'unpaid',
             ]);
 
-            // Insert items
             foreach ($items as $item) {
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
@@ -160,25 +155,27 @@ class InvoiceController extends Controller
             }
 
             DB::commit();
-
             return redirect()->route('invoice.index')->with('success', 'Invoice created successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Failed to create invoice: ' . $e->getMessage());
         }
     }
-
     /** ======================
      *  Edit existing invoice
      *  ====================== */
     public function edit(Invoice $invoice)
     {
+        $this->authorizeAccess($invoice);
         $invoice->load('items');
-        $products = Product::orderBy('name')->get();
-        $customers = Customer::orderBy('name')->get();
+
+        $userId = auth()->id();
+        $products = Product::where('user_id', $userId)->orderBy('name')->get();
+        $customers = Customer::where('user_id', $userId)->orderBy('name')->get();
 
         return view('invoices.form', compact('invoice', 'products', 'customers'));
     }
+
 
     /** ======================
      *  Update invoice
@@ -265,11 +262,10 @@ class InvoiceController extends Controller
      *  ====================== */
     public function show(Invoice $invoice)
     {
+        $this->authorizeAccess($invoice);
         $invoice->load('items', 'customer');
         return view('invoices.show', compact('invoice'));
-
     }
-
     public function download(Invoice $invoice)
     {
         // Load relationships
@@ -374,6 +370,13 @@ class InvoiceController extends Controller
             return redirect()->route('invoice.index')->with('success', 'Invoice deleted successfully!');
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to delete invoice: ' . $e->getMessage());
+        }
+    }
+
+    private function authorizeAccess(Invoice $invoice)
+    {
+        if ($invoice->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access.');
         }
     }
 }

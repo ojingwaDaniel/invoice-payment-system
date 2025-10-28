@@ -1,116 +1,123 @@
 <?php
 
 namespace App\Http\Controllers;
-use \App\Models\Category;
+
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    /** =========================
+     *  List all products (user-specific)
+     *  ========================= */
     public function index()
     {
-        $products = Product::all();
-        return view("products.index",compact("products"));
+        $products = Product::where('user_id', auth()->id())->latest()->paginate(20);
+        return view('products.index', compact('products'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    /** =========================
+     *  Show create form
+     *  ========================= */
     public function create()
     {
         $categories = Category::all();
         return view('products.form', compact('categories'));
     }
 
+    /** =========================
+     *  Show edit form
+     *  ========================= */
     public function edit(Product $product)
     {
-    
+        if ($product->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access.');
+        }
         $categories = Category::all();
-        return view('products.form', compact('product', 'categories'));
+        return view('products.form', compact('product',"categories"));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    /** =========================
+     *  Store new product
+     *  ========================= */
     public function store(Request $request)
     {
-        // ✅ 1. Validate the incoming request
         $validated = $request->validate([
-            'name'           => 'required|string|max:255',
-            'code'           => 'required|string|max:255',
-            'category'       => 'required|string|max:255',
-            'selling_price'  => 'required|integer|min:0',
-            'purchase_price' => 'required|integer|min:0',
-            'quantity'       => 'required|integer|min:0',
-            'unit'           => 'required|string|max:50',
-            'type'           => 'nullable|string',
-            'image'          => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'name' => 'required|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'selling_price' => 'required|numeric|min:0',
+            'purchase_price' => 'nullable|numeric|min:0',
+            'quantity' => 'nullable|integer|min:0',
+            'unit' => 'nullable|string|max:50',
+            'type' => 'required|in:product,service',
+            'description' => 'nullable|string',
         ]);
 
-        // ✅ 2. Handle image upload (if any)
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-            $validated['image'] = $imagePath;
-        }
+        $validated['user_id'] = auth()->id();
 
-        // ✅ 3. Create the product
+        // ✅ Auto-generate unique product code
+        $prefix = $validated['type'] === 'service' ? 'S' : 'P';
+        $lastProduct = Product::where('user_id', auth()->id())
+            ->where('type', $validated['type'])
+            ->latest('id')
+            ->first();
+
+        $nextNumber = $lastProduct
+            ? ((int) filter_var($lastProduct->code, FILTER_SANITIZE_NUMBER_INT) + 1)
+            : 1;
+
+        $validated['code'] = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+        // ✅ Create product
         Product::create($validated);
 
-        // ✅ 4. Redirect with a success message
-        return redirect()
-            ->route('product.index')
-            ->with('success', 'Product created successfully!');
+        return redirect()->route('product.index')->with('success', 'Product created successfully!');
     }
 
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-
+    /** =========================
+     *  Update product
+     *  ========================= */
     public function update(Request $request, Product $product)
     {
-        $validated = $request->validate([
-            'type' => 'required|in:product,service',
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:products,code,' . $product->id,
-            'category' => 'required|string|max:255',
-            'unit' => 'required|string|max:50',
-            'selling_price' => 'required|numeric|min:0',
-            'purchase_price' => 'required|numeric|min:0',
-            'quantity' => 'nullable|integer|min:0',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-
-        // Handle image update
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($product->image && Storage::disk('public')->exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
-            }
-
-            $validated['image'] = $request->file('image')->store('products', 'public');
+        if ($product->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access.');
         }
 
-        $product->update($validated);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|unique:products,code,' . $product->id,
+            'category' => 'nullable|string|max:255',
+            'selling_price' => 'required|numeric|min:0',
+            'purchase_price' => 'nullable|numeric|min:0',
+            'quantity' => 'nullable|integer|min:0',
+            'unit' => 'nullable|string|max:50',
+            'type' => 'required|in:product,service',
+            'description' => 'nullable|string',
+        ]);
 
-        return redirect()->route('product.index')
-            ->with('success', 'Product updated successfully!');
+        $product->update($validated);
+        return redirect()->route('product.index')->with('success', 'Product updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Product $product)
     {
-        //
+        if ($product->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access.');
+        }
+        $product->delete();
+        return redirect()->route('product.index')->with('success', 'Product deleted successfully!');
+    }
+
+    /** =========================
+     *  Prevent unauthorized access
+     *  ========================= */
+    private function authorizeUser(Product $product)
+    {
+        if ($product->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
     }
 }

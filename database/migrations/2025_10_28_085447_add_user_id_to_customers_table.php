@@ -12,17 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('customers', function (Blueprint $table) {
-            //
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('customers', function (Blueprint $table) {
-            //
+            $table->dropConstrainedForeignId('user_id');
         });
     }
 };

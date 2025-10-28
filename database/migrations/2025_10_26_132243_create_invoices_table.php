@@ -26,7 +26,7 @@ return new class extends Migration
             $table->date('issue_date')->nullable();
             $table->date('due_date')->nullable();
 
-            $table->string('currency')->default('Naira');
+            $table->string('currency')->default('NGN');
             $table->decimal('discount', 10, 2)->default(0);
             $table->text('notes')->nullable();
 
