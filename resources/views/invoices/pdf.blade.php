@@ -139,11 +139,11 @@
     @endif
 
     {{-- Payment Info --}}
-    <div class="payment">
+    {{-- <div class="payment">
         <strong>Payment Method:</strong> {{ $invoice->payment_method ?? 'N/A' }}
         <p>Scan to pay:</p
 {!! QrCode::size(200)->generate($paymentLink) !!}
-    </div>
+    </div> --}}
 
     {{-- Footer --}}
     <div class="footer">

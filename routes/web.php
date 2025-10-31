@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\PaystackController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProfileController;
 
 use Illuminate\Http\Request;
 
@@ -102,4 +103,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::get('/api/products/{product}', [ProductApiController::class, 'show']);
+});
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });

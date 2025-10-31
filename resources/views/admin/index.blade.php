@@ -2,11 +2,6 @@
 @section('content')
     <div class="">
         <div class="">
-            @if (auth()->user()->paystack_access_code)
-                <p class="text-success">✅ Paystack Connected</p>
-            @else
-                <a href="{{ route('paystack.connect') }}" class="btn btn-primary">Connect Paystack Account</a>
-            @endif
 
             <!-- Page Header -->
             <div class="d-flex align-items-center justify-content-between mb-4">
@@ -98,28 +93,11 @@
                     </div>
 
                     <!-- Export Dropdown -->
-                    <div class="dropdown" x-data="{ open: false }" @click.away="open = false">
-                        <button class="btn btn-outline-secondary d-inline-flex align-items-center" @click="open = !open"
-                            type="button">
-                            <i class="isax isax-export-1 me-2"></i>
-                            <span>Export</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" :class="{ 'show': open }" x-show="open"
-                            x-transition>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);">
-                                    <i class="isax isax-document-text text-danger me-2"></i>
-                                    Download as PDF
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);">
-                                    <i class="isax isax-document-download text-success me-2"></i>
-                                    Download as Excel
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    @if (auth()->user()->paystack_access_code)
+                        <p class="text-success">✅ Paystack Connected</p>
+                    @else
+                        <a href="{{ route('paystack.connect') }}" class="btn btn-primary">Connect Paystack Account</a>
+                    @endif
                 </div>
             </div>
 

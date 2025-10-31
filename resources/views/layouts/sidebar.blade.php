@@ -8,8 +8,8 @@
 
     <!-- Quick Actions -->
     <div class="flex flex-1 flex-col items-center space-y-6">
-    
-       
+
+
 
         <!-- Navigation Icons -->
         <div class="flex flex-col items-center space-y-6">
@@ -52,7 +52,7 @@
 
     <!-- Bottom Actions -->
     <div class="flex flex-col items-center space-y-4">
-        <a href="#"
+        <a href="{{ route('profile.edit') }}"
             class="group relative flex h-12 w-12 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-gray-700">
             <svg class="h-6 w-6 text-gray-400 group-hover:text-white" fill="none" stroke="currentColor"
                 viewBox="0 0 24 24">
