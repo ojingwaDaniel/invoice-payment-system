@@ -1,7 +1,15 @@
 <div class="header">
     <div class="main-header">
 
-       
+        <!-- Logo -->
+        <div class="header-left">
+            <a href="{{ url('/') }}" class="logo">
+                <img src="{{ asset('img/logo.svg') }}" alt="Logo">
+            </a>
+            <a href="{{ url('/') }}" class="dark-logo">
+                <img src="{{ asset('img/logo-white.svg') }}" alt="Logo">
+            </a>
+        </div>
 
         <!-- Sidebar Toggle -->
         <a id="mobile_btn" class="mobile_btn" href="#sidebar">
@@ -33,17 +41,7 @@
                     </div>
 
                     <!-- Breadcrumb -->
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb breadcrumb-divide mb-0">
-                            <li class="breadcrumb-item d-flex align-items-center">
-                                <a href="{{ url('/') }}">
-                                    <i class="isax isax-home-2 me-1"></i>Home
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                        </ol>
-                    </nav>
-
+                
                 </div>
 
                 <div class="d-flex align-items-center">
@@ -130,7 +128,7 @@
         <div class="dropdown mobile-user-menu profile-dropdown">
             <a href="#" class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
                 <span class="avatar avatar-md online">
-                    <img src="{{ asset('img/profiles/avatar-01.jpg') }}" class="img-fluid rounded-circle">
+                    <img src="{{ Auth::user()->profile_photo_url ?? asset('img/profiles/avatar-01.jpg') }}" class="img-fluid rounded-circle">
                 </span>
             </a>
             <div class="dropdown-menu p-2 mt-0">

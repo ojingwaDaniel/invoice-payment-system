@@ -64,8 +64,10 @@
                             @if ($invoice->user)
                                 <div class="col-md-6 text-md-end mt-md-0 mt-3">
                                     <h6 class="text-uppercase text-muted small mb-2">From</h6>
-                                    <h5 class="fw-bold mb-1">{{ $invoice->user->company_name ?? 'Your Company' }}</h5>
-                                    <p class="text-muted mb-0">{{ $invoice->user->email ?? '' }}</p>
+                                    <h5 class="fw-bold mb-1">{{ $invoice->user->company_name }}</h5>
+                                    <p class="text-muted mb-0">{{ $invoice->user->email }}</p>
+                                    <p class="text-muted mb-0">{{ $invoice->user->phone }}</p>
+                                    <p class="text-muted mb-0">{{ $invoice->user->address }}</p>
                                 </div>
                             @endif
                         </div>
@@ -77,9 +79,8 @@
                                     <tr>
                                         <th class="border-0">Product/Services</th>
                                         <th class="border-0 text-center" style="width: 100px;">Qty</th>
-                                        <th class="border-0 text-end" style="width: 120px;">Rate</th>
+                                        <th class="border-0 text-end" style="width: 120px;">Unit Pice</th>
                                         <th class="border-0 text-end" style="width: 100px;">Discount</th>
-                                        <th class="border-0 text-center" style="width: 80px;">Tax %</th>
                                         <th class="border-0 text-end" style="width: 140px;">Amount</th>
                                     </tr>
                                 </thead>
@@ -102,7 +103,6 @@
                                                     -
                                                 @endif
                                             </td>
-                                            <td class="text-center">{{ $item->tax_percent }}%</td>
                                             <td class="fw-semibold text-end">{{ $invoice->currency }}
                                                 {{ number_format($item->amount, 2) }}</td>
                                         </tr>
@@ -119,14 +119,14 @@
                                         @php
                                             // Calculate subtotal (sum of all item amounts)
                                             $subtotal = $invoice->items->sum('amount');
-                                            
+
                                             // Calculate after discount
                                             $afterDiscount = $subtotal - ($invoice->discount ?? 0);
-                                            
+
                                             // Calculate VAT (tax_rate from invoice)
                                             $taxRate = $invoice->tax_rate ?? 0;
                                             $vatAmount = ($afterDiscount * $taxRate) / 100;
-                                            
+
                                             // Total amount
                                             $totalAmount = $afterDiscount + $vatAmount;
                                         @endphp
@@ -153,25 +153,13 @@
                                             </div>
                                         @endif
 
-                                        @if ($taxRate > 0)
-                                            <div class="d-flex justify-content-between text-success mb-2">
-                                                <span>VAT ({{ number_format($taxRate, 2) }}%):</span>
-                                                <span class="fw-semibold">{{ $invoice->currency }} {{ number_format($vatAmount, 2) }}</span>
-                                            </div>
-                                        @else
-                                            <div class="d-flex justify-content-between text-muted mb-2">
-                                                <span>VAT (0%):</span>
-                                                <span class="fw-semibold">{{ $invoice->currency }} 0.00</span>
-                                            </div>
-                                        @endif
+                                        <div class="d-flex justify-content-between text-muted mb-2">
+                                            <span>VAT (7.5%):</span>
+                                            <span class="fw-semibold">{{ $invoice->currency }}
+                                                {{ number_format($invoice->vat_amount, 2) }}</span>
+                                        </div>
 
                                         <hr class="my-2">
-
-                                        <div class="d-flex justify-content-between fw-bold fs-5 mb-2">
-                                            <span>Total:</span>
-                                            <span class="text-primary">{{ $invoice->currency }}
-                                                {{ number_format($invoice->total_amount, 2) }}</span>
-                                        </div>
 
                                         @if ($invoice->paid > 0)
                                             <div class="d-flex justify-content-between text-success mb-2">
@@ -182,11 +170,10 @@
                                         @endif
 
                                         @if ($invoice->total_amount - $invoice->paid > 0)
-                                            <div
-                                                class="d-flex justify-content-between fw-bold text-danger border-top mt-2 pt-2">
+                                            <div class="fw-bold text-danger border-top mt-2 pt-2">
                                                 <span>Amount Due:</span>
-                                                <span>{{ $invoice->currency }}
-                                                    {{ number_format($invoice->total_amount - $invoice->paid, 2) }}</span>
+                                                <p>{{ $invoice->currency }}
+                                                    {{ number_format($invoice->total_amount - $invoice->paid, 2) }}</p>
                                             </div>
                                         @endif
                                     </div>
@@ -212,7 +199,7 @@
                         @endif
 
                         <!-- Action Buttons -->
-                        <div class="border-top d-flex mt-5 flex-wrap gap-2 pt-4 no-print">
+                        <div class="border-top d-flex no-print mt-5 flex-wrap gap-2 pt-4">
                             @if ($invoice->status !== 'paid')
                                 <form method="POST" action="{{ route('invoice.send', $invoice) }}" class="d-inline">
                                     @csrf
@@ -221,14 +208,13 @@
                                     </button>
                                 </form>
                             @endif
+                            @if ($invoice->status !== 'paid')
+                                <a href="{{ route('invoice.pay', $invoice->id) }}" class="btn btn-success">Pay Invoice</a>
+                            @endif
 
                             <a href="{{ route('invoice.download', $invoice) }}" class="btn btn-outline-secondary">
                                 <i class="bi bi-download"></i> Download PDF
                             </a>
-
-                            <button onclick="window.print()" class="btn btn-outline-secondary">
-                                <i class="bi bi-printer"></i> Print
-                            </button>
 
                             <a href="{{ route('invoice.edit', $invoice) }}" class="btn btn-outline-primary">
                                 <i class="bi bi-pencil"></i> Edit Invoice
@@ -243,19 +229,4 @@
             </div>
         </div>
     </div>
-
-    <style>
-        @media print {
-            .no-print,
-            .btn,
-            form {
-                display: none !important;
-            }
-
-            .card {
-                box-shadow: none !important;
-                border: 1px solid #dee2e6 !important;
-            }
-        }
-    </style>
 @endsection

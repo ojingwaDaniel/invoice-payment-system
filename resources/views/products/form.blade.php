@@ -137,7 +137,7 @@
                             <label class="form-label fw-medium">Unit</label>
                             <select name="unit" class="form-select">
                                 <option value="">-- Select Unit --</option>
-                                @foreach (['pcs', 'kg', 'litre', 'hrs', 'set', 'box', 'meter'] as $unit)
+                                @foreach (['pcs', 'kg', 'litre', 'Yrs', 'set', 'box', 'meter'] as $unit)
                                     <option value="{{ $unit }}"
                                         {{ old('unit', $product->unit ?? '') == $unit ? 'selected' : '' }}>
                                         {{ ucfirst($unit) }}
@@ -164,7 +164,7 @@
                         </div>
 
                         <!-- Quantity (Only visible if Product) -->
-                        <div class="col-md-4" x-show="type === 'product'" x-transition>
+                        <div class="col-md-4"  x-transition>
                             <label class="form-label fw-medium">Quantity</label>
                             <input type="number" name="quantity" min="0" class="form-control"
                                    value="{{ old('quantity', $product->quantity ?? 0) }}">

@@ -67,19 +67,27 @@
         }
     </script>
     <style>
-        .sidebar-transition {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Fix topnav overlapping sidebar */
+    @media (min-width: 992px) {
+        .header {
+            margin-left: 100px; /* Change this to match your sidebar width */
         }
-        .shadow-glow {
-            box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
+    }
+
+    .sidebar {
+        z-index: 1001 !important;
+    }
+
+    .header {
+        z-index: 1000 !important;
+    }
+
+    @media (max-width: 991.98px) {
+        .header {
+            margin-left: 0;
         }
-        .sidebar-container {
-            z-index: 40;
-        }
-        .sidebar-overlay {
-            z-index: 30;
-        }
-    </style>
+    }
+</style>
 
     @stack('styles')
 </head>
@@ -99,6 +107,8 @@
         </div>
 
         <!-- Sidebar (Mini + Main) -->
+        
+            
         @include('layouts.sidebar')
 
         <!-- Main Content Area -->

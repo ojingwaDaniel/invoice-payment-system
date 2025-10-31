@@ -121,73 +121,6 @@
                                 </li>
                             </ul>
                         </div>
-
-                        <!-- Column Selector -->
-                        <div class="col-lg-3 col-md-12" x-data="{ open: false }" @click.away="open = false">
-                            <button class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-between"
-                                    @click="open = !open"
-                                    type="button">
-                                <span class="d-flex align-items-center">
-                                    <i class="isax isax-grid-3 me-2"></i>
-                                    <span>Columns</span>
-                                </span>
-                                <i class="fa-solid fa-chevron-down fs-12"></i>
-                            </button>
-                            <ul class="dropdown-menu w-100 shadow-sm"
-                                :class="{ 'show': open }"
-                                x-show="open"
-                                x-transition
-                                @click.stop>
-                                <li>
-                                    <label class="dropdown-item d-flex align-items-center form-switch mb-0">
-                                        <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                        <span>Code</span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="dropdown-item d-flex align-items-center form-switch mb-0">
-                                        <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                        <span>Product Name</span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="dropdown-item d-flex align-items-center form-switch mb-0">
-                                        <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                        <span>Type</span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="dropdown-item d-flex align-items-center form-switch mb-0">
-                                        <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                        <span>Category</span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="dropdown-item d-flex align-items-center form-switch mb-0">
-                                        <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                        <span>Unit</span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="dropdown-item d-flex align-items-center form-switch mb-0">
-                                        <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                        <span>Quantity</span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="dropdown-item d-flex align-items-center form-switch mb-0">
-                                        <input class="form-check-input m-0 me-2" type="checkbox">
-                                        <span>Selling Price</span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="dropdown-item d-flex align-items-center form-switch mb-0">
-                                        <input class="form-check-input m-0 me-2" type="checkbox">
-                                        <span>Purchase Price</span>
-                                    </label>
-                                </li>
-                            </ul>
-                        </div>
                     </div>
 
                     <!-- Active Filters -->
@@ -359,7 +292,7 @@
                     </div>
 
                     <!-- Pagination -->
-                    {{-- @if($products->isNotEmpty())
+                 @if($products->isNotEmpty())
                         <div class="d-flex align-items-center justify-content-between border-top p-4">
                             <div class="text-muted fs-14">
                                 Showing <span class="fw-medium">{{ $products->firstItem() }}</span> to
@@ -370,7 +303,7 @@
                                 {{ $products->links() }}
                             </div>
                         </div>
-                    @endif --}}
+                    @endif 
                 </div>
             </div>
 

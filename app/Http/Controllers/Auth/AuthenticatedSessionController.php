@@ -26,10 +26,20 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        // Block unverified users
+        if (! $request->user()->hasVerifiedEmail()) {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'Your email address is not verified. Please check your inbox for the verification link.',
+            ])->onlyInput('email');
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
+
 
     /**
      * Destroy an authenticated session.

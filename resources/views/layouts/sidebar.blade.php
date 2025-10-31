@@ -8,16 +8,8 @@
 
     <!-- Quick Actions -->
     <div class="flex flex-1 flex-col items-center space-y-6">
-        <!-- Quick Add -->
-        <div class="group relative">
-            <button
-                class="bg-primary-500 hover:shadow-glow flex h-12 w-12 items-center justify-center rounded-xl shadow-lg transition-all duration-300 hover:scale-105">
-                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-            </button>
-        </div>
+    
+       
 
         <!-- Navigation Icons -->
         <div class="flex flex-col items-center space-y-6">
@@ -169,7 +161,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                     </svg>
-                                    <span class="font-medium">Products</span>
+                                    <span class="font-medium">Products/Services</span>
                                 </div>
                                 <svg class="h-4 w-4 transition-transform duration-200"
                                     :class="{ 'rotate-180': openSubmenu === 'products' }" fill="none"
@@ -184,7 +176,7 @@
                                 <li>
                                     <a href="{{ route('product.index') }}"
                                         class="block rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-gray-800">
-                                        All Products
+                                        Inventory
                                     </a>
                                 </li>
 

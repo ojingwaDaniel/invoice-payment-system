@@ -221,6 +221,7 @@
                                             <th class="fw-medium fs-14">Issue Date</th>
                                             <th class="fw-medium fs-14">Due Date</th>
                                             <th class="fw-medium fs-14">Total Amount</th>
+                                            <th class="fw-medium fs-14">VAT Amount</th>
                                             <th class="fw-medium fs-14">Paid</th>
                                             <th class="fw-medium fs-14">Balance</th>
                                             <th class="fw-medium fs-14">Status</th>
@@ -278,6 +279,7 @@
                                                     @endif
                                                 </td>
                                                 <td class="fw-medium">₦{{ number_format($invoice->total_amount, 2) }}</td>
+                                                <td class="fw-medium">₦{{ number_format($invoice->vat_amount, 2) }}</td>
                                                 <td class="text-success">₦{{ number_format($invoice->paid, 2) }}</td>
                                                 <td class="{{ $balance > 0 ? 'text-danger fw-medium' : 'text-muted' }}">
                                                     ₦{{ number_format($balance, 2) }}

@@ -39,7 +39,6 @@
                                 'unit' => $item->unit ?? '',
                                 'rate' => (float) $item->rate,
                                 'discount' => (float) ($item->discount ?? 0),
-                                'tax_percent' => (float) ($item->tax_percent ?? 0),
                                 'amount' => (float) $item->amount,
                             ];
                         })
@@ -54,7 +53,6 @@
                             'unit' => '',
                             'rate' => 0,
                             'discount' => 0,
-                            'tax_percent' => 0,
                             'amount' => 0,
                         ],
                     ];
@@ -70,7 +68,7 @@
                 console.log('Discount:', globalDiscount);
                 console.log('Tax Rate:', taxRate);
                 console.log('Is Edit Mode:', isEditMode);
-                
+
                 if (!isEditMode) {
                     // Only auto-fill on create mode (new invoice)
                     setTimeout(() => {
@@ -145,12 +143,11 @@
                             <table class="table-bordered table">
                                 <thead class="table-light">
                                     <tr>
-                                        <th style="width:25%">Product <span class="text-danger">*</span></th>
-                                        <th style="width:10%">Qty <span class="text-danger">*</span></th>
-                                        <th style="width:10%">Unit</th>
-                                        <th style="width:12%">Rate <span class="text-danger">*</span></th>
-                                        <th style="width:12%">Discount</th>
-                                        <th style="width:10%">Tax %</th>
+                                        <th style="width:30%">Product <span class="text-danger">*</span></th>
+                                        <th style="width:12%">Qty <span class="text-danger">*</span></th>
+                                        <th style="width:12%">Unit</th>
+                                        <th style="width:15%">Rate <span class="text-danger">*</span></th>
+                                        <th style="width:15%">Discount</th>
                                         <th style="width:15%">Amount</th>
                                         <th style="width:6%"></th>
                                     </tr>
@@ -185,10 +182,6 @@
                                             <td><input type="number" step="0.01" min="0"
                                                     :name="`items[${index}][discount]`" x-model.number="item.discount"
                                                     @input="recompute(index)" class="form-control form-control-sm"></td>
-                                            <td><input type="number" step="0.01" min="0"
-                                                    :name="`items[${index}][tax_percent]`"
-                                                    x-model.number="item.tax_percent" @input="recompute(index)"
-                                                    class="form-control form-control-sm"></td>
                                             <td>
                                                 <input type="text" :value="formatMoney(item.amount)"
                                                     class="form-control form-control-sm" readonly>
@@ -206,7 +199,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="8">
+                                        <td colspan="7">
                                             <button type="button" class="btn btn-sm btn-primary" @click="add()">
                                                 <i class="ti ti-plus me-1"></i>Add Item
                                             </button>
@@ -269,6 +262,9 @@
                                             <span class="h5 mb-0">Total:</span>
                                             <strong class="h5 text-primary mb-0" x-text="formatMoney(total)"></strong>
                                         </div>
+
+                                        {{-- Hidden field to save VAT amount --}}
+                                        <input type="hidden" name="vat_amount" :value="taxAmount">
                                     </div>
                                 </div>
                             </div>
@@ -300,12 +296,12 @@
                     unit: '',
                     rate: 0,
                     discount: 0,
-                    tax_percent: 0,
                     amount: 0
                 }],
                 globalDiscount: parseFloat(existingDiscount) || 0,
                 taxRate: parseFloat(existingTaxRate) || 7.5,
                 isEditMode: existingItems.length > 0 && existingItems[0].product_id !== '',
+                hasInitialized: false,
 
                 get subtotal() {
                     return this.items.reduce((sum, it) => sum + (parseFloat(it.amount || 0) || 0), 0);
@@ -316,7 +312,7 @@
                 },
                 get taxAmount() {
                     const rate = parseFloat(this.taxRate) || 0;
-                    return (this.afterDiscount * rate) / 100;
+                    return Math.round((this.afterDiscount * rate) / 100 * 100) / 100;
                 },
                 get total() {
                     return Math.round((this.afterDiscount + this.taxAmount) * 100) / 100;
@@ -329,7 +325,6 @@
                         unit: '',
                         rate: 0,
                         discount: 0,
-                        tax_percent: 0,
                         amount: 0
                     });
                 },
@@ -339,44 +334,40 @@
                         this.recomputeAll();
                     }
                 },
-                fillFromProduct(index) {
-                    // ✅ Don't auto-fill in edit mode when page loads
-                    if (this.isEditMode && this.items[index].rate > 0) {
-                        return;
-                    }
 
+                fillFromProduct(index) {
                     const select = document.getElementsByName(`items[${index}][product_id]`)[0];
                     if (!select) return;
+
                     const opt = select.options[select.selectedIndex];
                     if (!opt || !opt.value) return;
 
-                    // ✅ Only update if the field is empty or zero
+                    const item = this.items[index];
                     const newRate = parseFloat(opt.dataset.rate) || 0;
                     const newUnit = opt.dataset.unit || '';
 
-                    if (this.items[index].rate === 0 || this.items[index].rate === '') {
-                        this.items[index].rate = newRate;
-                    }
-                    if (this.items[index].unit === '' || this.items[index].unit === null) {
-                        this.items[index].unit = newUnit;
+                    if (this.hasInitialized || !this.isEditMode) {
+                        item.rate = newRate;
+                        item.unit = newUnit;
                     }
 
                     this.recompute(index);
                 },
+
                 recompute(index) {
                     const it = this.items[index];
                     let rate = parseFloat(it.rate) || 0;
                     let qty = parseFloat(it.quantity) || 0;
                     let discount = parseFloat(it.discount) || 0;
-                    let tax = parseFloat(it.tax_percent) || 0;
                     let base = rate * qty;
                     let afterDiscount = Math.max(0, base - discount);
-                    let taxAmount = (tax / 100) * afterDiscount;
-                    it.amount = Math.round((afterDiscount + taxAmount) * 100) / 100;
+                    it.amount = Math.round(afterDiscount * 100) / 100;
                 },
+
                 recomputeAll() {
                     this.items.forEach((_, i) => this.recompute(i));
                 },
+
                 formatMoney(amount) {
                     amount = parseFloat(amount || 0);
                     return '₦' + amount.toLocaleString('en-US', {

@@ -3,7 +3,6 @@
 
 <head>
     <script src="https://cdn.tailwindcss.com"></script>
-
 </head>
 
 <body>
@@ -21,9 +20,10 @@
                 </div>
                 <h2
                     class="mb-2 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-3xl font-bold text-transparent">
-                   Welcome to Invoify </h2>
-                   <p class="text-gray-600 text-2xl">Create A Bussiness Account</p>
-                <p class="text-gray-600 ">Join us today and get started</p>
+                    Welcome to Invoify
+                </h2>
+                <p class="text-2xl text-gray-600">Create A Business Account</p>
+                <p class="text-gray-600">Join us today and get started</p>
             </div>
 
             <!-- Form Card -->
@@ -31,7 +31,7 @@
                 <form method="POST" action="{{ route('register') }}" class="space-y-6">
                     @csrf
 
-                    <!-- Name -->
+                    <!-- Full Name -->
                     <div class="relative">
                         <x-input-label for="name" :value="__('Full Name')"
                             class="mb-2 text-sm font-semibold text-gray-700" />
@@ -50,6 +50,7 @@
                         </div>
                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                     </div>
+
                     <!-- Company Name -->
                     <div class="relative">
                         <x-input-label for="company_name" :value="__('Company Name')"
@@ -68,6 +69,46 @@
                                 placeholder="Your Company Ltd" />
                         </div>
                         <x-input-error :messages="$errors->get('company_name')" class="mt-2" />
+                    </div>
+
+                    <!-- ✅ Phone Number -->
+                    <div class="relative">
+                        <x-input-label for="phone" :value="__('Phone Number')"
+                            class="mb-2 text-sm font-semibold text-gray-700" />
+                        <div class="group relative">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                                <svg class="h-5 w-5 text-gray-400 transition-colors group-focus-within:text-blue-600"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 5h2l3.6 7.59a1 1 0 00.9.41h7.45a1 1 0 00.9-.55l3.4-6.45A1 1 0 0021 5H3z" />
+                                </svg>
+                            </div>
+                            <x-text-input id="phone"
+                                class="block w-full rounded-xl border-gray-200 bg-gray-50 py-3 pl-12 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-600"
+                                type="tel" name="phone" :value="old('phone')" required autocomplete="tel"
+                                placeholder="+234 812 345 6789" />
+                        </div>
+                        <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+                    </div>
+
+                    <!-- ✅ Address -->
+                    <div class="relative">
+                        <x-input-label for="address" :value="__('Address')"
+                            class="mb-2 text-sm font-semibold text-gray-700" />
+                        <div class="group relative">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-start pl-4 pt-3">
+                                <svg class="h-5 w-5 text-gray-400 transition-colors group-focus-within:text-blue-600"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 12.414A4 4 0 1116.657 9l4.243 4.243a8 8 0 01-3.243 3.414z" />
+                                </svg>
+                            </div>
+                            <x-text-input id="address"
+                                class="block w-full rounded-xl border-gray-200 bg-gray-50 py-3 pl-12 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-600"
+                                type="text" name="address" :value="old('address')" required autocomplete="street-address"
+                                placeholder="12 Adeola Odeku St, Victoria Island, Lagos" />
+                        </div>
+                        <x-input-error :messages="$errors->get('address')" class="mt-2" />
                     </div>
 
                     <!-- Email Address -->
@@ -129,6 +170,10 @@
                         </div>
                         <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                     </div>
+                    <div class="g-recaptcha mt-4" data-sitekey="{{ config('services.recaptcha.site') }}"></div>
+                    @if ($errors->has('g-recaptcha-response'))
+                        <p class="mt-2 text-sm text-red-600">{{ $errors->first('g-recaptcha-response') }}</p>
+                    @endif
 
                     <!-- Submit Button -->
                     <div class="pt-2">
@@ -144,7 +189,7 @@
                         </x-primary-button>
                     </div>
 
-                    <!-- Already Registered Link -->
+                    <!-- Already Registered -->
                     <div class="border-t border-gray-100 pt-4 text-center">
                         <a class="group inline-flex items-center text-sm font-medium text-gray-600 transition-colors hover:text-blue-600"
                             href="{{ route('login') }}">
@@ -170,7 +215,7 @@
             </div>
         </div>
     </div>
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script
 </body>
 
 </html>

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 use App\Mail\InvoiceMail;
 
 class InvoiceController extends Controller
@@ -102,7 +103,7 @@ class InvoiceController extends Controller
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.rate' => 'required|numeric|min:0',
             'items.*.discount' => 'nullable|numeric|min:0',
-            'items.*.tax_percent' => 'nullable|numeric|min:0',
+            'vat_amount' => 'nullable|numeric|min:0',
         ]);
 
         DB::beginTransaction();
@@ -112,21 +113,25 @@ class InvoiceController extends Controller
             $items = $validated['items'];
             $subtotal = 0;
 
+            // Calculate item amounts (without tax)
             foreach ($items as &$item) {
-                $qty = (float) ($item['quantity'] ?? 0);
-                $rate = (float) ($item['rate'] ?? 0);
-                $discount = (float) ($item['discount'] ?? 0);
-                $taxPercent = (float) ($item['tax_percent'] ?? 0);
+                $qty = (float)($item['quantity'] ?? 0);
+                $rate = (float)($item['rate'] ?? 0);
+                $discount = (float)($item['discount'] ?? 0);
 
                 $base = $qty * $rate;
-                $afterDiscount = $base - $discount;
-                $taxAmount = ($taxPercent / 100) * $afterDiscount;
-                $item['amount'] = round($afterDiscount + $taxAmount, 2);
+                $item['amount'] = round($base - $discount, 2);
                 $subtotal += $item['amount'];
             }
 
-            $globalDiscount = (float) ($validated['discount'] ?? 0);
-            $total = max(0, $subtotal - $globalDiscount);
+            $globalDiscount = (float)($validated['discount'] ?? 0);
+            $afterDiscount = max(0, $subtotal - $globalDiscount);
+
+            // Get VAT from form
+            $taxRate = (float)($validated['tax_rate'] ?? 0);
+            $vatAmount = (float)($validated['vat_amount'] ?? 0);
+
+            $total = round($afterDiscount + $vatAmount, 2);
 
             $invoice = Invoice::create([
                 'user_id' => $userId,
@@ -138,6 +143,7 @@ class InvoiceController extends Controller
                 'discount' => $globalDiscount,
                 'notes' => $validated['notes'] ?? null,
                 'total_amount' => $total,
+                'vat_amount' => round($vatAmount, 2),
                 'status' => 'unpaid',
             ]);
 
@@ -149,7 +155,7 @@ class InvoiceController extends Controller
                     'unit' => $item['unit'] ?? '',
                     'rate' => $item['rate'],
                     'discount' => $item['discount'] ?? 0,
-                    'tax_percent' => $item['tax_percent'] ?? 0,
+                    'tax_percent' => 0, // No longer using item-level tax
                     'amount' => $item['amount'],
                 ]);
             }
@@ -161,6 +167,7 @@ class InvoiceController extends Controller
             return back()->withInput()->with('error', 'Failed to create invoice: ' . $e->getMessage());
         }
     }
+
     /** ======================
      *  Edit existing invoice
      *  ====================== */
@@ -195,35 +202,35 @@ class InvoiceController extends Controller
             'items.*.unit' => 'nullable|string|max:50',
             'items.*.rate' => 'required|numeric|min:0',
             'items.*.discount' => 'nullable|numeric|min:0',
-            'items.*.tax_percent' => 'nullable|numeric|min:0',
-            'items.*.amount' => 'nullable|numeric|min:0',
+            'vat_amount' => 'nullable|numeric|min:0',
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Recalculate total
             $items = $validated['items'];
             $subtotal = 0;
 
+            // Calculate item amounts (without tax)
             foreach ($items as &$item) {
                 $rate = (float)($item['rate'] ?? 0);
                 $qty = (float)($item['quantity'] ?? 0);
                 $discount = (float)($item['discount'] ?? 0);
-                $tax_percent = (float)($item['tax_percent'] ?? 0);
 
                 $base = $rate * $qty;
-                $afterDiscount = $base - $discount;
-                $tax = ($tax_percent / 100) * $afterDiscount;
-                $item['amount'] = round($afterDiscount + $tax, 2);
-
+                $item['amount'] = round($base - $discount, 2);
                 $subtotal += $item['amount'];
             }
 
             $globalDiscount = (float)($validated['discount'] ?? 0);
-            $total = max(0, $subtotal - $globalDiscount);
+            $afterDiscount = max(0, $subtotal - $globalDiscount);
 
-            // Update invoice
+            // Get VAT from form
+            $taxRate = (float)($validated['tax_rate'] ?? 0);
+            $vatAmount = (float)($validated['vat_amount'] ?? 0);
+
+            $total = round($afterDiscount + $vatAmount, 2);
+
             $invoice->update([
                 'customer_id' => $validated['customer_id'],
                 'issue_date' => $validated['issue_date'],
@@ -232,9 +239,10 @@ class InvoiceController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 'discount' => $globalDiscount,
                 'total_amount' => $total,
+                'tax_rate' => $taxRate,
+                'vat_amount' => round($vatAmount, 2),
             ]);
 
-            // Remove old items then recreate
             $invoice->items()->delete();
             foreach ($items as $item) {
                 InvoiceItem::create([
@@ -244,7 +252,7 @@ class InvoiceController extends Controller
                     'unit' => $item['unit'] ?? '',
                     'rate' => $item['rate'],
                     'discount' => $item['discount'] ?? 0,
-                    'tax_percent' => $item['tax_percent'] ?? 0,
+                    'tax_percent' => 0, // No longer using item-level tax
                     'amount' => $item['amount'],
                 ]);
             }
@@ -377,6 +385,34 @@ class InvoiceController extends Controller
     {
         if ($invoice->user_id !== auth()->id()) {
             abort(403, 'Unauthorized access.');
+        }
+    }
+
+
+    public function pay(Invoice $invoice)
+    {
+        $user = $invoice->user;
+
+        if (!$user->paystack_subaccount_code) {
+            return back()->with('error', 'This company has not connected Paystack yet.');
+        }
+
+        // Initialize payment
+        $response = Http::withToken(config('services.paystack.secret'))->post('https://api.paystack.co/transaction/initialize', [
+            'amount' => $invoice->total_amount * 100, // Paystack expects amount in kobo
+            'email' => $invoice->customer->email,
+            'callback_url' => route('payment.callback', $invoice->id),
+            'subaccount' => $user->paystack_subaccount_code,
+            'reference' => $invoice->invoice_number, // unique reference for webhook identification
+        ]);
+
+        $data = $response->json();
+
+        if ($response->ok() && isset($data['data']['authorization_url'])) {
+            // Redirect customer to Paystack payment page
+            return redirect($data['data']['authorization_url']);
+        } else {
+            return back()->with('error', 'Failed to initialize payment. Please try again.');
         }
     }
 }
