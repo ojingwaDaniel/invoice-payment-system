@@ -128,7 +128,7 @@
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Currency <span class="text-danger">*</span></label>
                                 <input type="text" name="currency" class="form-control"
-                                    value="{{ old('currency', $invoice->currency ?? 'Naira') }}" required>
+                                    value="{{ old('currency', $invoice->currency ?? 'NGN') }}" required>
                             </div>
                         </div>
                     </div>
