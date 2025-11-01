@@ -64,21 +64,11 @@
             {{-- ✅ Alpine Form --}}
             <form action="{{ isset($invoice) ? route('invoice.update', $invoice->id) : route('invoice.store') }}"
                 method="POST" x-data="invoiceForm(@js($itemsData), @js($discountData), @js($taxRateData))" x-init="console.log('=== INVOICE DEBUG ===');
-                console.log('Loaded Items:', JSON.parse(JSON.stringify(items)));
-                console.log('Discount:', globalDiscount);
-                console.log('Tax Rate:', taxRate);
-                console.log('Is Edit Mode:', isEditMode);
-
-                if (!isEditMode) {
-                    // Only auto-fill on create mode (new invoice)
-                    setTimeout(() => {
-                        items.forEach((_, i) => fillFromProduct(i));
-                        recomputeAll();
-                    }, 50);
-                } else {
-                    // Edit mode: just recompute existing data without overwriting
-                    recomputeAll();
-                }">
+console.log('Loaded Items:', JSON.parse(JSON.stringify(items)));
+console.log('Discount:', globalDiscount);
+console.log('Tax Rate:', taxRate);
+console.log('Is Edit Mode:', isEditMode);
+recomputeAll();">
                 @csrf
                 @if (isset($invoice))
                     @method('PUT')
@@ -153,12 +143,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <template x-for="(item, index) in items" :key="index">
+                                    <template x-for="(item, index) in items" :key="item._id">
                                         <tr>
                                             <td>
                                                 <select :name="`items[${index}][product_id]`" x-model="item.product_id"
-                                                    @change="fillFromProduct(index)" class="form-control form-control-sm"
-                                                    required>
+                                                    @change="fillFromProduct(index, $event)"
+                                                    class="form-control form-control-sm" required>
                                                     <option value="">-- Select Product --</option>
                                                     @foreach ($products as $p)
                                                         <option value="{{ $p->id }}"
@@ -290,7 +280,12 @@
     <script>
         function invoiceForm(existingItems = [], existingDiscount = 0, existingTaxRate = 7.5) {
             return {
-                items: existingItems.length ? existingItems : [{
+                nextId: existingItems.length || 1,
+                items: existingItems.length ? existingItems.map((item, idx) => ({
+                    ...item,
+                    _id: idx + 1
+                })) : [{
+                    _id: 1,
                     product_id: '',
                     quantity: 1,
                     unit: '',
@@ -301,7 +296,6 @@
                 globalDiscount: parseFloat(existingDiscount) || 0,
                 taxRate: parseFloat(existingTaxRate) || 7.5,
                 isEditMode: existingItems.length > 0 && existingItems[0].product_id !== '',
-                hasInitialized: false,
 
                 get subtotal() {
                     return this.items.reduce((sum, it) => sum + (parseFloat(it.amount || 0) || 0), 0);
@@ -319,7 +313,9 @@
                 },
 
                 add() {
+                    this.nextId++;
                     this.items.push({
+                        _id: this.nextId,
                         product_id: '',
                         quantity: 1,
                         unit: '',
@@ -327,31 +323,58 @@
                         discount: 0,
                         amount: 0
                     });
+                    console.log('Added new item:', this.items[this.items.length - 1]);
                 },
+
                 remove(index) {
                     if (this.items.length > 1) {
+                        console.log('Removing item at index:', index);
                         this.items.splice(index, 1);
                         this.recomputeAll();
                     }
                 },
 
-                fillFromProduct(index) {
-                    const select = document.getElementsByName(`items[${index}][product_id]`)[0];
-                    if (!select) return;
+                fillFromProduct(index, event) {
+                    console.log('=== fillFromProduct START ===');
+                    console.log('Index:', index);
+                    console.log('Event:', event);
+                    console.log('Current item before:', JSON.parse(JSON.stringify(this.items[index])));
 
-                    const opt = select.options[select.selectedIndex];
-                    if (!opt || !opt.value) return;
-
-                    const item = this.items[index];
-                    const newRate = parseFloat(opt.dataset.rate) || 0;
-                    const newUnit = opt.dataset.unit || '';
-
-                    if (this.hasInitialized || !this.isEditMode) {
-                        item.rate = newRate;
-                        item.unit = newUnit;
+                    if (!event || !event.target) {
+                        console.error('No event provided to fillFromProduct');
+                        return;
                     }
 
+                    const select = event.target;
+                    const selectedOption = select.options[select.selectedIndex];
+
+                    console.log('Selected option:', selectedOption);
+                    console.log('Selected value:', selectedOption.value);
+
+                    if (!selectedOption || !selectedOption.value) {
+                        console.log('No valid option selected');
+                        return;
+                    }
+
+                    const item = this.items[index];
+
+                    // Update product_id first
+                    item.product_id = selectedOption.value;
+
+                    const newRate = parseFloat(selectedOption.dataset.rate) || 0;
+                    const newUnit = selectedOption.dataset.unit || '';
+
+                    console.log('Product ID:', item.product_id);
+                    console.log('Product data - Rate:', newRate, 'Unit:', newUnit);
+
+                    // ALWAYS update rate and unit when product changes
+                    console.log('Updating rate and unit');
+                    item.rate = newRate;
+                    item.unit = newUnit;
+
                     this.recompute(index);
+                    console.log('Item after fillFromProduct:', JSON.parse(JSON.stringify(item)));
+                    console.log('=== fillFromProduct END ===');
                 },
 
                 recompute(index) {
@@ -362,9 +385,14 @@
                     let base = rate * qty;
                     let afterDiscount = Math.max(0, base - discount);
                     it.amount = Math.round(afterDiscount * 100) / 100;
+
+                    console.log(
+                        `Recompute [${index}]: product_id=${it.product_id}, rate=${rate}, qty=${qty}, discount=${discount}, amount=${it.amount}`
+                        );
                 },
 
                 recomputeAll() {
+                    console.log('Recomputing all items...');
                     this.items.forEach((_, i) => this.recompute(i));
                 },
 
