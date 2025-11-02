@@ -113,22 +113,22 @@ class InvoiceController extends Controller
             $items = $validated['items'];
             $subtotal = 0;
 
-            // Calculate item amounts (without tax)
-            foreach ($items as &$item) {
+            // ✅ FIXED: Calculate item amounts - removed reference &
+            foreach ($items as $key => $item) {  // Changed from &$item to $key => $item
                 $qty = (float)($item['quantity'] ?? 0);
                 $rate = (float)($item['rate'] ?? 0);
                 $discount = (float)($item['discount'] ?? 0);
 
                 $base = $qty * $rate;
-                $item['amount'] = round($base - $discount, 2);
-                $subtotal += $item['amount'];
+                $items[$key]['amount'] = round($base - $discount, 2);  // Use $key to modify array
+                $subtotal += $items[$key]['amount'];
             }
 
             $globalDiscount = (float)($validated['discount'] ?? 0);
             $afterDiscount = max(0, $subtotal - $globalDiscount);
 
             // Get VAT from form
-            $taxRate = (float)($validated['tax_rate'] ?? 0);
+            $taxRate = (float)($request->tax_rate ?? 0);
             $vatAmount = (float)($validated['vat_amount'] ?? 0);
 
             $total = round($afterDiscount + $vatAmount, 2);
@@ -147,16 +147,17 @@ class InvoiceController extends Controller
                 'status' => 'unpaid',
             ]);
 
-            foreach ($items as $item) {
+            // ✅ FIXED: Use different variable name
+            foreach ($items as $itemData) {  // Changed from $item to $itemData
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'unit' => $item['unit'] ?? '',
-                    'rate' => $item['rate'],
-                    'discount' => $item['discount'] ?? 0,
-                    'tax_percent' => 0, // No longer using item-level tax
-                    'amount' => $item['amount'],
+                    'product_id' => $itemData['product_id'],
+                    'quantity' => $itemData['quantity'],
+                    'unit' => $itemData['unit'] ?? '',
+                    'rate' => $itemData['rate'],
+                    'discount' => $itemData['discount'] ?? 0,
+                    'tax_percent' => 0,
+                    'amount' => $itemData['amount'],
                 ]);
             }
 
@@ -211,22 +212,22 @@ class InvoiceController extends Controller
             $items = $validated['items'];
             $subtotal = 0;
 
-            // Calculate item amounts (without tax)
-            foreach ($items as &$item) {
+            // ✅ FIXED: Calculate item amounts
+            foreach ($items as $key => $item) {  // Changed from &$item
                 $rate = (float)($item['rate'] ?? 0);
                 $qty = (float)($item['quantity'] ?? 0);
                 $discount = (float)($item['discount'] ?? 0);
 
                 $base = $rate * $qty;
-                $item['amount'] = round($base - $discount, 2);
-                $subtotal += $item['amount'];
+                $items[$key]['amount'] = round($base - $discount, 2);  // Use $key
+                $subtotal += $items[$key]['amount'];
             }
 
             $globalDiscount = (float)($validated['discount'] ?? 0);
             $afterDiscount = max(0, $subtotal - $globalDiscount);
 
             // Get VAT from form
-            $taxRate = (float)($validated['tax_rate'] ?? 0);
+            $taxRate = (float)($request->tax_rate ?? 0);
             $vatAmount = (float)($validated['vat_amount'] ?? 0);
 
             $total = round($afterDiscount + $vatAmount, 2);
@@ -239,21 +240,22 @@ class InvoiceController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 'discount' => $globalDiscount,
                 'total_amount' => $total,
-                'tax_rate' => $taxRate,
                 'vat_amount' => round($vatAmount, 2),
             ]);
 
             $invoice->items()->delete();
-            foreach ($items as $item) {
+
+            // ✅ FIXED: Use different variable name
+            foreach ($items as $itemData) {  // Changed from $item to $itemData
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'unit' => $item['unit'] ?? '',
-                    'rate' => $item['rate'],
-                    'discount' => $item['discount'] ?? 0,
-                    'tax_percent' => 0, // No longer using item-level tax
-                    'amount' => $item['amount'],
+                    'product_id' => $itemData['product_id'],
+                    'quantity' => $itemData['quantity'],
+                    'unit' => $itemData['unit'] ?? '',
+                    'rate' => $itemData['rate'],
+                    'discount' => $itemData['discount'] ?? 0,
+                    'tax_percent' => 0,
+                    'amount' => $itemData['amount'],
                 ]);
             }
 
@@ -264,7 +266,6 @@ class InvoiceController extends Controller
             return back()->withInput()->withErrors(['error' => 'Failed to update invoice: ' . $e->getMessage()]);
         }
     }
-
     /** ======================
      *  Show single invoice
      *  ====================== */

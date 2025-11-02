@@ -24,7 +24,7 @@
                 </div>
             @endif
 
-            {{-- ✅ Corrected Data Preparation --}}
+            {{-- Data Preparation --}}
             @php
                 if (old('items')) {
                     $itemsData = old('items');
@@ -46,29 +46,14 @@
                     $discountData = (float) ($invoice->discount ?? 0);
                     $taxRateData = (float) ($invoice->tax_rate ?? 7.5);
                 } else {
-                    $itemsData = [
-                        [
-                            'product_id' => '',
-                            'quantity' => 1,
-                            'unit' => '',
-                            'rate' => 0,
-                            'discount' => 0,
-                            'amount' => 0,
-                        ],
-                    ];
+                    $itemsData = [];
                     $discountData = 0;
                     $taxRateData = 7.5;
                 }
             @endphp
 
-            {{-- ✅ Alpine Form --}}
             <form action="{{ isset($invoice) ? route('invoice.update', $invoice->id) : route('invoice.store') }}"
-                method="POST" x-data="invoiceForm(@js($itemsData), @js($discountData), @js($taxRateData))" x-init="console.log('=== INVOICE DEBUG ===');
-console.log('Loaded Items:', JSON.parse(JSON.stringify(items)));
-console.log('Discount:', globalDiscount);
-console.log('Tax Rate:', taxRate);
-console.log('Is Edit Mode:', isEditMode);
-recomputeAll();">
+                method="POST" id="invoiceForm">
                 @csrf
                 @if (isset($invoice))
                     @method('PUT')
@@ -142,55 +127,13 @@ recomputeAll();">
                                         <th style="width:6%"></th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <template x-for="(item, index) in items" :key="item._id">
-                                        <tr>
-                                            <td>
-                                                <select :name="`items[${index}][product_id]`" x-model="item.product_id"
-                                                    @change="fillFromProduct(index, $event)"
-                                                    class="form-control form-control-sm" required>
-                                                    <option value="">-- Select Product --</option>
-                                                    @foreach ($products as $p)
-                                                        <option value="{{ $p->id }}"
-                                                            data-rate="{{ $p->selling_price }}"
-                                                            data-unit="{{ $p->unit }}">
-                                                            {{ $p->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </td>
-                                            <td><input type="number" step="0.01" min="0.01"
-                                                    :name="`items[${index}][quantity]`" x-model.number="item.quantity"
-                                                    @input="recompute(index)" class="form-control form-control-sm" required>
-                                            </td>
-                                            <td><input type="text" :name="`items[${index}][unit]`" x-model="item.unit"
-                                                    class="form-control form-control-sm"></td>
-                                            <td><input type="number" step="0.01" min="0"
-                                                    :name="`items[${index}][rate]`" x-model.number="item.rate"
-                                                    @input="recompute(index)" class="form-control form-control-sm" required>
-                                            </td>
-                                            <td><input type="number" step="0.01" min="0"
-                                                    :name="`items[${index}][discount]`" x-model.number="item.discount"
-                                                    @input="recompute(index)" class="form-control form-control-sm"></td>
-                                            <td>
-                                                <input type="text" :value="formatMoney(item.amount)"
-                                                    class="form-control form-control-sm" readonly>
-                                                <input type="hidden" :name="`items[${index}][amount]`"
-                                                    :value="item.amount">
-                                            </td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-sm btn-danger"
-                                                    @click="remove(index)" :disabled="items.length === 1">
-                                                    <i class="ti ti-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </template>
+                                <tbody id="invoiceItemsBody">
+                                    <!-- Items will be added here by JavaScript -->
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td colspan="7">
-                                            <button type="button" class="btn btn-sm btn-primary" @click="add()">
+                                            <button type="button" class="btn btn-sm btn-primary" id="addItemBtn">
                                                 <i class="ti ti-plus me-1"></i>Add Item
                                             </button>
                                         </td>
@@ -218,14 +161,13 @@ recomputeAll();">
                                         <div class="mb-3">
                                             <label class="form-label">Global Discount</label>
                                             <input type="number" step="0.01" min="0" name="discount"
-                                                class="form-control" x-model.number="globalDiscount"
-                                                @input="recomputeAll()">
+                                                class="form-control" id="globalDiscount" value="{{ $discountData }}">
                                         </div>
 
                                         <div class="mb-3">
                                             <label class="form-label">VAT Rate (%)</label>
                                             <input type="number" step="0.01" min="0" name="tax_rate"
-                                                class="form-control" x-model.number="taxRate" @input="recomputeAll()">
+                                                class="form-control" id="taxRate" value="{{ $taxRateData }}">
                                             <small class="text-muted">Default: 7.5% (Nigerian VAT)</small>
                                         </div>
 
@@ -233,28 +175,27 @@ recomputeAll();">
 
                                         <div class="d-flex justify-content-between mb-2">
                                             <span>Subtotal:</span>
-                                            <strong x-text="formatMoney(subtotal)"></strong>
+                                            <strong id="subtotalDisplay">₦0.00</strong>
                                         </div>
                                         <div class="d-flex justify-content-between text-danger mb-2">
                                             <span>Discount:</span>
-                                            <strong x-text="formatMoney(globalDiscount)"></strong>
+                                            <strong id="discountDisplay">₦0.00</strong>
                                         </div>
                                         <div class="d-flex justify-content-between mb-2">
                                             <span>After Discount:</span>
-                                            <strong x-text="formatMoney(afterDiscount)"></strong>
+                                            <strong id="afterDiscountDisplay">₦0.00</strong>
                                         </div>
                                         <div class="d-flex justify-content-between text-success mb-2">
-                                            <span>VAT (<span x-text="taxRate"></span>%):</span>
-                                            <strong x-text="formatMoney(taxAmount)"></strong>
+                                            <span>VAT (<span id="taxRateDisplay">7.5</span>%):</span>
+                                            <strong id="taxAmountDisplay">₦0.00</strong>
                                         </div>
                                         <hr>
                                         <div class="d-flex justify-content-between">
                                             <span class="h5 mb-0">Total:</span>
-                                            <strong class="h5 text-primary mb-0" x-text="formatMoney(total)"></strong>
+                                            <strong class="h5 text-primary mb-0" id="totalDisplay">₦0.00</strong>
                                         </div>
 
-                                        {{-- Hidden field to save VAT amount --}}
-                                        <input type="hidden" name="vat_amount" :value="taxAmount">
+                                        <input type="hidden" name="vat_amount" id="vatAmountInput">
                                     </div>
                                 </div>
                             </div>
@@ -275,135 +216,244 @@ recomputeAll();">
         </div>
     </div>
 
-    <script src="//unpkg.com/alpinejs" defer></script>
-
     <script>
-        function invoiceForm(existingItems = [], existingDiscount = 0, existingTaxRate = 7.5) {
-            return {
-                nextId: existingItems.length || 1,
-                items: existingItems.length ? existingItems.map((item, idx) => ({
-                    ...item,
-                    _id: idx + 1
-                })) : [{
-                    _id: 1,
-                    product_id: '',
-                    quantity: 1,
-                    unit: '',
-                    rate: 0,
-                    discount: 0,
-                    amount: 0
-                }],
-                globalDiscount: parseFloat(existingDiscount) || 0,
-                taxRate: parseFloat(existingTaxRate) || 7.5,
-                isEditMode: existingItems.length > 0 && existingItems[0].product_id !== '',
+        // Product data from backend
+        const PRODUCTS = @json($products);
 
-                get subtotal() {
-                    return this.items.reduce((sum, it) => sum + (parseFloat(it.amount || 0) || 0), 0);
-                },
-                get afterDiscount() {
-                    const disc = parseFloat(this.globalDiscount) || 0;
-                    return Math.max(0, this.subtotal - disc);
-                },
-                get taxAmount() {
-                    const rate = parseFloat(this.taxRate) || 0;
-                    return Math.round((this.afterDiscount * rate) / 100 * 100) / 100;
-                },
-                get total() {
-                    return Math.round((this.afterDiscount + this.taxAmount) * 100) / 100;
-                },
+        // Initial items data
+        const INITIAL_ITEMS = @json($itemsData);
 
-                add() {
-                    this.nextId++;
-                    this.items.push({
-                        _id: this.nextId,
-                        product_id: '',
-                        quantity: 1,
-                        unit: '',
-                        rate: 0,
-                        discount: 0,
-                        amount: 0
-                    });
-                    console.log('Added new item:', this.items[this.items.length - 1]);
-                },
+        // Invoice Manager
+        const InvoiceManager = {
+            items: [],
+            nextId: 1,
 
-                remove(index) {
-                    if (this.items.length > 1) {
-                        console.log('Removing item at index:', index);
-                        this.items.splice(index, 1);
-                        this.recomputeAll();
-                    }
-                },
-
-                fillFromProduct(index, event) {
-                    console.log('=== fillFromProduct START ===');
-                    console.log('Index:', index);
-                    console.log('Event:', event);
-                    console.log('Current item before:', JSON.parse(JSON.stringify(this.items[index])));
-
-                    if (!event || !event.target) {
-                        console.error('No event provided to fillFromProduct');
-                        return;
-                    }
-
-                    const select = event.target;
-                    const selectedOption = select.options[select.selectedIndex];
-
-                    console.log('Selected option:', selectedOption);
-                    console.log('Selected value:', selectedOption.value);
-
-                    if (!selectedOption || !selectedOption.value) {
-                        console.log('No valid option selected');
-                        return;
-                    }
-
-                    const item = this.items[index];
-
-                    // Update product_id first
-                    item.product_id = selectedOption.value;
-
-                    const newRate = parseFloat(selectedOption.dataset.rate) || 0;
-                    const newUnit = selectedOption.dataset.unit || '';
-
-                    console.log('Product ID:', item.product_id);
-                    console.log('Product data - Rate:', newRate, 'Unit:', newUnit);
-
-                    // ALWAYS update rate and unit when product changes
-                    console.log('Updating rate and unit');
-                    item.rate = newRate;
-                    item.unit = newUnit;
-
-                    this.recompute(index);
-                    console.log('Item after fillFromProduct:', JSON.parse(JSON.stringify(item)));
-                    console.log('=== fillFromProduct END ===');
-                },
-
-                recompute(index) {
-                    const it = this.items[index];
-                    let rate = parseFloat(it.rate) || 0;
-                    let qty = parseFloat(it.quantity) || 0;
-                    let discount = parseFloat(it.discount) || 0;
-                    let base = rate * qty;
-                    let afterDiscount = Math.max(0, base - discount);
-                    it.amount = Math.round(afterDiscount * 100) / 100;
-
-                    console.log(
-                        `Recompute [${index}]: product_id=${it.product_id}, rate=${rate}, qty=${qty}, discount=${discount}, amount=${it.amount}`
-                        );
-                },
-
-                recomputeAll() {
-                    console.log('Recomputing all items...');
-                    this.items.forEach((_, i) => this.recompute(i));
-                },
-
-                formatMoney(amount) {
-                    amount = parseFloat(amount || 0);
-                    return '₦' + amount.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    });
+            init() {
+                // Load initial items or add empty row
+                if (INITIAL_ITEMS && INITIAL_ITEMS.length > 0) {
+                    INITIAL_ITEMS.forEach(item => this.addItem(item));
+                } else {
+                    this.addItem();
                 }
+
+                // Event listeners
+                document.getElementById('addItemBtn').addEventListener('click', () => this.addItem());
+                document.getElementById('globalDiscount').addEventListener('input', () => this.updateSummary());
+                document.getElementById('taxRate').addEventListener('input', () => this.updateSummary());
+
+                this.updateSummary();
+            },
+
+            addItem(data = null) {
+                const id = this.nextId++;
+                const item = {
+                    id: id,
+                    product_id: data?.product_id || '',
+                    quantity: data?.quantity || 1,
+                    unit: data?.unit || '',
+                    rate: data?.rate || 0,
+                    discount: data?.discount || 0,
+                    amount: data?.amount || 0
+                };
+
+                this.items.push(item);
+                this.renderItem(item);
+                this.updateSummary();
+            },
+
+            renderItem(item) {
+                const tbody = document.getElementById('invoiceItemsBody');
+                const index = this.items.findIndex(i => i.id === item.id);
+                const row = document.createElement('tr');
+                row.id = `row-${item.id}`;
+
+                row.innerHTML = `
+                    <td>
+                        <select name="items[${index}][product_id]" class="form-control form-control-sm product-select" data-item-id="${item.id}" required>
+                            <option value="">-- Select Product --</option>
+                            ${PRODUCTS.map(p => `
+                                <option value="${p.id}"
+                                    data-rate="${p.selling_price}"
+                                    data-unit="${p.unit}"
+                                    ${item.product_id == p.id ? 'selected' : ''}>
+                                    ${p.name}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" min="0.01"
+                            name="items[${index}][quantity]"
+                            class="form-control form-control-sm item-quantity"
+                            data-item-id="${item.id}"
+                            value="${item.quantity}" required>
+                    </td>
+                    <td>
+                        <input type="text"
+                            name="items[${index}][unit]"
+                            class="form-control form-control-sm item-unit"
+                            data-item-id="${item.id}"
+                            value="${item.unit}">
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" min="0"
+                            name="items[${index}][rate]"
+                            class="form-control form-control-sm item-rate"
+                            data-item-id="${item.id}"
+                            value="${item.rate}" required>
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" min="0"
+                            name="items[${index}][discount]"
+                            class="form-control form-control-sm item-discount"
+                            data-item-id="${item.id}"
+                            value="${item.discount}">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm item-amount-display"
+                            value="${this.formatMoney(item.amount)}" readonly>
+                        <input type="hidden" name="items[${index}][amount]"
+                            class="item-amount-hidden"
+                            data-item-id="${item.id}"
+                            value="${item.amount}">
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-danger remove-item-btn"
+                            data-item-id="${item.id}"
+                            ${this.items.length === 1 ? 'disabled' : ''}>
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+
+                // Attach event listeners to this row
+                this.attachRowListeners(item.id);
+            },
+
+            attachRowListeners(itemId) {
+                const row = document.getElementById(`row-${itemId}`);
+
+                // Product selection
+                row.querySelector('.product-select').addEventListener('change', (e) => {
+                    this.onProductChange(itemId, e.target);
+                });
+
+                // Quantity, rate, discount changes
+                row.querySelector('.item-quantity').addEventListener('input', () => this.recomputeItem(itemId));
+                row.querySelector('.item-rate').addEventListener('input', () => this.recomputeItem(itemId));
+                row.querySelector('.item-discount').addEventListener('input', () => this.recomputeItem(itemId));
+
+                // Remove button
+                row.querySelector('.remove-item-btn')?.addEventListener('click', () => this.removeItem(itemId));
+            },
+
+            onProductChange(itemId, selectElement) {
+                const item = this.items.find(i => i.id === itemId);
+                if (!item) return;
+
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                if (!selectedOption || !selectedOption.value) return;
+
+                item.product_id = selectedOption.value;
+                item.rate = parseFloat(selectedOption.dataset.rate) || 0;
+                item.unit = selectedOption.dataset.unit || '';
+
+                // Update the rate and unit inputs
+                const row = document.getElementById(`row-${itemId}`);
+                row.querySelector('.item-rate').value = item.rate;
+                row.querySelector('.item-unit').value = item.unit;
+
+                this.recomputeItem(itemId);
+            },
+
+            recomputeItem(itemId) {
+                const item = this.items.find(i => i.id === itemId);
+                if (!item) return;
+
+                const row = document.getElementById(`row-${itemId}`);
+
+                item.quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+                item.rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+                item.discount = parseFloat(row.querySelector('.item-discount').value) || 0;
+
+                const base = item.rate * item.quantity;
+                item.amount = Math.max(0, Math.round((base - item.discount) * 100) / 100);
+
+                // Update displays
+                row.querySelector('.item-amount-display').value = this.formatMoney(item.amount);
+                row.querySelector('.item-amount-hidden').value = item.amount;
+
+                this.updateSummary();
+            },
+
+            removeItem(itemId) {
+                if (this.items.length === 1) return;
+
+                this.items = this.items.filter(i => i.id !== itemId);
+                document.getElementById(`row-${itemId}`).remove();
+
+                // Re-render all items to fix indices
+                this.reRenderAll();
+                this.updateSummary();
+            },
+
+            reRenderAll() {
+                const tbody = document.getElementById('invoiceItemsBody');
+                tbody.innerHTML = '';
+                this.items.forEach((item, idx) => {
+                    this.renderItem(item);
+                });
+            },
+
+            updateSummary() {
+                const subtotal = this.items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+                const globalDiscount = parseFloat(document.getElementById('globalDiscount').value) || 0;
+                const afterDiscount = Math.max(0, subtotal - globalDiscount);
+                const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+                const taxAmount = Math.round((afterDiscount * taxRate / 100) * 100) / 100;
+                const total = Math.round((afterDiscount + taxAmount) * 100) / 100;
+
+                document.getElementById('subtotalDisplay').textContent = this.formatMoney(subtotal);
+                document.getElementById('discountDisplay').textContent = this.formatMoney(globalDiscount);
+                document.getElementById('afterDiscountDisplay').textContent = this.formatMoney(afterDiscount);
+                document.getElementById('taxRateDisplay').textContent = taxRate;
+                document.getElementById('taxAmountDisplay').textContent = this.formatMoney(taxAmount);
+                document.getElementById('totalDisplay').textContent = this.formatMoney(total);
+                document.getElementById('vatAmountInput').value = taxAmount;
+
+                // Update remove button states
+                document.querySelectorAll('.remove-item-btn').forEach(btn => {
+                    btn.disabled = this.items.length === 1;
+                });
+            },
+
+            formatMoney(amount) {
+                amount = parseFloat(amount) || 0;
+                return '₦' + amount.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
             }
-        }
+        };
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            InvoiceManager.init();
+
+            // Debug: Log form data before submission
+            document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+                const formData = new FormData(this);
+                console.log('=== FORM SUBMISSION DEBUG ===');
+                console.log('Items in memory:', JSON.parse(JSON.stringify(InvoiceManager.items)));
+                console.log('\nForm data being submitted:');
+                for (let [key, value] of formData.entries()) {
+                    if (key.startsWith('items[')) {
+                        console.log(`${key} = ${value}`);
+                    }
+                }
+            });
+        });
     </script>
 @endsection
