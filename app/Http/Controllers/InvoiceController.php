@@ -85,9 +85,7 @@ class InvoiceController extends Controller
 
         return view('invoices.form', compact('products', 'customers', 'invoice_number'));
     }
-    /** ======================
-     *  Store new invoice
-     *  ====================== */
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -113,21 +111,21 @@ class InvoiceController extends Controller
             $items = $validated['items'];
             $subtotal = 0;
 
-            // ✅ FIXED: Calculate item amounts - removed reference &
-            foreach ($items as $key => $item) {  // Changed from &$item to $key => $item
+
+            foreach ($items as $key => $item) {
                 $qty = (float)($item['quantity'] ?? 0);
                 $rate = (float)($item['rate'] ?? 0);
                 $discount = (float)($item['discount'] ?? 0);
 
                 $base = $qty * $rate;
-                $items[$key]['amount'] = round($base - $discount, 2);  // Use $key to modify array
+                $items[$key]['amount'] = round($base - $discount, 2);
                 $subtotal += $items[$key]['amount'];
             }
 
             $globalDiscount = (float)($validated['discount'] ?? 0);
             $afterDiscount = max(0, $subtotal - $globalDiscount);
 
-            // Get VAT from form
+
             $taxRate = (float)($request->tax_rate ?? 0);
             $vatAmount = (float)($validated['vat_amount'] ?? 0);
 
@@ -147,8 +145,8 @@ class InvoiceController extends Controller
                 'status' => 'unpaid',
             ]);
 
-            // ✅ FIXED: Use different variable name
-            foreach ($items as $itemData) {  // Changed from $item to $itemData
+
+            foreach ($items as $itemData) {
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
                     'product_id' => $itemData['product_id'],
@@ -169,9 +167,6 @@ class InvoiceController extends Controller
         }
     }
 
-    /** ======================
-     *  Edit existing invoice
-     *  ====================== */
     public function edit(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
@@ -185,9 +180,7 @@ class InvoiceController extends Controller
     }
 
 
-    /** ======================
-     *  Update invoice
-     *  ====================== */
+
     public function update(Request $request, Invoice $invoice)
     {
         $validated = $request->validate([
@@ -212,8 +205,8 @@ class InvoiceController extends Controller
             $items = $validated['items'];
             $subtotal = 0;
 
-            // ✅ FIXED: Calculate item amounts
-            foreach ($items as $key => $item) {  // Changed from &$item
+
+            foreach ($items as $key => $item) {
                 $rate = (float)($item['rate'] ?? 0);
                 $qty = (float)($item['quantity'] ?? 0);
                 $discount = (float)($item['discount'] ?? 0);
@@ -226,7 +219,6 @@ class InvoiceController extends Controller
             $globalDiscount = (float)($validated['discount'] ?? 0);
             $afterDiscount = max(0, $subtotal - $globalDiscount);
 
-            // Get VAT from form
             $taxRate = (float)($request->tax_rate ?? 0);
             $vatAmount = (float)($validated['vat_amount'] ?? 0);
 
@@ -245,8 +237,8 @@ class InvoiceController extends Controller
 
             $invoice->items()->delete();
 
-            // ✅ FIXED: Use different variable name
-            foreach ($items as $itemData) {  // Changed from $item to $itemData
+
+            foreach ($items as $itemData) {
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
                     'product_id' => $itemData['product_id'],
@@ -266,9 +258,7 @@ class InvoiceController extends Controller
             return back()->withInput()->withErrors(['error' => 'Failed to update invoice: ' . $e->getMessage()]);
         }
     }
-    /** ======================
-     *  Show single invoice
-     *  ====================== */
+
     public function show(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
@@ -277,30 +267,29 @@ class InvoiceController extends Controller
     }
     public function download(Invoice $invoice)
     {
-        // Load relationships
+
         $invoice->load(['customer', 'items', 'user']);
 
-        // Calculate totals
+
         $subtotal = $invoice->items->sum('amount');
         $taxTotal = $invoice->items->sum(function ($item) {
             return ($item->quantity * $item->rate * $item->tax_percent) / 100;
         });
 
-        // Generate PDF
+
         $pdf = Pdf::loadView('invoices.pdf', [
             'invoice' => $invoice,
             'subtotal' => $subtotal,
             'taxTotal' => $taxTotal,
         ]);
 
-        // Set paper size and orientation
+
         $pdf->setPaper('a4', 'portrait');
 
-        // Download with filename
         return $pdf->download('invoice-' . $invoice->invoice_number . '.pdf');
     }
 
-    // Alternative: Stream PDF in browser instead of download
+
     public function view(Invoice $invoice)
     {
         $invoice->load(['customer', 'items', 'user']);
@@ -318,39 +307,37 @@ class InvoiceController extends Controller
 
         $pdf->setPaper('a4', 'portrait');
 
-        // Stream (view in browser)
+
         return $pdf->stream('invoice-' . $invoice->invoice_number . '.pdf');
     }
 
     public function send(Invoice $invoice)
     {
-        // Check if customer has email
+
         if (!$invoice->customer->email) {
             return redirect()->back()->with('error', 'Customer does not have an email address.');
         }
 
-        // Load relationships
         $invoice->load(['customer', 'items', 'user']);
 
-        // Calculate totals
+
         $subtotal = $invoice->items->sum('amount');
         $taxTotal = $invoice->items->sum(function ($item) {
             return ($item->quantity * $item->rate * $item->tax_percent) / 100;
         });
 
-        // Generate PDF
+
         $pdf = Pdf::loadView('invoices.pdf', [
             'invoice' => $invoice,
             'subtotal' => $subtotal,
             'taxTotal' => $taxTotal,
         ]);
 
-        // Send email with PDF attachment
         try {
             Mail::to($invoice->customer->email)
                 ->send(new InvoiceMail($invoice, $pdf->output()));
 
-            // Optional: Log the email sent
+
             \Log::info('Invoice email sent', [
                 'invoice_id' => $invoice->id,
                 'customer_email' => $invoice->customer->email,
@@ -369,9 +356,7 @@ class InvoiceController extends Controller
     }
 
 
-    /** ======================
-     *  Delete invoice
-     *  ====================== */
+
     public function destroy(Invoice $invoice)
     {
         try {
@@ -398,19 +383,19 @@ class InvoiceController extends Controller
             return back()->with('error', 'This company has not connected Paystack yet.');
         }
 
-        // Initialize payment
+
         $response = Http::withToken(config('services.paystack.secret'))->post('https://api.paystack.co/transaction/initialize', [
-            'amount' => $invoice->total_amount * 100, // Paystack expects amount in kobo
+            'amount' => $invoice->total_amount * 100,
             'email' => $invoice->customer->email,
             'callback_url' => route('payment.callback', $invoice->id),
             'subaccount' => $user->paystack_subaccount_code,
-            'reference' => $invoice->invoice_number, // unique reference for webhook identification
+            'reference' => $invoice->invoice_number,
         ]);
 
         $data = $response->json();
 
         if ($response->ok() && isset($data['data']['authorization_url'])) {
-            // Redirect customer to Paystack payment page
+            
             return redirect($data['data']['authorization_url']);
         } else {
             return back()->with('error', 'Failed to initialize payment. Please try again.');
