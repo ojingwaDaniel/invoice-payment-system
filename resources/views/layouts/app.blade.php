@@ -107,8 +107,8 @@
         </div>
 
         <!-- Sidebar (Mini + Main) -->
-        
-            
+
+
         @include('layouts.sidebar')
 
         <!-- Main Content Area -->

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Invoify Application</title>
+    <title>Login Invoinix Application</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes float {
@@ -89,7 +89,7 @@
                                 d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <span class="text-2xl font-bold text-gray-900">invoify</span>
+                    <span class="text-2xl font-bold text-gray-900">invoinix</span>
                 </div>
 
                 <div class="max-w-lg">

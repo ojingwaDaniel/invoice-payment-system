@@ -4,43 +4,35 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 
 class PaystackController extends Controller
 {
-    public function redirectToPaystack()
+    /**
+     * Show the page for companies to connect Paystack
+     */
+    public function showConnectForm()
     {
-        $clientId = config('services.paystack.public');
-        $redirectUri = urlencode(route('paystack.callback'));
-        $url = "https://dashboard.paystack.com/oauth/authorize?client_id={$clientId}&response_type=code&redirect_uri={$redirectUri}";
-        return redirect($url);
+        return view('paystack.connect', [
+            'user' => Auth::user(),
+        ]);
     }
 
-    public function handlePaystackCallback(Request $request)
+    /**
+     * Save the Paystack keys for this company
+     */
+    public function saveKeys(Request $request)
     {
-        $code = $request->query('code');
-
-        $response = Http::post('https://api.paystack.co/oauth/token', [
-            'grant_type' => 'authorization_code',
-            'client_id' => config('services.paystack.public'),
-            'client_secret' => config('services.paystack.secret'),
-            'code' => $code,
-            'redirect_uri' => route('paystack.callback'),
+        $request->validate([
+            'paystack_public_key' => 'required|string',
+            'paystack_secret_key' => 'required|string',
         ]);
 
-        if (!$response->ok()) {
-            return redirect()->route('dashboard')->with('error', 'Failed to connect Paystack.');
-        }
-
-        $data = $response->json();
-
-        Auth::user()->update([
-            'paystack_access_code' => $data['access_token'] ?? null,
-            'paystack_subaccount_code' => $data['subaccount_code'] ?? null,
-            'paystack_email' => $data['email'] ?? null,
-            'paystack_auth_code' => $data['auth_code'] ?? null,
+        $user = Auth::user();
+        $user->update([
+            'paystack_public_key' => $request->paystack_public_key,
+            'paystack_secret_key' => $request->paystack_secret_key,
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Paystack account connected successfully!');
+        return redirect()->route('dashboard')->with('success', '✅ Paystack keys saved successfully!');
     }
 }

@@ -39,11 +39,10 @@ return [
         'secret_key' => env('RECAPTCHA_SECRET_KEY'),
     ],
     'paystack' => [
+        'public' => env('PAYSTACK_PUBLIC_KEY'),
         'secret' => env('PAYSTACK_SECRET_KEY'),
-        'client_id' => env('PAYSTACK_CLIENT_ID'),
-        'redirect' => env('PAYSTACK_REDIRECT_URL'),
+        'base_url' => env('PAYSTACK_BASE_URL', 'https://api.paystack.co'),
     ],
-
 
 
 

@@ -41,7 +41,7 @@
                     </div>
 
                     <!-- Breadcrumb -->
-                
+
                 </div>
 
                 <div class="d-flex align-items-center">
@@ -102,7 +102,7 @@
                                         <p class="fs-13 text-muted mb-0">{{ Auth::user()->email }}</p>
                                     </div>
                                 </div>
-                                <a class="dropdown-item d-flex align-items-center" href="">
+                                <a class="dropdown-item d-flex align-items-center" href="{{ route("profile.edit") }}">
                                     <i class="isax isax-profile-circle me-2"></i>Profile Settings
                                 </a>
                                 <hr class="dropdown-divider my-2">
@@ -132,7 +132,7 @@
                 </span>
             </a>
             <div class="dropdown-menu p-2 mt-0">
-                <a class="dropdown-item d-flex align-items-center" href="">
+                <a class="dropdown-item d-flex align-items-center" href="{{ route("profile.edit") }}">
                     <i class="isax isax-profile-circle me-2"></i>Profile Settings
                 </a>
                 <form method="POST" action="{{ route('logout') }}">

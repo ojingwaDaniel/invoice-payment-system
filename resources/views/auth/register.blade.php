@@ -20,7 +20,7 @@
                 </div>
                 <h2
                     class="mb-2 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-3xl font-bold text-transparent">
-                    Welcome to Invoify
+                    Welcome to Invoinix
                 </h2>
                 <p class="text-2xl text-gray-600">Create A Business Account</p>
                 <p class="text-gray-600">Join us today and get started</p>

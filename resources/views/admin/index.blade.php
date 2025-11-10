@@ -21,7 +21,7 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm" :class="{ 'show': open }" x-show="open"
                             x-transition>
                             <li>
-                                <a href="add-invoice.html" class="dropdown-item d-flex align-items-center">
+                                <a href="{{ route("invoice.create") }}" class="dropdown-item d-flex align-items-center">
                                     <i class="isax isax-document-text-1 text-primary me-3"></i>
                                     <div>
                                         <div class="fw-medium">Invoice</div>
@@ -33,71 +33,37 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a href="expenses.html" class="dropdown-item d-flex align-items-center">
+                                <a href="{{ route("customer.create") }}" class="dropdown-item d-flex align-items-center">
                                     <i class="isax isax-money-send text-danger me-3"></i>
                                     <div>
-                                        <div class="fw-medium">Expense</div>
-                                        <small class="text-muted">Record expense</small>
+                                        <div class="fw-medium">Customer</div>
+                                        <small class="text-muted">Add Customer</small>
                                     </div>
                                 </a>
                             </li>
                             <li>
-                                <a href="add-credit-notes.html" class="dropdown-item d-flex align-items-center">
+                                <a href="{{ route("category.create") }}" class="dropdown-item d-flex align-items-center">
                                     <i class="isax isax-money-add text-success me-3"></i>
                                     <div>
-                                        <div class="fw-medium">Credit Note</div>
-                                        <small class="text-muted">Issue credit note</small>
+                                        <div class="fw-medium">Cateogry</div>
+                                        <small class="text-muted">Add Cateogry</small>
                                     </div>
                                 </a>
                             </li>
                             <li>
-                                <a href="add-debit-notes.html" class="dropdown-item d-flex align-items-center">
+                                <a href="{{ route("unit.create") }}" class="dropdown-item d-flex align-items-center">
                                     <i class="isax isax-money-recive text-warning me-3"></i>
                                     <div>
-                                        <div class="fw-medium">Debit Note</div>
-                                        <small class="text-muted">Issue debit note</small>
+                                        <div class="fw-medium">Unit</div>
+                                        <small class="text-muted">Add Unit</small>
                                     </div>
                                 </a>
                             </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a href="add-purchases-orders.html" class="dropdown-item d-flex align-items-center">
-                                    <i class="isax isax-document text-info me-3"></i>
-                                    <div>
-                                        <div class="fw-medium">Purchase Order</div>
-                                        <small class="text-muted">Create PO</small>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="add-quotation.html" class="dropdown-item d-flex align-items-center">
-                                    <i class="isax isax-document-download text-purple me-3"></i>
-                                    <div>
-                                        <div class="fw-medium">Quotation</div>
-                                        <small class="text-muted">Send quotation</small>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="add-delivery-challan.html" class="dropdown-item d-flex align-items-center">
-                                    <i class="isax isax-document-forward text-secondary me-3"></i>
-                                    <div>
-                                        <div class="fw-medium">Delivery Challan</div>
-                                        <small class="text-muted">Create challan</small>
-                                    </div>
-                                </a>
-                            </li>
+                           
                         </ul>
                     </div>
 
-                    <!-- Export Dropdown -->
-                    @if (auth()->user()->paystack_access_code)
-                        <p class="text-success">✅ Paystack Connected</p>
-                    @else
-                        <a href="{{ route('paystack.connect') }}" class="btn btn-primary">Connect Paystack Account</a>
-                    @endif
+
                 </div>
             </div>
 

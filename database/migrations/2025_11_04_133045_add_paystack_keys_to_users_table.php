@@ -12,12 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
-            $table->string('paystack_access_code')->nullable();
-            $table->string('paystack_subaccount_code')->nullable();
-            $table->string('paystack_email')->nullable();
-            $table->string('paystack_auth_code')->nullable();
-     
+            $table->string('paystack_secret_key')->nullable();
+            $table->string('paystack_public_key')->nullable();
         });
     }
 

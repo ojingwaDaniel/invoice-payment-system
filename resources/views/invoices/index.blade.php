@@ -1,379 +1,401 @@
 @extends('layouts.app')
 @section('content')
-    <div class="">
+    <!-- Add Tailwind CSS and dependencies -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        /* Prevent zoom on mobile */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+    </style>
+
+    <div class="min-h-screen bg-gray-50">
         <!-- Start Content -->
-        <div class="content content-two">
+        <div class="container mx-auto px-3 py-4">
 
             <!-- Page Header -->
-            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 gap-3">
                 <div>
-                    <h5 class="fw-bold mb-1">Invoices</h5>
+                    <h5 class="text-lg font-bold text-gray-900">Invoices</h5>
                 </div>
-                <div class="d-flex my-xl-auto right-content align-items-center table-header flex-wrap">
-                    <div class="mb-2 me-2">
-                        <div class="dropdown">
-                            <a href="javascript:void(0);"
-                                class="dropdown-toggle btn btn-outline-white d-inline-flex align-items-center"
-                                data-bs-toggle="dropdown">
-                                <i class="ti ti-file-export me-1"></i>Export
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <!-- Export Dropdown -->
+                    <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                        <button class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded text-sm flex items-center gap-1 transition-colors"
+                                @click="open = !open">
+                            <i class="fas fa-file-export text-xs"></i>
+                            Export
+                        </button>
+                        <div class="absolute right-0 mt-1 w-40 bg-white rounded shadow-lg border border-gray-200 z-10 py-1"
+                             x-show="open" x-transition>
+                            <a href="javascript:void(0);" class="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-file-pdf text-red-500 mr-2 text-xs"></i>
+                                Export as PDF
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end p-3">
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item rounded-1"><i
-                                            class="ti ti-file-type-pdf me-1"></i>Export as PDF</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item rounded-1"><i
-                                            class="ti ti-file-type-xls me-1"></i>Export as Excel </a>
-                                </li>
-                            </ul>
+                            <a href="javascript:void(0);" class="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-file-excel text-green-500 mr-2 text-xs"></i>
+                                Export as Excel
+                            </a>
                         </div>
                     </div>
-                    <div class="mb-2">
-                        <a href="{{ route('invoice.create') }}" class="btn btn-md btn-primary d-flex align-items-center"><i
-                                class="ti ti-circle-plus me-2"></i>Add Invoice</a>
-                    </div>
+
+                    <!-- Add Invoice Button -->
+                    <a href="{{ route('invoice.create') }}"
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center gap-1 transition-colors shadow-sm">
+                        <i class="fas fa-circle-plus text-xs"></i>
+                        Add Invoice
+                    </a>
                 </div>
             </div>
             <!-- End Page Header -->
 
             <!-- Statistics Cards -->
-            <div class="row">
-                <div class="col-xl-3 col-sm-6">
-                    <div class="card flex-fill">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-2 overflow-hidden">
-                                <div>
-                                    <p class="text-truncate mb-1">Total Invoices</p>
-                                    <h6>{{ $invoices->total() }}</h6>
-                                </div>
-                            </div>
-                            <div class="attendance-report-bar mb-2">
-                                <div class="progress" role="progressbar" aria-valuenow="100" aria-valuemin="0"
-                                    aria-valuemax="100" style="height: 5px;">
-                                    <div class="progress-bar bg-primary" style="width: 100%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <p class="d-flex align-items-center text-truncate">
-                                    <span class="text-muted fs-12">Total count</span>
-                                </p>
-                            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                <!-- Total Invoices -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                    <div class="flex items-center mb-3">
+                        <div>
+                            <p class="text-gray-600 text-xs truncate">Total Invoices</p>
+                            <h6 class="text-xl font-bold text-gray-900">{{ $invoices->total() }}</h6>
                         </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1 mb-2">
+                        <div class="bg-blue-600 h-1 rounded-full" style="width: 100%"></div>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs flex items-center">
+                            Total count
+                        </p>
                     </div>
                 </div>
 
-                <div class="col-xl-3 col-sm-6">
-                    <div class="card flex-fill">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-2 overflow-hidden">
-                                <div>
-                                    <p class="text-truncate mb-1">Paid</p>
-                                    <h6>₦{{ number_format($stats['paid_amount'], 2) }}</h6>
-                                </div>
-                            </div>
-                            <div class="attendance-report-bar mb-2">
-                                <div class="progress" role="progressbar" aria-valuenow="{{ $stats['paid_percentage'] }}"
-                                    aria-valuemin="0" aria-valuemax="100" style="height: 5px;">
-                                    <div class="progress-bar bg-success" style="width: {{ $stats['paid_percentage'] }}%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <p class="d-flex align-items-center text-truncate">
-                                    <span class="text-success fs-12 d-flex align-items-center me-1">
-                                        {{ $stats['paid_count'] }} invoices
-                                    </span>
-                                    ({{ number_format($stats['paid_percentage'], 1) }}%)
-                                </p>
-                            </div>
+                <!-- Paid -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                    <div class="flex items-center mb-3">
+                        <div>
+                            <p class="text-gray-600 text-xs truncate">Paid</p>
+                            <h6 class="text-xl font-bold text-gray-900">₦{{ number_format($stats['paid_amount'], 2) }}</h6>
                         </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1 mb-2">
+                        <div class="bg-green-500 h-1 rounded-full" style="width: {{ $stats['paid_percentage'] }}%"></div>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs flex items-center">
+                            <span class="text-green-500 flex items-center mr-1">
+                                {{ $stats['paid_count'] }} invoices
+                            </span>
+                            ({{ number_format($stats['paid_percentage'], 1) }}%)
+                        </p>
                     </div>
                 </div>
 
-                <div class="col-xl-3 col-sm-6">
-                    <div class="card flex-fill">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-2 overflow-hidden">
-                                <div>
-                                    <p class="text-truncate mb-1">Unpaid</p>
-                                    <h6>₦{{ number_format($stats['unpaid_amount'], 2) }}</h6>
-                                </div>
-                            </div>
-                            <div class="attendance-report-bar mb-2">
-                                <div class="progress" role="progressbar" aria-valuenow="{{ $stats['unpaid_percentage'] }}"
-                                    aria-valuemin="0" aria-valuemax="100" style="height: 5px;">
-                                    <div class="progress-bar bg-warning" style="width: {{ $stats['unpaid_percentage'] }}%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <p class="d-flex align-items-center text-truncate">
-                                    <span class="text-warning fs-12 d-flex align-items-center me-1">
-                                        {{ $stats['unpaid_count'] }} invoices
-                                    </span>
-                                    ({{ number_format($stats['unpaid_percentage'], 1) }}%)
-                                </p>
-                            </div>
+                <!-- Unpaid -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                    <div class="flex items-center mb-3">
+                        <div>
+                            <p class="text-gray-600 text-xs truncate">Unpaid</p>
+                            <h6 class="text-xl font-bold text-gray-900">₦{{ number_format($stats['unpaid_amount'], 2) }}</h6>
                         </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1 mb-2">
+                        <div class="bg-yellow-500 h-1 rounded-full" style="width: {{ $stats['unpaid_percentage'] }}%"></div>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs flex items-center">
+                            <span class="text-yellow-500 flex items-center mr-1">
+                                {{ $stats['unpaid_count'] }} invoices
+                            </span>
+                            ({{ number_format($stats['unpaid_percentage'], 1) }}%)
+                        </p>
                     </div>
                 </div>
 
-                <div class="col-xl-3 col-sm-6">
-                    <div class="card flex-fill">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-2 overflow-hidden">
-                                <div>
-                                    <p class="text-truncate mb-1">Partial</p>
-                                    <h6>₦{{ number_format($stats['partial_amount'], 2) }}</h6>
-                                </div>
-                            </div>
-                            <div class="attendance-report-bar mb-2">
-                                <div class="progress" role="progressbar" aria-valuenow="{{ $stats['partial_percentage'] }}"
-                                    aria-valuemin="0" aria-valuemax="100" style="height: 5px;">
-                                    <div class="progress-bar bg-info" style="width: {{ $stats['partial_percentage'] }}%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <p class="d-flex align-items-center text-truncate">
-                                    <span class="text-info fs-12 d-flex align-items-center me-1">
-                                        {{ $stats['partial_count'] }} invoices
-                                    </span>
-                                    ({{ number_format($stats['partial_percentage'], 1) }}%)
-                                </p>
-                            </div>
+                <!-- Partial -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                    <div class="flex items-center mb-3">
+                        <div>
+                            <p class="text-gray-600 text-xs truncate">Partial</p>
+                            <h6 class="text-xl font-bold text-gray-900">₦{{ number_format($stats['partial_amount'], 2) }}</h6>
                         </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1 mb-2">
+                        <div class="bg-cyan-500 h-1 rounded-full" style="width: {{ $stats['partial_percentage'] }}%"></div>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs flex items-center">
+                            <span class="text-cyan-500 flex items-center mr-1">
+                                {{ $stats['partial_count'] }} invoices
+                            </span>
+                            ({{ number_format($stats['partial_percentage'], 1) }}%)
+                        </p>
                     </div>
                 </div>
             </div>
             <!-- End Statistics -->
 
             <!-- Invoices Table -->
-            <div class="row">
-                <div class="col-sm-12">
-                    <div>
-                        <div class="d-flex align-items-center justify-content-between row-gap-3 mb-3 flex-wrap">
-                            <h5 class="d-flex align-items-center">All Invoices
-                                <span class="badge bg-light text-dark fs-12 ms-2">{{ $invoices->total() }} Total</span>
-                            </h5>
-                            <div class="d-flex align-items-center row-gap-3 table-header flex-wrap">
-                                <div class="input-icon position-relative me-2">
-                                    <input type="text" class="form-control h-auto py-1" placeholder="Search invoices...">
-                                    <span class="input-icon-addon">
-                                        <i class="ti ti-search"></i>
-                                    </span>
-                                </div>
-                                <div class="dropdown me-2">
-                                    <a href="javascript:void(0);"
-                                        class="dropdown-toggle btn btn-outline-white d-inline-flex align-items-center"
-                                        data-bs-toggle="dropdown">
-                                        Filter Status
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end p-3">
-                                        <li><a href="{{ route('invoice.index') }}" class="dropdown-item rounded-1">All</a></li>
-                                        <li><a href="{{ route('invoice.index', ['status' => 'paid']) }}" class="dropdown-item rounded-1">Paid</a></li>
-                                        <li><a href="{{ route('invoice.index', ['status' => 'unpaid']) }}" class="dropdown-item rounded-1">Unpaid</a></li>
-                                        <li><a href="{{ route('invoice.index', ['status' => 'partial']) }}" class="dropdown-item rounded-1">Partial</a></li>
-                                    </ul>
-                                </div>
-                                <div class="dropdown">
-                                    <a href="javascript:void(0);"
-                                        class="dropdown-toggle btn btn-outline-white d-inline-flex align-items-center fw-medium"
-                                        data-bs-toggle="dropdown">
-                                        <span class="d-inline-flex me-1">Sort By: </span> Latest
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end p-3">
-                                        <li><a href="{{ route('invoice.index', ['sort' => 'latest']) }}" class="dropdown-item rounded-1">Latest First</a></li>
-                                        <li><a href="{{ route('invoice.index', ['sort' => 'oldest']) }}" class="dropdown-item rounded-1">Oldest First</a></li>
-                                        <li><a href="{{ route('invoice.index', ['sort' => 'amount_high']) }}" class="dropdown-item rounded-1">Amount (High to Low)</a></li>
-                                        <li><a href="{{ route('invoice.index', ['sort' => 'amount_low']) }}" class="dropdown-item rounded-1">Amount (Low to High)</a></li>
-                                        <li><a href="{{ route('invoice.index', ['sort' => 'due_date']) }}" class="dropdown-item rounded-1">Due Date</a></li>
-                                    </ul>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                <!-- Table Header -->
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                        <h5 class="flex items-center text-base font-semibold text-gray-900">
+                            All Invoices
+                            <span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full ml-2">
+                                {{ $invoices->total() }} Total
+                            </span>
+                        </h5>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                            <!-- Search -->
+                            <div class="relative">
+                                <input type="text"
+                                       class="pl-8 pr-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-48"
+                                       placeholder="Search invoices...">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400 text-xs"></i>
                                 </div>
                             </div>
-                        </div>
 
-                        @if(session('success'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        @endif
-
-                        @if(session('error'))
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                {{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        @endif
-
-                        <div class="card-body p-0">
-                            <div class="table-responsive table-nowrap">
-                                <table class="mb-0 table border">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th class="no-sort">
-                                                <div class="form-check form-check-md">
-                                                    <input class="form-check-input" type="checkbox" id="select-all">
-                                                </div>
-                                            </th>
-                                            <th class="fw-medium fs-14">Invoice #</th>
-                                            <th class="fw-medium fs-14">Customer</th>
-                                            <th class="fw-medium fs-14">Issue Date</th>
-                                            <th class="fw-medium fs-14">Due Date</th>
-                                            <th class="fw-medium fs-14">Total Amount</th>
-                                            <th class="fw-medium fs-14">VAT Amount</th>
-                                            <th class="fw-medium fs-14">Paid</th>
-                                            <th class="fw-medium fs-14">Balance</th>
-                                            <th class="fw-medium fs-14">Status</th>
-                                            <th class="fw-medium fs-14">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($invoices as $invoice)
-                                            @php
-                                                $balance = $invoice->total_amount - $invoice->paid;
-                                                $isOverdue = $invoice->due_date && $invoice->due_date->isPast() && $invoice->status !== 'paid';
-                                            @endphp
-                                            <tr>
-                                                <td>
-                                                    <div class="form-check form-check-md">
-                                                        <input class="form-check-input" type="checkbox">
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <a href="{{ route('invoice.show', $invoice->id) }}"
-                                                        class="tb-data text-primary fw-medium">
-                                                        {{ $invoice->invoice_number }}
-                                                    </a>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <a href="{{ route('invoice.show', $invoice->id) }}" class="avatar avatar-md me-2 bg-light rounded-circle d-flex align-items-center justify-content-center">
-                                                            <span class="fw-medium text-primary">
-                                                                {{ strtoupper(substr($invoice->customer->name ?? 'U', 0, 2)) }}
-                                                            </span>
-                                                        </a>
-                                                        <div>
-                                                            <h6 class="fw-medium fs-14 mb-0">
-                                                                <a href="{{ route('invoice.show', $invoice->id) }}">
-                                                                    {{ $invoice->customer->name ?? 'Unknown' }}
-                                                                </a>
-                                                            </h6>
-                                                            @if($invoice->customer && $invoice->customer->email)
-                                                                <small class="text-muted">{{ $invoice->customer->email }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>{{ $invoice->issue_date ? $invoice->issue_date->format('d M, Y') : 'N/A' }}</td>
-                                                <td>
-                                                    @if($invoice->due_date)
-                                                        <span class="{{ $isOverdue ? 'text-danger fw-medium' : '' }}">
-                                                            {{ $invoice->due_date->format('d M, Y') }}
-                                                            @if($isOverdue)
-                                                                <br><small class="badge badge-soft-danger">Overdue</small>
-                                                            @endif
-                                                        </span>
-                                                    @else
-                                                        <span class="text-muted">N/A</span>
-                                                    @endif
-                                                </td>
-                                                <td class="fw-medium">₦{{ number_format($invoice->total_amount, 2) }}</td>
-                                                <td class="fw-medium">₦{{ number_format($invoice->vat_amount, 2) }}</td>
-                                                <td class="text-success">₦{{ number_format($invoice->paid, 2) }}</td>
-                                                <td class="{{ $balance > 0 ? 'text-danger fw-medium' : 'text-muted' }}">
-                                                    ₦{{ number_format($balance, 2) }}
-                                                </td>
-                                                <td>
-                                                    @if($invoice->status === 'paid')
-                                                        <span class="badge badge-soft-success d-inline-flex align-items-center">
-                                                            <i class="ti ti-circle-check-filled me-1"></i>Paid
-                                                        </span>
-                                                    @elseif($invoice->status === 'partial')
-                                                        <span class="badge badge-soft-info d-inline-flex align-items-center">
-                                                            <i class="ti ti-clock me-1"></i>Partial
-                                                        </span>
-                                                    @else
-                                                        <span class="badge badge-soft-warning d-inline-flex align-items-center">
-                                                            <i class="ti ti-alert-circle me-1"></i>Unpaid
-                                                        </span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <div class="action-icon d-inline-flex">
-                                                        <a href="{{ route('invoice.show', $invoice->id) }}"
-                                                            class="me-2" title="View">
-                                                            <i class="ti ti-eye"></i>
-                                                        </a>
-                                                        <a href="{{ route('invoice.edit', $invoice->id) }}"
-                                                            class="me-2" title="Edit">
-                                                            <i class="ti ti-edit"></i>
-                                                        </a>
-                                                        <a href="javascript:void(0);"
-                                                            class="text-danger"
-                                                            title="Delete"
-                                                            onclick="confirmDelete({{ $invoice->id }})">
-                                                            <i class="ti ti-trash"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="10" class="text-center py-5">
-                                                    <div class="text-muted">
-                                                        <i class="ti ti-file-invoice fs-1 d-block mb-2"></i>
-                                                        <p class="mb-2">No invoices found</p>
-                                                        <a href="{{ route('invoice.create') }}" class="btn btn-sm btn-primary">
-                                                            <i class="ti ti-plus me-1"></i>Create First Invoice
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Pagination -->
-                            @if($invoices->hasPages())
-                                <div class="card-footer d-flex justify-content-between align-items-center">
-                                    <div class="text-muted">
-                                        Showing {{ $invoices->firstItem() }} to {{ $invoices->lastItem() }} of {{ $invoices->total() }} entries
-                                    </div>
-                                    <div>
-                                        {{ $invoices->links() }}
-                                    </div>
+                            <!-- Status Filter Dropdown -->
+                            <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                                <button class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded text-sm flex items-center gap-1 transition-colors"
+                                        @click="open = !open">
+                                    Filter Status
+                                </button>
+                                <div class="absolute right-0 mt-1 w-40 bg-white rounded shadow-lg border border-gray-200 z-10 py-1"
+                                     x-show="open" x-transition>
+                                    <a href="{{ route('invoice.index') }}" class="block px-3 py-2 text-sm hover:bg-gray-50 transition-colors">All</a>
+                                    <a href="{{ route('invoice.index', ['status' => 'paid']) }}" class="block px-3 py-2 text-sm hover:bg-gray-50 transition-colors">Paid</a>
+                                    <a href="{{ route('invoice.index', ['status' => 'unpaid']) }}" class="block px-3 py-2 text-sm hover:bg-gray-50 transition-colors">Unpaid</a>
+                                    <a href="{{ route('invoice.index', ['status' => 'partial']) }}" class="block px-3 py-2 text-sm hover:bg-gray-50 transition-colors">Partial</a>
                                 </div>
-                            @endif
+                            </div>
+
+                            <!-- Sort Dropdown -->
+                            <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                                <button class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded text-sm flex items-center gap-1 transition-colors"
+                                        @click="open = !open">
+                                    <span class="flex items-center mr-1">Sort By: </span> Latest
+                                </button>
+                                <div class="absolute right-0 mt-1 w-48 bg-white rounded shadow-lg border border-gray-200 z-10 py-1"
+                                     x-show="open" x-transition>
+                                    <a href="{{ route('invoice.index', ['sort' => 'latest']) }}" class="block px-3 py-2 text-sm hover:bg-gray-50 transition-colors">Latest First</a>
+                                    <a href="{{ route('invoice.index', ['sort' => 'oldest']) }}" class="block px-3 py-2 text-sm hover:bg-gray-50 transition-colors">Oldest First</a>
+                                    <a href="{{ route('invoice.index', ['sort' => 'amount_high']) }}" class="block px-3 py-2 text-sm hover:bg-gray-50 transition-colors">Amount (High to Low)</a>
+                                    <a href="{{ route('invoice.index', ['sort' => 'amount_low']) }}" class="block px-3 py-2 text-sm hover:bg-gray-50 transition-colors">Amount (Low to High)</a>
+                                    <a href="{{ route('invoice.index', ['sort' => 'due_date']) }}" class="block px-3 py-2 text-sm hover:bg-gray-50 transition-colors">Due Date</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Alerts -->
+                <div class="px-4 pt-3">
+                    @if(session('success'))
+                        <div class="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded text-sm mb-3 flex justify-between items-center">
+                            {{ session('success') }}
+                            <button type="button" class="text-green-700 hover:text-green-900">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm mb-3 flex justify-between items-center">
+                            {{ session('error') }}
+                            <button type="button" class="text-red-700 hover:text-red-900">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 scale-75">
+                                </th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice #</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issue Date</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VAT</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse ($invoices as $invoice)
+                                @php
+                                    $balance = $invoice->total_amount - $invoice->paid;
+                                    $isOverdue = $invoice->due_date && $invoice->due_date->isPast() && $invoice->status !== 'paid';
+                                @endphp
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 scale-75">
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <a href="{{ route('invoice.show', $invoice->id) }}"
+                                            class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                                            {{ $invoice->invoice_number }}
+                                        </a>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                                                <span class="text-blue-600 font-medium text-xs">
+                                                    {{ strtoupper(substr($invoice->customer->name ?? 'U', 0, 1)) }}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 text-sm">
+                                                    <a href="{{ route('invoice.show', $invoice->id) }}" class="hover:text-blue-600">
+                                                        {{ $invoice->customer->name ?? 'Unknown' }}
+                                                    </a>
+                                                </div>
+                                                @if($invoice->customer && $invoice->customer->email)
+                                                    <div class="text-gray-500 text-xs truncate" style="max-width: 120px;">{{ $invoice->customer->email }}</div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-gray-600 text-sm">
+                                        {{ $invoice->issue_date ? $invoice->issue_date->format('d M, Y') : 'N/A' }}
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        @if($invoice->due_date)
+                                            <div class="{{ $isOverdue ? 'text-red-600 font-medium' : 'text-gray-600' }} text-sm">
+                                                {{ $invoice->due_date->format('d M, Y') }}
+                                                @if($isOverdue)
+                                                    <div class="bg-red-100 text-red-800 text-xs px-1 py-0.5 rounded text-xs mt-0.5">Overdue</div>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 text-sm">N/A</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 text-sm">
+                                        ₦{{ number_format($invoice->total_amount, 2) }}
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 text-sm">
+                                        ₦{{ number_format($invoice->vat_amount, 2) }}
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-green-600 font-medium text-sm">
+                                        ₦{{ number_format($invoice->paid, 2) }}
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap font-medium text-sm {{ $balance > 0 ? 'text-red-600' : 'text-gray-600' }}">
+                                        ₦{{ number_format($balance, 2) }}
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        @if($invoice->status === 'paid')
+                                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center gap-1 w-fit">
+                                                <i class="fas fa-check-circle text-xs"></i>
+                                                Paid
+                                            </span>
+                                        @elseif($invoice->status === 'partial')
+                                            <span class="bg-cyan-100 text-cyan-800 text-xs px-2 py-1 rounded-full flex items-center gap-1 w-fit">
+                                                <i class="fas fa-clock text-xs"></i>
+                                                Partial
+                                            </span>
+                                        @else
+                                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full flex items-center gap-1 w-fit">
+                                                <i class="fas fa-exclamation-circle text-xs"></i>
+                                                Unpaid
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <a href="{{ route('invoice.show', $invoice->id) }}"
+                                                class="text-blue-600 hover:text-blue-800 transition-colors"
+                                                title="View">
+                                                <i class="fas fa-eye text-xs"></i>
+                                            </a>
+                                            <a href="{{ route('invoice.edit', $invoice->id) }}"
+                                                class="text-gray-600 hover:text-gray-800 transition-colors"
+                                                title="Edit">
+                                                <i class="fas fa-edit text-xs"></i>
+                                            </a>
+                                            <button onclick="confirmDelete({{ $invoice->id }})"
+                                                class="text-red-600 hover:text-red-800 transition-colors"
+                                                title="Delete">
+                                                <i class="fas fa-trash text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="11" class="px-4 py-8 text-center">
+                                        <div class="text-gray-500">
+                                            <i class="fas fa-file-invoice text-2xl mb-2 block"></i>
+                                            <p class="text-sm mb-3">No invoices found</p>
+                                            <a href="{{ route('invoice.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm inline-flex items-center gap-1 transition-colors">
+                                                <i class="fas fa-plus text-xs"></i>
+                                                Create First Invoice
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if($invoices->hasPages())
+                    <div class="px-4 py-3 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+                        <div class="text-gray-500">
+                            Showing {{ $invoices->firstItem() }} to {{ $invoices->lastItem() }} of {{ $invoices->total() }} entries
+                        </div>
+                        <div class="text-xs">
+                            {{ $invoices->links() }}
+                        </div>
+                    </div>
+                @endif
             </div>
             <!-- End Table -->
 
         </div>
         <!-- End Content -->
-
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="delete_modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirm Delete</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="delete_modal" style="display: none;">
+        <div class="relative top-20 mx-auto p-4 border w-80 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="mx-auto flex items-center justify-center h-10 w-10 rounded-full bg-red-100">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-sm"></i>
+                </div>
+                <div class="mt-2 text-center">
+                    <h3 class="text-base font-medium text-gray-900">Confirm Delete</h3>
+                    <div class="mt-2 px-2 py-2">
+                        <p class="text-xs text-gray-500">Are you sure you want to delete this invoice? This action cannot be undone.</p>
+                    </div>
                 </div>
                 <form id="delete-form" method="POST">
                     @csrf
                     @method('DELETE')
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete this invoice? This action cannot be undone.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Delete Invoice</button>
+                    <div class="items-center px-2 py-2 flex gap-2 justify-center">
+                        <button type="button"
+                                onclick="closeModal()"
+                                class="px-3 py-1.5 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="px-3 py-1.5 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors">
+                            Delete
+                        </button>
                     </div>
                 </form>
             </div>
@@ -384,15 +406,25 @@
         function confirmDelete(invoiceId) {
             const deleteForm = document.getElementById('delete-form');
             deleteForm.action = `/invoice/${invoiceId}`;
+            document.getElementById('delete_modal').style.display = 'block';
+        }
 
-            const modal = new bootstrap.Modal(document.getElementById('delete_modal'));
-            modal.show();
+        function closeModal() {
+            document.getElementById('delete_modal').style.display = 'none';
         }
 
         // Select all checkboxes
-        document.getElementById('select-all')?.addEventListener('change', function() {
+        document.querySelector('thead input[type="checkbox"]')?.addEventListener('change', function() {
             const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
             checkboxes.forEach(cb => cb.checked = this.checked);
         });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('delete_modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
     </script>
 @endsection

@@ -9,8 +9,6 @@
     <!-- Quick Actions -->
     <div class="flex flex-1 flex-col items-center space-y-6">
 
-
-
         <!-- Navigation Icons -->
         <div class="flex flex-col items-center space-y-6">
             <a href="{{ route('dashboard') }}"
@@ -180,7 +178,6 @@
                                     </a>
                                 </li>
 
-
                                 <li>
                                     <a href="{{ route('category.index') }}"
                                         class="block rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-gray-800">
@@ -268,6 +265,27 @@
                                 </li>
                             </ul>
                         </li>
+
+                        {{-- report --}}
+
+                        <!-- Financial Report Link -->
+                        <li class="mb-6">
+                            <a href="{{ route('invoice.report') }}"
+                                class="{{ request()->routeIs('invoice.report') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-700 hover:bg-gray-50' }} group flex items-center rounded-xl px-3 py-3 transition-all duration-200">
+                                <svg class="{{ request()->routeIs('invoice.report') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }} mr-3 h-5 w-5"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 17v-6a2 2 0 012-2h6m4 0v6a2 2 0 01-2 2h-6m-4 0H5a2 2 0 01-2-2v-6a2 2 0 012-2h6z">
+                                    </path>
+                                </svg>
+                                <span class="font-medium">Financial Report</span>
+                                @if (request()->routeIs('invoice.report'))
+                                    <span
+                                        class="bg-primary-100 text-primary-800 ml-auto rounded-full px-2 py-1 text-xs">Active</span>
+                                @endif
+                            </a>
+                        </li>
+
                     </ul>
                 </li>
             </ul>

@@ -32,7 +32,7 @@ class CategoryController extends Controller
 
         Category::create([
             'name' => $validated['name'],
-            'user_id' => auth()->id(), // ✅ FIXED: must match migration
+            'user_id' => auth()->id(), 
         ]);
 
         return redirect()->route('category.index')->with('success', 'Category created successfully!');
@@ -41,13 +41,12 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        $this->authorizeAccess($category);
+
         return view('categories.form', compact('category'));
     }
 
     public function update(Request $request, Category $category)
     {
-        $this->authorizeAccess($category);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id . ',id,user_id,' . auth()->id(),
@@ -60,16 +59,11 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        $this->authorizeAccess($category);
+
         $category->delete();
 
         return redirect()->route('category.index')->with('success', 'Category deleted successfully!');
     }
 
-    private function authorizeAccess(Category $category)
-    {
-        if ($category->user->id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
-    }
+
 }

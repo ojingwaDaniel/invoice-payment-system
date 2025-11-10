@@ -11,7 +11,8 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "simplesoftwareio/simple-qrcode": "^4.2",
-        "symfony/sendgrid-mailer": "^7.3"
+        "symfony/sendgrid-mailer": "^7.3",
+        "yabacon/paystack-php": "^2.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

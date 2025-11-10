@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,7 +16,8 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::where('user_id', auth()->id())->latest()->paginate(20);
-        return view('products.index', compact('products'));
+        $units = Unit::where("user_id", auth()->id())->orderBy("name")->get();
+        return view('products.index', compact('products', "units"));
     }
 
     /** =========================
@@ -23,8 +25,10 @@ class ProductController extends Controller
      *  ========================= */
     public function create()
     {
-        $categories = Category::all();
-        return view('products.form', compact('categories'));
+        $categories = Category::where('user_id', auth()->id())->get(); // optional, if categories are user-specific
+        $units = Unit::where('user_id', auth()->id())->orderBy('name')->get();
+
+        return view('products.form', compact('categories', 'units'));
     }
 
     /** =========================
@@ -35,8 +39,9 @@ class ProductController extends Controller
         if ($product->user_id !== auth()->id()) {
             abort(403, 'Unauthorized access.');
         }
-        $categories = Category::all();
-        return view('products.form', compact('product',"categories"));
+        $categories = Category::where('user_id', auth()->id())->get(); // optional, if categories are user-specific
+        $units = Unit::where('user_id', auth()->id())->orderBy('name')->get();
+        return view('products.form', compact('product', "categories","units"));
     }
 
     /** =========================

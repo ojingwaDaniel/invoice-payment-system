@@ -230,7 +230,7 @@
                                             </td>
                                             <td>
                                                 @if($customer->invoices_count > 0)
-                                                    <span class="badge bg-primary-transparent">
+                                                    <span class="">
                                                         {{ $customer->invoices_count }} {{ Str::plural('invoice', $customer->invoices_count) }}
                                                     </span>
                                                 @else

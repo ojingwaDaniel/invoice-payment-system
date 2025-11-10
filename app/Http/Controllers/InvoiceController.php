@@ -12,6 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 use App\Mail\InvoiceMail;
+use App\Models\Unit;
 
 class InvoiceController extends Controller
 {
@@ -78,6 +79,7 @@ class InvoiceController extends Controller
         $userId = auth()->id();
         $products = Product::where('user_id', $userId)->orderBy('name')->get();
         $customers = Customer::where('user_id', $userId)->orderBy('name')->get();
+
 
         $last = Invoice::where('user_id', $userId)->latest('id')->first();
         $nextNumber = $last ? $last->id + 1 : 1;
@@ -379,26 +381,124 @@ class InvoiceController extends Controller
     {
         $user = $invoice->user;
 
-        if (!$user->paystack_subaccount_code) {
-            return back()->with('error', 'This company has not connected Paystack yet.');
-        }
+        // Use merchant-provided Paystack keys (or fallback to default)
+        $paystackPublic = $user->paystack_public_key ?? config('services.paystack.public');
+        $paystackSecret = $user->paystack_secret_key ?? config('services.paystack.secret');
 
-
-        $response = Http::withToken(config('services.paystack.secret'))->post('https://api.paystack.co/transaction/initialize', [
+        // Initialize transaction using these keys
+        $paystack = new \Yabacon\Paystack($paystackSecret);
+        $response = $paystack->transaction->initialize([
             'amount' => $invoice->total_amount * 100,
             'email' => $invoice->customer->email,
-            'callback_url' => route('payment.callback', $invoice->id),
-            'subaccount' => $user->paystack_subaccount_code,
-            'reference' => $invoice->invoice_number,
+            'reference' => 'INV-' . $invoice->id . '-' . time(),
+            'callback_url' => route('invoice.callback', $invoice->id),
         ]);
 
-        $data = $response->json();
+        return redirect($response->data->authorization_url);
+    }
 
-        if ($response->ok() && isset($data['data']['authorization_url'])) {
-            
-            return redirect($data['data']['authorization_url']);
-        } else {
-            return back()->with('error', 'Failed to initialize payment. Please try again.');
+
+    public function updatePaystackKeys(Request $request)
+    {
+        $request->validate([
+            'paystack_public_key' => 'nullable|string',
+            'paystack_secret_key' => 'nullable|string',
+        ]);
+
+        auth()->user()->update([
+            'paystack_public_key' => $request->paystack_public_key,
+            'paystack_secret_key' => $request->paystack_secret_key,
+        ]);
+
+        return back()->with('success', 'Paystack keys updated successfully!');
+    }
+    public function handleCallback(Request $request, Invoice $invoice)
+    {
+        $user = $invoice->user;
+
+        // Use the same Paystack secret key
+        $paystackSecret = $user->paystack_secret_key ?? config('services.paystack.secret');
+        $paystack = new \Yabacon\Paystack($paystackSecret);
+
+        // Get the reference Paystack sent back
+        $reference = $request->query('reference');
+
+        try {
+            // Verify the payment with Paystack
+            $tranx = $paystack->transaction->verify(['reference' => $reference]);
+
+            if ($tranx->data->status === 'success') {
+                // ✅ Payment successful
+                $invoice->status = 'paid';
+                $invoice->paid = $invoice->total_amount;
+                $invoice->payment_method = 'paystack';
+                $invoice->save();
+
+                return redirect()
+                    ->route('invoice.show', $invoice->id)
+                    ->with('success', 'Payment successful! Invoice marked as paid.');
+            } else {
+                // ❌ Payment failed or cancelled
+                return redirect()
+                    ->route('invoice.show', $invoice->id)
+                    ->with('error', 'Payment not successful. Please try again.');
+            }
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('invoice.show', $invoice->id)
+                ->with('error', 'Payment verification failed: ' . $e->getMessage());
         }
+    }
+    public function financialReport(Request $request)
+    {
+        $userId = auth()->id();
+
+        $invoices = Invoice::where('user_id', $userId)->get();
+
+        // Group by month
+        $monthlySales = $invoices->groupBy(function ($item) {
+            return $item->issue_date->format('Y-m'); // YYYY-MM
+        })->map(function ($items) {
+            return [
+                'invoice_count' => $items->count(),
+                'total_amount' => $items->sum('total_amount'),
+                'paid_amount' => $items->where('status', 'paid')->sum('total_amount'),
+            ];
+        });
+
+        // Group by quarter
+        $quarterlySales = $invoices->groupBy(function ($item) {
+            $month = (int)$item->issue_date->format('m');
+            $quarter = ceil($month / 3);
+            return $item->issue_date->format('Y') . '-Q' . $quarter;
+        })->map(function ($items) {
+            return [
+                'invoice_count' => $items->count(),
+                'total_amount' => $items->sum('total_amount'),
+                'paid_amount' => $items->where('status', 'paid')->sum('total_amount'),
+            ];
+        });
+
+        // Yearly sales
+        $yearlySales = $invoices->groupBy(function ($item) {
+            return $item->issue_date->format('Y');
+        })->map(function ($items) {
+            return [
+                'invoice_count' => $items->count(),
+                'total_amount' => $items->sum('total_amount'),
+                'paid_amount' => $items->where('status', 'paid')->sum('total_amount'),
+            ];
+        });
+
+        $totalRevenue = $invoices->sum('total_amount');
+        $totalPaid = $invoices->where('status', 'paid')->sum('total_amount');
+
+        return view('invoices.report', compact(
+            'monthlySales',
+            'quarterlySales',
+            'yearlySales',
+            'totalRevenue',
+            'totalPaid'
+        ));
     }
 }

@@ -23,6 +23,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone',
         'company_name',
         'address',
+        'paystack_public_key',
+        'paystack_secret_key',
     ];
 
     /**
@@ -70,5 +72,9 @@ class User extends Authenticatable implements MustVerifyEmail
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+    public function units()
+    {
+        return $this->hasMany(Unit::class);
     }
 }
