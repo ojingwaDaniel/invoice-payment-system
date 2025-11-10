@@ -89,7 +89,7 @@
                                 d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <span class="text-2xl font-bold text-gray-900">invoinix</span>
+                    <span class="text-2xl font-bold text-gray-900">invonix</span>
                 </div>
 
                 <div class="max-w-lg">

@@ -88,7 +88,7 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-    
+
         $recentTransactions = Invoice::where('user_id', $user->id)
             ->latest()
             ->take(5)
@@ -102,11 +102,27 @@ class DashboardController extends Controller
                 ];
             });
         $topCustomers = Customer::where('user_id', $user->id)
-            ->withSum('invoices', 'paid')  
+            ->withSum('invoices', 'paid')
             ->withCount('invoices')
             ->orderByDesc('invoices_sum_paid')
             ->take(5)
             ->get();
+        // Total number of sales (invoices) this month
+        $totalSalesCount = Invoice::where('user_id', $user->id)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+
+        // Compare with last month
+        $lastMonthSalesCount = Invoice::where('user_id', $user->id)
+            ->whereMonth('created_at', now()->subMonth()->month)
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->count();
+
+        $salesGrowthCount = $lastMonthSalesCount > 0
+            ? round((($totalSalesCount - $lastMonthSalesCount) / $lastMonthSalesCount) * 100, 2)
+            : 0;
+
 
 
         return view('admin.index', compact(
@@ -127,7 +143,9 @@ class DashboardController extends Controller
             'recentInvoices',
             'recentTransactions',
             'recentCustomers',
-            'topCustomers'
+            'topCustomers',
+            'totalSalesCount',
+            'salesGrowthCount',
         ));
     }
 }

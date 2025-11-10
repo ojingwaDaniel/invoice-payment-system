@@ -21,7 +21,7 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm" :class="{ 'show': open }" x-show="open"
                             x-transition>
                             <li>
-                                <a href="{{ route("invoice.create") }}" class="dropdown-item d-flex align-items-center">
+                                <a href="{{ route('invoice.create') }}" class="dropdown-item d-flex align-items-center">
                                     <i class="isax isax-document-text-1 text-primary me-3"></i>
                                     <div>
                                         <div class="fw-medium">Invoice</div>
@@ -33,7 +33,7 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a href="{{ route("customer.create") }}" class="dropdown-item d-flex align-items-center">
+                                <a href="{{ route('customer.create') }}" class="dropdown-item d-flex align-items-center">
                                     <i class="isax isax-money-send text-danger me-3"></i>
                                     <div>
                                         <div class="fw-medium">Customer</div>
@@ -42,7 +42,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route("category.create") }}" class="dropdown-item d-flex align-items-center">
+                                <a href="{{ route('category.create') }}" class="dropdown-item d-flex align-items-center">
                                     <i class="isax isax-money-add text-success me-3"></i>
                                     <div>
                                         <div class="fw-medium">Cateogry</div>
@@ -51,7 +51,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route("unit.create") }}" class="dropdown-item d-flex align-items-center">
+                                <a href="{{ route('unit.create') }}" class="dropdown-item d-flex align-items-center">
                                     <i class="isax isax-money-recive text-warning me-3"></i>
                                     <div>
                                         <div class="fw-medium">Unit</div>
@@ -59,10 +59,9 @@
                                     </div>
                                 </a>
                             </li>
-                           
+
                         </ul>
                     </div>
-
 
                 </div>
             </div>
@@ -172,40 +171,43 @@
                                         </div>
                                         <div>
                                             <p class="text-muted fs-13 mb-1">Total Sales</p>
-                                            <h5 class="fw-bold mb-0">₦40,569</h5>
+                                            <h5 class="fw-bold mb-0">₦{{ number_format($totalSales, 2) }}</h5>
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="col-6">
                                     <div class="d-flex align-items-start">
                                         <div class="bg-success-subtle rounded-2 me-2 flex-shrink-0 p-2">
                                             <i class="isax isax-programming-arrow text-success"></i>
                                         </div>
                                         <div>
-                                            <p class="text-muted fs-13 mb-1">Purchase</p>
-                                            <h5 class="fw-bold mb-0">₦154,220</h5>
+                                            <p class="text-muted fs-13 mb-1">Received</p>
+                                            <h5 class="fw-bold mb-0">₦{{ number_format($received, 2) }}</h5>
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="col-6">
                                     <div class="d-flex align-items-start">
                                         <div class="bg-warning-subtle rounded-2 me-2 flex-shrink-0 p-2">
                                             <i class="isax isax-dollar-circle text-warning"></i>
                                         </div>
                                         <div>
-                                            <p class="text-muted fs-13 mb-1">Expenses</p>
-                                            <h5 class="fw-bold mb-0">₦10,041</h5>
+                                            <p class="text-muted fs-13 mb-1">Outstanding</p>
+                                            <h5 class="fw-bold mb-0">₦{{ number_format($outstanding, 2) }}</h5>
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="col-6">
                                     <div class="d-flex align-items-start">
                                         <div class="bg-info-subtle rounded-2 me-2 flex-shrink-0 p-2">
                                             <i class="isax isax-flag text-info"></i>
                                         </div>
                                         <div>
-                                            <p class="text-muted fs-13 mb-1">Credits</p>
-                                            <h5 class="fw-bold mb-0">₦12,150</h5>
+                                            <p class="text-muted fs-13 mb-1">Overdue</p>
+                                            <h5 class="fw-bold mb-0">₦{{ number_format($overdue, 2) }}</h5>
                                         </div>
                                     </div>
                                 </div>
@@ -306,11 +308,15 @@
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <div>
                                     <p class="text-muted fs-14 mb-2">Total Sales</p>
-                                    <h4 class="fw-bold mb-1">645</h4>
-                                    <span class="badge bg-success-subtle text-success">
-                                        <i class="fa fa-arrow-up me-1"></i>+45
+                                    <h4 class="fw-bold mb-1">{{ $totalSalesCount }}</h4>
+                                    <span
+                                        class="badge {{ $salesGrowthCount >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">
+                                        <i
+                                            class="fa {{ $salesGrowthCount >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i>
+                                        {{ $salesGrowthCount >= 0 ? '+' : '' }}{{ $salesGrowthCount }}%
                                     </span>
                                 </div>
+
                                 <div class="bg-danger rounded-3 p-3">
                                     <i class="isax isax-chart fs-4 text-white"></i>
                                 </div>
