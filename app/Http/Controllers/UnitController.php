@@ -38,7 +38,7 @@ class UnitController extends Controller
 
         $request->user()->units()->create($validated);
 
-        return redirect()->back()->with('success', 'Unit created successfully');
+        return redirect()->route("unit.index")->with('success', 'Unit created successfully');
     }
 
     /**

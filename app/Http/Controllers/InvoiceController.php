@@ -16,16 +16,39 @@ use App\Models\Unit;
 
 class InvoiceController extends Controller
 {
-    /** ======================
-     *  Display all invoices
-     *  ====================== */
+
 
     public function index(Request $request)
     {
         $userId = auth()->id();
-        $query = Invoice::with('customer')->where('user_id', $userId);
+        $query = Invoice::with("customer")->where("user_id", $userId);
 
-        // Filter by status
+
+        if ($request->filled('search')) {
+            
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where("invoice_number", "like", "%{$search}%")->orWhereHas("customer", function ($c) use ($search) {
+                    $c->where("name", "like", "%{$search}%");
+                });
+            });
+        }
+
+        // Customer filter
+        if ($request->filled('customer_id')) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        // Date range filters
+        if ($request->filled('from')) {
+            $query->whereDate('issue_date', '>=', $request->from);
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('issue_date', '<=', $request->to);
+        }
+
+        // Status filter
         if ($request->has('status') && in_array($request->status, ['paid', 'unpaid', 'partial'])) {
             $query->where('status', $request->status);
         }
@@ -49,7 +72,8 @@ class InvoiceController extends Controller
                 $query->latest();
         }
 
-        $invoices = $query->paginate(15);
+        // Execute query with pagination AFTER all filters
+        $invoices = $query->paginate(15)->withQueryString();
 
         // Stats only for this user
         $allInvoices = Invoice::where('user_id', $userId)->get();
@@ -69,7 +93,9 @@ class InvoiceController extends Controller
             'partial_percentage' => $totalAmount > 0 ? ($allInvoices->where('status', 'partial')->sum('total_amount') / $totalAmount * 100) : 0,
         ];
 
-        return view('invoices.index', compact('invoices', 'stats'));
+        $customers = Customer::where('user_id', $userId)->get();
+
+        return view('invoices.index', compact('invoices', 'stats', 'customers'));
     }
     /** ======================
      *  Show create form
@@ -338,6 +364,10 @@ class InvoiceController extends Controller
         try {
             Mail::to($invoice->customer->email)
                 ->send(new InvoiceMail($invoice, $pdf->output()));
+            $invoice->update([
+                'is_sent' => true,
+            ]);
+
 
 
             \Log::info('Invoice email sent', [

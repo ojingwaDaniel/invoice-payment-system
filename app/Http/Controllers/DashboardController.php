@@ -124,6 +124,12 @@ class DashboardController extends Controller
             : 0;
 
 
+        $pendingInvoices = Invoice::where('user_id', $user->id)
+            ->where('is_sent', false)
+            ->count();
+
+
+
 
         return view('admin.index', compact(
             'totalInvoices',
@@ -146,6 +152,7 @@ class DashboardController extends Controller
             'topCustomers',
             'totalSalesCount',
             'salesGrowthCount',
+            'pendingInvoices'
         ));
     }
 }

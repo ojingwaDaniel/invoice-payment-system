@@ -20,6 +20,7 @@ class Invoice extends Model
         'paid',
         'payment_method',
         'vat_amount',
+        'is_sent',
     ];
 
     protected $casts = [
@@ -28,6 +29,7 @@ class Invoice extends Model
         'total_amount' => 'decimal:2',
         'discount' => 'decimal:2',
         'paid' => 'decimal:2',
+        'is_sent' => 'boolean',
     ];
 
     public function items()

@@ -73,18 +73,22 @@
                     <div class="row align-items-center">
                         <div class="col-lg-8">
                             <h5 class="fw-semibold mb-2 text-white">Good Morning , {{ Auth::user()->name }}! 👋</h5>
-                            <p class="mb-3 text-white opacity-90">You have <span class="fw-semibold">15 pending
-                                    invoices</span> saved to draft that need to be sent to customers</p>
+                            <p class="mb-3 text-white opacity-90">
+                                You have <span class="fw-semibold">{{ $pendingInvoices }}</span> pending invoices saved to
+                                draft that need to be sent to customers
+                            </p>
+
                             <div class="d-flex align-items-center flex-wrap gap-3">
                                 <div class="d-flex align-items-center text-white">
                                     <i class="isax isax-calendar me-2"></i>
-                                    <span class="fs-14">Friday, 24 Mar 2025</span>
+                                    <span class="fs-14">{{ \Carbon\Carbon::now()->translatedFormat('l, d M Y') }}</span>
                                 </div>
                                 <div class="d-flex align-items-center text-white">
                                     <i class="isax isax-clock me-2"></i>
-                                    <span class="fs-14">11:24 AM</span>
+                                    <span class="fs-14">{{ \Carbon\Carbon::now()->format('h:i A') }}</span>
                                 </div>
                             </div>
+
                         </div>
 
                     </div>
@@ -379,7 +383,7 @@
                                             <td class="border-0 text-end">
                                                 <p class="text-muted fs-13 mb-0">Total Paid</p>
                                                 <h6 class="fw-semibold mb-0">
-                                                    ₦{{ number_format($customer->total_paid, 2) }}</h6>
+                                                    ₦{{ number_format($customer->invoices_sum_paid, 2) }}</h6>
                                             </td>
                                             <td class="border-0 text-end">
                                                 <div class="d-flex justify-content-end gap-1">

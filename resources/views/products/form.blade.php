@@ -118,15 +118,16 @@
                             <!-- Category -->
                             <div class="col-md-6">
                                 <label class="form-label fw-medium">Category</label>
-                                <select name="category" class="form-select">
+                                <select name="category_id" class="form-select">
                                     <option value="">-- Select Category --</option>
                                     @foreach ($categories as $category)
-                                        <option value="{{ $category->name }}"
-                                            {{ old('category', $product->category ?? '') == $category->name ? 'selected' : '' }}>
+                                        <option value="{{ $category->id }}"
+                                            {{ old('category_id', $product->category_id ?? '') == $category->id ? 'selected' : '' }}>
                                             {{ $category->name }}
                                         </option>
                                     @endforeach
                                 </select>
+
                             </div>
 
                             <!-- Unit -->

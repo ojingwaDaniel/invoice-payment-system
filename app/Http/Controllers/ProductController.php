@@ -51,7 +51,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'category' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
             'selling_price' => 'required|numeric|min:0',
             'purchase_price' => 'nullable|numeric|min:0',
             'quantity' => 'nullable|integer|min:0',
@@ -62,7 +62,11 @@ class ProductController extends Controller
 
         $validated['user_id'] = auth()->id();
 
-        // ✅ Auto-generate unique product code
+        // Save category name too
+        $category = Category::find($request->category_id);
+        $validated['category'] = $category?->name;
+
+        // Generate product code
         $prefix = $validated['type'] === 'service' ? 'S' : 'P';
         $lastProduct = Product::where('user_id', auth()->id())
             ->where('type', $validated['type'])
@@ -75,11 +79,11 @@ class ProductController extends Controller
 
         $validated['code'] = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
-        // ✅ Create product
         Product::create($validated);
 
         return redirect()->route('product.index')->with('success', 'Product created successfully!');
     }
+
 
 
     /** =========================
@@ -101,7 +105,11 @@ class ProductController extends Controller
             'unit' => 'nullable|string|max:50',
             'type' => 'required|in:product,service',
             'description' => 'nullable|string',
+            'category_id' => 'nullable|exists:categories,id',
+
         ]);
+        $category = Category::find($request->category_id);
+        $validated['category'] = $category?->name;
 
         $product->update($validated);
         return redirect()->route('product.index')->with('success', 'Product updated successfully!');

@@ -11,19 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->boolean('is_sent')->default(false)->after('status');
         });
     }
 
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            //
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->dropColumn('is_sent');
         });
     }
 };

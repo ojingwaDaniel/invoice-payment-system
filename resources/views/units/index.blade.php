@@ -53,10 +53,10 @@
                     <input type="text" placeholder="Search units..." class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full lg:w-64">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                 </div>
-                <button class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-all duration-300 hover-lift shadow-md">
+                <a  href="{{ route("unit.create") }}" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-all duration-300 hover-lift shadow-md">
                     <i class="fas fa-plus-circle"></i>
-                    New Unit
-                </button>
+                     <span>New Unit</span>
+                </a>
             </div>
         </div>
 
@@ -78,37 +78,7 @@
                 </div>
             </div>
 
-            <div class="glass-effect rounded-xl p-6 shadow-sm hover-lift">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">Active Units</p>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ count($units) - 2 }}</h3>
-                    </div>
-                    <div class="bg-green-100 p-3 rounded-full">
-                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center text-sm text-gray-500">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    <span>All systems operational</span>
-                </div>
-            </div>
 
-            <div class="glass-effect rounded-xl p-6 shadow-sm hover-lift">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">Recently Added</p>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-1">2</h3>
-                    </div>
-                    <div class="bg-purple-100 p-3 rounded-full">
-                        <i class="fas fa-clock text-purple-600 text-xl"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center text-sm text-blue-500">
-                    <i class="fas fa-sync-alt mr-1"></i>
-                    <span>Updated just now</span>
-                </div>
-            </div>
         </div>
 
         <!-- Units Table -->
@@ -222,70 +192,6 @@
             @endif
         </div>
     </div>
-
-    <!-- Add Unit Modal -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden" id="addUnitModal">
-        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 opacity-0">
-            <div class="p-6 border-b border-gray-200">
-                <h3 class="text-xl font-semibold text-gray-800">Add New Unit</h3>
-            </div>
-            <div class="p-6">
-                <form method="POST" action="{{ route("unit.store") }}">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="unitName" class="block text-sm font-medium text-gray-700 mb-1">Unit Name</label>
-                        <input type="text" id="unitName" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter unit name">
-                    </div>
-                    <div class="mb-6">
-                        <label for="shortName" class="block text-sm font-medium text-gray-700 mb-1">Short Name</label>
-                        <input type="text" id="shortName" name="short_name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter short name">
-                    </div>
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors">
-                            Cancel
-                        </button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors">
-                            Add Unit
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Simple script to handle modal display
-        document.addEventListener('DOMContentLoaded', function() {
-            const addButton = document.querySelector('button.bg-gradient-to-r');
-            const modal = document.getElementById('addUnitModal');
-
-            if (addButton && modal) {
-                addButton.addEventListener('click', function() {
-                    modal.classList.remove('hidden');
-                    setTimeout(() => {
-                        modal.querySelector('.transform').classList.remove('scale-95', 'opacity-0');
-                    }, 10);
-                });
-
-                // Close modal when clicking outside or on cancel
-                modal.addEventListener('click', function(e) {
-                    if (e.target === modal || e.target.classList.contains('cancel-modal')) {
-                        modal.querySelector('.transform').classList.add('scale-95', 'opacity-0');
-                        setTimeout(() => {
-                            modal.classList.add('hidden');
-                        }, 300);
-                    }
-                });
-            }
-
-            // Add fade-in animation to table rows
-            const tableRows = document.querySelectorAll('tbody tr');
-            tableRows.forEach((row, index) => {
-                row.style.animationDelay = `${index * 0.05}s`;
-                row.classList.add('fade-in');
-            });
-        });
-    </script>
 </body>
 </html>
 @endsection
