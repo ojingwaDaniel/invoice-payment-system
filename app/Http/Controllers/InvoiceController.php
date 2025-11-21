@@ -188,7 +188,7 @@ class InvoiceController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('invoice.index')->with('success', 'Invoice created successfully!');
+            return redirect()->route('invoice.show',["invoice"=> $invoice])->with('success', 'Invoice created successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Failed to create invoice: ' . $e->getMessage());
