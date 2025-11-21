@@ -214,10 +214,6 @@
                                         </path>
                                     </svg>
                                 </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-600">Quotations</p>
-                                    <h5 class="text-xl font-bold text-gray-900">2,150</h5>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -473,37 +469,7 @@
                     </div>
                 </div>
 
-                <div
-                    class="overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 shadow-sm transition-all duration-300 hover:shadow-md">
-                    <div class="p-6">
-                        <div class="mb-4 flex items-center justify-between">
-                            <div class="flex-1">
-                                <p class="mb-2 text-sm text-gray-600">Total Quotations</p>
-                                <h3 class="mb-2 text-3xl font-bold text-gray-900">128</h3>
-                                <span
-                                    class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800">
-                                    <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    +45
-                                </span>
-                            </div>
-                            <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-cyan-600 shadow-lg">
-                                <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <a href="quotations.html"
-                            class="block w-full rounded-lg bg-cyan-600 px-4 py-2.5 text-center text-sm font-medium text-white transition-colors duration-200 hover:bg-cyan-700">
-                            View All
-                        </a>
-                    </div>
-                </div>
+        
             </div>
 
             <!-- Top Customers -->
