@@ -15,11 +15,11 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
 
             // Invoice info
-            $table->string('invoice_number')->unique();
+            $table->string('invoice_number');
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
 
             $table->decimal('total_amount', 10, 2)->default(0);
-            
+
             $table->decimal('paid', 10, 2)->default(0);
             $table->enum('status', ['paid', 'unpaid', 'partial'])->default('unpaid');
             $table->string('payment_method')->nullable();

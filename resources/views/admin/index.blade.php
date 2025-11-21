@@ -203,7 +203,7 @@
                             </div>
                         </div>
 
-                        
+
                     </div>
                 </div>
 
@@ -477,10 +477,6 @@
                                     <tr class="transition-colors duration-150 hover:bg-gray-50">
                                         <td class="py-4 pr-4">
                                             <div class="flex items-center">
-                                                <div class="mr-4 h-12 w-12 flex-shrink-0 overflow-hidden rounded-full">
-                                                    <img src="{{ $customer->avatar_url ?? asset('assets/img/users/default.jpg') }}"
-                                                        alt="{{ $customer->name }}" class="h-full w-full object-cover">
-                                                </div>
                                                 <div>
                                                     <p class="text-sm font-semibold text-gray-900">{{ $customer->name }}
                                                     </p>
@@ -762,7 +758,7 @@
                             <div class="mb-4 flex items-center justify-between">
                                 <div>
                                     <p class="mb-1 text-sm text-gray-600">Total Invoice Income</p>
-                                    <h3 class="text-3xl font-bold text-gray-900">₦98,545</h3>
+                                    <h3 class="text-3xl font-bold text-gray-900">₦{{ number_format($received, 2) }}</h3>
                                 </div>
                                 <div class="text-right">
                                     <div class="mb-1 flex items-center font-semibold text-green-600">
