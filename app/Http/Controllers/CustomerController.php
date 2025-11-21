@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
-    /**
-     * Display all customers
-     */
+
     public function index(Request $request)
     {
-        $query = Customer::withCount('invoices');
+        $userId = auth()->id();
+
+        $query = Customer::where("user_id",$userId)->withCount('invoices');
 
         // Search functionality
         if ($request->has('search') && $request->search) {
@@ -38,7 +38,7 @@ class CustomerController extends Controller
             case 'oldest':
                 $query->oldest();
                 break;
-            default: // 'name'
+            default:
                 $query->orderBy('name', 'asc');
         }
 

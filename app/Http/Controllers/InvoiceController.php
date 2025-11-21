@@ -25,7 +25,7 @@ class InvoiceController extends Controller
 
 
         if ($request->filled('search')) {
-            
+
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where("invoice_number", "like", "%{$search}%")->orWhereHas("customer", function ($c) use ($search) {

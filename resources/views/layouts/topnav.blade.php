@@ -1,148 +1,296 @@
-<div class="header">
-    <div class="main-header">
+<!-- Header with Tailwind CSS -->
+<div class="header bg-white shadow-sm border-b border-gray-200">
+    <div class="main-header max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
 
-        <!-- Logo -->
-        <div class="header-left">
-            <a href="{{ url('/') }}" class="logo">
-                <img src="{{ asset('img/logo.svg') }}" alt="Logo">
-            </a>
-            <a href="{{ url('/') }}" class="dark-logo">
-                <img src="{{ asset('img/logo-white.svg') }}" alt="Logo">
-            </a>
-        </div>
+            <!-- Left Section: Mobile Toggle & Quick Add -->
+            <div class="flex items-center space-x-4">
 
-        <!-- Sidebar Toggle -->
-        <a id="mobile_btn" class="mobile_btn" href="#sidebar">
-            <span class="bar-icon">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
-        </a>
+                <!-- Mobile Sidebar Toggle -->
+                <button id="mobile_btn" class="lg:hidden flex flex-col justify-center items-center w-10 h-10 rounded-md hover:bg-gray-100 transition-colors">
+                    <span class="w-5 h-0.5 bg-gray-600 mb-1"></span>
+                    <span class="w-5 h-0.5 bg-gray-600 mb-1"></span>
+                    <span class="w-5 h-0.5 bg-gray-600"></span>
+                </button>
 
-        <div class="header-user">
-            <div class="nav user-menu nav-list">
-                <div class="me-auto d-flex align-items-center" id="header-search">
+                <!-- Quick Add Dropdown -->
+                <div class="relative" id="quick-add-container">
+                    <button id="quick-add-btn" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 hover:shadow-md">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                    </button>
 
-                    <!-- Quick Add -->
-                    <div class="dropdown me-3">
-                        <a class="btn btn-primary bg-gradient btn-xs btn-icon rounded-circle d-flex align-items-center justify-content-center"
-                           data-bs-toggle="dropdown" href="#" role="button">
-                            <i class="isax isax-add text-white"></i>
+                    <div id="quick-add-menu" class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50 hidden">
+                        <a href="{{ url('add-invoice') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Invoice
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-start p-2">
-                            <li><a href="{{ url('add-invoice') }}" class="dropdown-item d-flex align-items-center">
-                                <i class="isax isax-document-text-1 me-2"></i>Invoice
-                            </a></li>
-                            <li><a href="{{ url('expenses') }}" class="dropdown-item d-flex align-items-center">
-                                <i class="isax isax-money-send me-2"></i>Expense
-                            </a></li>
-                        </ul>
+                        <a href="{{ url('expenses') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                            Expense
+                        </a>
                     </div>
-
-                    <!-- Breadcrumb -->
-
                 </div>
 
-                <div class="d-flex align-items-center">
+                <!-- Breadcrumb placeholder -->
+                <div class="hidden md:block">
+                    <!-- Breadcrumb content can go here -->
+                </div>
+            </div>
 
-                    <!-- Search -->
-                    <div class="input-icon-end position-relative me-2">
-                        <input type="text" class="form-control" placeholder="Search">
-                        <span class="input-icon-addon">
-                            <i class="isax isax-search-normal"></i>
-                        </span>
+            <!-- Right Section: Search & User Menu -->
+            <div class="flex items-center space-x-3">
+
+                <!-- Search -->
+                <div class="relative hidden sm:block">
+                    <input type="text"
+                           class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                           placeholder="Search...">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
                     </div>
+                </div>
 
-                    <!-- Notifications -->
-                    <div class="notification_item me-2">
-                        <a href="#" class="btn btn-menubar position-relative" id="notification_popup" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                            <i class="isax isax-notification-bing5"></i>
-                            <span class="position-absolute badge bg-success border border-white"></span>
-                        </a>
-                        <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg">
-                            <div class="p-2 border-bottom">
-                                <h6 class="m-0 fs-16 fw-semibold">Notifications</h6>
-                            </div>
-                            <div class="notification-body" data-simplebar="">
-                                <div class="dropdown-item notification-item py-2 text-wrap border-bottom">
-                                    <p class="mb-0">No new notifications.</p>
-                                </div>
+                <!-- Notifications -->
+                <div class="relative" id="notification-container">
+                    <button id="notification-btn" class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM10.115 5.5A5.5 5.5 0 1117 11.5M10.115 5.5a5.5 5.5 0 1010 0 5.5 5.5 0 00-10 0z"></path>
+                        </svg>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full border border-white"></span>
+                    </button>
+
+                    <div id="notification-menu" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
+                        <div class="p-4 border-b border-gray-200">
+                            <h6 class="text-lg font-semibold text-gray-900">Notifications</h6>
+                        </div>
+                        <div class="max-h-96 overflow-y-auto">
+                            <div class="p-4 border-b border-gray-100 text-center text-gray-500">
+                                No new notifications.
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Light/Dark Mode -->
-                    <div class="me-2 theme-item">
-                        <a href="javascript:void(0);" id="dark-mode-toggle" class="theme-toggle btn btn-menubar">
-                            <i class="isax isax-moon"></i>
-                        </a>
-                        <a href="javascript:void(0);" id="light-mode-toggle" class="theme-toggle btn btn-menubar">
-                            <i class="isax isax-sun-1"></i>
-                        </a>
-                    </div>
+                <!-- Light/Dark Mode Toggle -->
+                <div class="flex items-center">
+                    <button id="dark-mode-toggle" class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                    <button id="light-mode-toggle" class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors hidden">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </button>
+                </div>
 
-                    <!-- User Dropdown -->
-                    @auth
-                        <div class="dropdown profile-dropdown">
-                            <a href="#" class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                <span class="avatar online">
-                                    <img src="{{ Auth::user()->profile_photo_url ?? asset('img/profiles/avatar-01.jpg') }}"
-                                         alt="User" class="img-fluid rounded-circle">
-                                </span>
-                            </a>
-                            <div class="dropdown-menu p-2">
-                                <div class="d-flex align-items-center bg-light rounded-1 p-2 mb-2">
-                                    <span class="avatar avatar-lg me-2">
-                                        <img src="{{ Auth::user()->profile_photo_url ?? asset('img/profiles/avatar-01.jpg') }}"
-                                             alt="User" class="rounded-circle">
-                                    </span>
+                <!-- User Dropdown -->
+                @auth
+                    <div class="relative" id="user-dropdown-container">
+                        <button id="user-dropdown-btn" class="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                                {{ substr(Auth::user()->company_name ?? 'U', 0, 1) }}
+                            </div>
+                        </button>
+
+                        <div id="user-dropdown-menu" class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
+                            <div class="p-4 bg-gray-50 rounded-t-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-lg font-medium">
+                                        {{ substr(Auth::user()->company_name ?? 'U', 0, 1) }}
+                                    </div>
                                     <div>
-                                        <h6 class="fs-14 fw-medium mb-1">{{ Auth::user()->company_name}}</h6>
-                                        <p class="fs-13 text-muted mb-0">{{ Auth::user()->email }}</p>
+                                        <h6 class="text-sm font-semibold text-gray-900">{{ Auth::user()->company_name ?? 'User' }}</h6>
+                                        <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
                                     </div>
                                 </div>
-                                <a class="dropdown-item d-flex align-items-center" href="{{ route("profile.edit") }}">
-                                    <i class="isax isax-profile-circle me-2"></i>Profile Settings
+                            </div>
+
+                            <div class="p-2">
+                                <a href="{{ route('profile.edit') }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    Profile Settings
                                 </a>
-                                <hr class="dropdown-divider my-2">
+
+                                <hr class="my-2 border-gray-200">
+
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="dropdown-item d-flex align-items-center text-danger">
-                                        <i class="isax isax-logout me-2"></i>Sign Out
+                                    <button type="submit" class="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                        </svg>
+                                        Sign Out
                                     </button>
                                 </form>
                             </div>
                         </div>
-                    @endauth
+                    </div>
+                @endauth
 
-                    @guest
-                        <a href="{{ route('login') }}" class="btn btn-primary ms-2">Login</a>
-                    @endguest
-
-                </div>
+                @guest
+                    <a href="{{ route('login') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+                        Login
+                    </a>
+                @endguest
             </div>
         </div>
-
-        <!-- Mobile Menu -->
-        <div class="dropdown mobile-user-menu profile-dropdown">
-            <a href="#" class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
-                <span class="avatar avatar-md online">
-                    <img src="{{ Auth::user()->profile_photo_url ?? asset('img/profiles/avatar-01.jpg') }}" class="img-fluid rounded-circle">
-                </span>
-            </a>
-            <div class="dropdown-menu p-2 mt-0">
-                <a class="dropdown-item d-flex align-items-center" href="{{ route("profile.edit") }}">
-                    <i class="isax isax-profile-circle me-2"></i>Profile Settings
-                </a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="dropdown-item d-flex align-items-center text-danger">
-                        <i class="isax isax-logout me-2"></i>Signout
-                    </button>
-                </form>
-            </div>
-        </div>
-
     </div>
 </div>
+
+<!-- Mobile Search (Hidden on larger screens) -->
+<div class="sm:hidden bg-white border-b border-gray-200 px-4 py-3">
+    <div class="relative">
+        <input type="text"
+               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+               placeholder="Search...">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for dropdown functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quick Add Dropdown
+    const quickAddBtn = document.getElementById('quick-add-btn');
+    const quickAddMenu = document.getElementById('quick-add-menu');
+
+    if (quickAddBtn && quickAddMenu) {
+        quickAddBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            quickAddMenu.classList.toggle('hidden');
+
+            // Close other open dropdowns
+            closeOtherDropdowns('quick-add-menu');
+        });
+    }
+
+    // Notifications Dropdown
+    const notificationBtn = document.getElementById('notification-btn');
+    const notificationMenu = document.getElementById('notification-menu');
+
+    if (notificationBtn && notificationMenu) {
+        notificationBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationMenu.classList.toggle('hidden');
+
+            // Close other open dropdowns
+            closeOtherDropdowns('notification-menu');
+        });
+    }
+
+    // User Dropdown
+    const userBtn = document.getElementById('user-dropdown-btn');
+    const userMenu = document.getElementById('user-dropdown-menu');
+
+    if (userBtn && userMenu) {
+        userBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userMenu.classList.toggle('hidden');
+
+            // Close other open dropdowns
+            closeOtherDropdowns('user-dropdown-menu');
+        });
+    }
+
+    // Dark/Light mode toggle
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const lightModeToggle = document.getElementById('light-mode-toggle');
+
+    if (darkModeToggle && lightModeToggle) {
+        // Set initial state based on current theme
+        if (document.documentElement.classList.contains('dark')) {
+            darkModeToggle.classList.add('hidden');
+            lightModeToggle.classList.remove('hidden');
+        } else {
+            darkModeToggle.classList.remove('hidden');
+            lightModeToggle.classList.add('hidden');
+        }
+
+        darkModeToggle.addEventListener('click', function() {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+            darkModeToggle.classList.add('hidden');
+            lightModeToggle.classList.remove('hidden');
+        });
+
+        lightModeToggle.addEventListener('click', function() {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+            lightModeToggle.classList.add('hidden');
+            darkModeToggle.classList.remove('hidden');
+        });
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        closeAllDropdowns();
+    });
+
+    // Function to close all dropdowns
+    function closeAllDropdowns() {
+        const dropdowns = [
+            'quick-add-menu',
+            'notification-menu',
+            'user-dropdown-menu'
+        ];
+
+        dropdowns.forEach(id => {
+            const menu = document.getElementById(id);
+            if (menu && !menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+            }
+        });
+    }
+
+    // Function to close other dropdowns except the current one
+    function closeOtherDropdowns(currentMenuId) {
+        const dropdowns = [
+            'quick-add-menu',
+            'notification-menu',
+            'user-dropdown-menu'
+        ];
+
+        dropdowns.forEach(id => {
+            if (id !== currentMenuId) {
+                const menu = document.getElementById(id);
+                if (menu && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                }
+            }
+        });
+    }
+
+    // Load saved theme from localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        if (darkModeToggle && lightModeToggle) {
+            darkModeToggle.classList.add('hidden');
+            lightModeToggle.classList.remove('hidden');
+        }
+    }
+});
+</script>
+
+<!-- Add this to your head tag for dark mode support -->
+<style>
+.dark {
+    color-scheme: dark;
+}
+</style>

@@ -8,25 +8,27 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+            --primary: #1a56db;
+            --primary-dark: #1e3a8a;
+            --success: #047857;
+            --warning: #b45309;
+            --danger: #b91c1c;
             --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
             --gray-500: #6b7280;
             --gray-700: #374151;
+            --gray-800: #1f2937;
             --gray-900: #111827;
         }
 
         body {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+            background: #f8fafc;
             font-family: 'Inter', Arial, sans-serif;
-            color: var(--gray-900);
+            color: var(--gray-800);
             line-height: 1.6;
         }
 
@@ -34,9 +36,9 @@
             max-width: 800px;
             margin: 40px auto;
             background-color: #fff;
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             position: relative;
         }
 
@@ -107,13 +109,45 @@
             font-weight: 600;
         }
 
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .status-badge i {
+            margin-right: 6px;
+            font-size: 12px;
+        }
+
+        .status-paid {
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+        }
+
+        .status-partial {
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+        }
+
+        .status-unpaid {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+        }
+
         .section {
             padding: 40px;
         }
 
         .section h3 {
             font-size: 14px;
-            color: var(--gray-500);
+            color: var(--gray-700);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 16px;
@@ -123,65 +157,34 @@
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
+            gap: 24px;
             margin-bottom: 30px;
         }
 
         .info-card {
             background: var(--gray-50);
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 20px;
             border-left: 4px solid var(--primary);
         }
 
         .info-card h4 {
-            margin: 0 0 10px;
+            margin: 0 0 12px;
             font-size: 14px;
-            color: var(--gray-500);
+            color: var(--gray-700);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 600;
         }
 
         .info-card p {
-            margin: 5px 0;
+            margin: 6px 0;
             font-size: 15px;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-
-        .status-badge i {
-            margin-right: 6px;
-            font-size: 12px;
-        }
-
-        .status-paid {
-            background: #ecfdf5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-
-        .status-partial {
-            background: #fffbeb;
-            color: #92400e;
-            border: 1px solid #fcd34d;
-        }
-
-        .status-unpaid {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
+            color: var(--gray-800);
         }
 
         .table-container {
-            border-radius: 12px;
+            border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--gray-200);
             margin-bottom: 30px;
@@ -211,6 +214,7 @@
             padding: 16px 20px;
             border-bottom: 1px solid var(--gray-200);
             font-size: 14px;
+            color: var(--gray-800);
         }
 
         .table tbody tr:last-child td {
@@ -223,8 +227,8 @@
 
         .totals-container {
             background: var(--gray-50);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 8px;
+            padding: 24px;
             margin-top: 30px;
         }
 
@@ -251,21 +255,24 @@
             text-align: right;
             font-weight: 500;
             font-size: 14px;
+            color: var(--gray-800);
         }
 
         .totals .total-row {
-            border-top: 1px solid var(--gray-200);
+            border-top: 1px solid var(--gray-300);
             padding-top: 12px;
         }
 
         .totals .total-row .label {
             font-weight: 700;
             font-size: 16px;
+            color: var(--gray-900);
         }
 
         .totals .total-row .value {
             font-weight: 700;
             font-size: 16px;
+            color: var(--gray-900);
         }
 
         .totals .due-row .value {
@@ -284,7 +291,7 @@
         .payment-method {
             background: var(--gray-50);
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 8px;
             border-left: 4px solid var(--warning);
         }
 
@@ -313,7 +320,7 @@
             justify-content: center;
             text-decoration: none;
             padding: 14px 28px;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 600;
             font-size: 15px;
             transition: all 0.3s ease;
@@ -356,7 +363,7 @@
 
         .footer p {
             margin: 5px 0;
-            color: var(--gray-500);
+            color: var(--gray-700);
             font-size: 14px;
         }
 
@@ -577,8 +584,11 @@
             </div>
 
             <div class="action-buttons">
-                <a href="{{ url(route('invoice.pay', $invoice->id, false)) }}" class="btn btn-primary">
-                    <i class="fas fa-credit-card"></i> Pay Now
+                <a href="{{ route('invoice.pay', $invoice->id)}}"
+                    style="background:#1a56db;color:#ffffff;padding:14px 28px;
+          text-decoration:none;border-radius:8px;font-weight:600;
+          display:inline-block;font-size:15px;">
+                    Pay Now
                 </a>
 
                 <a href="{{ route('invoice.show', $invoice->id) }}" class="btn btn-secondary">
