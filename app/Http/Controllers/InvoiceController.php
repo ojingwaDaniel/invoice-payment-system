@@ -118,7 +118,7 @@ class InvoiceController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'invoice_number' => 'required|string|unique:invoices,invoice_number',
+            'invoice_number' => 'required|string|',
             'issue_date' => 'required|date',
             'due_date' => 'nullable|date',
             'currency' => 'required|string|max:20',
