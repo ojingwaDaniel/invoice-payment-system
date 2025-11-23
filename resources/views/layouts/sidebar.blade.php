@@ -99,20 +99,7 @@
         </button>
     </div>
 
-    <!-- Search -->
-    <div class="border-b border-gray-100 p-6">
-        <div class="relative">
-            <input type="text"
-                class="focus:ring-primary-500 w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 transition-all duration-200 focus:border-transparent focus:ring-2"
-                placeholder="Search...">
-            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
+    
 
     <!-- Navigation -->
     <div class="flex-1 overflow-y-auto">
