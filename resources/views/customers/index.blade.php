@@ -260,7 +260,7 @@
                                                         {{ $customer->name }}
                                                     </a>
                                                 </div>
-                                                <div class="text-sm text-gray-500">ID: {{ $customer->id }}</div>
+
                                             </div>
                                         </div>
                                     </td>
