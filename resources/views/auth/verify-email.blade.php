@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Email Verification — Invoify</title>
+    <title>Email Verification — Invonix</title>
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -76,7 +76,7 @@
                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 mb-4 animate-pulse-glow">
                     <i class="fas fa-receipt text-white text-2xl"></i>
                 </div>
-                <h1 class="text-4xl font-bold text-white tracking-wide mb-1 text-shadow">Invoify</h1>
+                <h1 class="text-4xl font-bold text-white tracking-wide mb-1 text-shadow">Invonix</h1>
                 <p class="text-gray-300 text-sm">Smart Invoicing. Simplified.</p>
             </div>
 
