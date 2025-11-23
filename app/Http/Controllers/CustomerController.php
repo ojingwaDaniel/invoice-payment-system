@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +14,7 @@ class CustomerController extends Controller
     {
         $userId = auth()->id();
 
-        $query = Customer::where("user_id",$userId)->withCount('invoices');
+        $query = Customer::where("user_id", $userId)->withCount('invoices');
 
         // Search functionality
         if ($request->has('search') && $request->search) {
@@ -45,10 +46,17 @@ class CustomerController extends Controller
         $customers = $query->paginate(15);
 
         // Calculate statistics
+
         $stats = [
-            'active_customers' => Customer::count(),
-            'total_invoices' => DB::table('invoices')->count(),
-            'new_this_month' => Customer::whereMonth('created_at', now()->month)
+            'active_customers' => Customer::where("user_id", $userId)->count(),
+
+            'total_invoices' => Invoice::whereIn(
+                'customer_id',
+                Customer::where("user_id", $userId)->pluck('id')
+            )->count(),
+
+            'new_this_month' => Customer::where("user_id", $userId)
+                ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count(),
         ];
