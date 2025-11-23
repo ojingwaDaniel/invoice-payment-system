@@ -460,22 +460,22 @@
                 </div>
 
                 <div class="info-card">
-                    <h4>Bill To</h4>
-                    <p><strong>{{ $invoice->customer->name }}</strong></p>
-                    <p>{{ $invoice->customer->email }}</p>
-                    @if ($invoice->customer->phone)
-                        <p>{{ $invoice->customer->phone }}</p>
-                    @endif
-                    @if ($invoice->customer->address)
-                        <p>{{ $invoice->customer->address }}</p>
-                    @endif
-                </div>
-
-                <div class="info-card">
                     <h4>From</h4>
                     <p><strong>{{ $invoice->user->company_name ?? config('app.name') }}</strong></p>
                     <p>{{ $invoice->user->email ?? '' }}</p>
                 </div>
+            </div>
+
+            <div class="info-card">
+                <h4>Bill To</h4>
+                <p><strong>{{ $invoice->customer->name }}</strong></p>
+                <p>{{ $invoice->customer->email }}</p>
+                @if ($invoice->customer->phone)
+                    <p>{{ $invoice->customer->phone }}</p>
+                @endif
+                @if ($invoice->customer->address)
+                    <p>{{ $invoice->customer->address }}</p>
+                @endif
             </div>
 
             <!-- Items Table -->
@@ -584,7 +584,7 @@
             </div>
 
             <div class="action-buttons">
-                <a href="{{ route('invoice.pay', $invoice->id)}}"
+                <a href="{{ route('invoice.pay', $invoice->id) }}"
                     style="background:#1a56db;color:#ffffff;padding:14px 28px;
           text-decoration:none;border-radius:8px;font-weight:600;
           display:inline-block;font-size:15px;">
