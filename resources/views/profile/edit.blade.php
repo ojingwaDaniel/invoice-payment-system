@@ -129,21 +129,8 @@
                             <i class="fas fa-chevron-right ml-auto opacity-0 transition-opacity duration-300 group-hover:opacity-100"></i>
                         </a>
                         
-                        <a href="#security" onclick="showSection('security')" class="nav-link group flex items-center rounded-2xl px-4 py-3.5 font-medium text-slate-700 transition-all duration-300 hover:bg-slate-50">
-                            <div class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-blue-500 group-hover:to-indigo-600 group-hover:text-white group-hover:shadow-lg">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <span>Security</span>
-                            <i class="fas fa-chevron-right ml-auto opacity-0 transition-opacity duration-300 group-hover:opacity-100"></i>
-                        </a>
                         
-                        <a href="#notifications" onclick="showSection('notifications')" class="nav-link group flex items-center rounded-2xl px-4 py-3.5 font-medium text-slate-700 transition-all duration-300 hover:bg-slate-50">
-                            <div class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-blue-500 group-hover:to-indigo-600 group-hover:text-white group-hover:shadow-lg">
-                                <i class="fas fa-bell"></i>
-                            </div>
-                            <span>Notifications</span>
-                            <i class="fas fa-chevron-right ml-auto opacity-0 transition-opacity duration-300 group-hover:opacity-100"></i>
-                        </a>
+                        
                     </nav>
 
                     <!-- Quick Actions -->
