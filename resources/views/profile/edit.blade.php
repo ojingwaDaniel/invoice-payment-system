@@ -22,22 +22,6 @@
                 </div>
             </div>
         @endif
-        @if ($errors->any())
-            <div class="mb-6 rounded-md border-l-4 border-red-500 bg-red-50 p-4 shadow-sm">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-circle text-red-500"></i>
-                    </div>
-                    <div class="ml-3">
-                        <ul class="text-red-700">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        @endif
 
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
 
@@ -45,10 +29,10 @@
             <div class="lg:col-span-1">
                 <div class="rounded-xl bg-white p-6 shadow-sm">
                     <div class="mb-6 flex flex-col items-center">
-                
-                        <div class="mb-4">
+                        <!-- Logo -->
+                        <div class="relative mb-4">
                             <div
-                                class="from-primary-500 to-primary-700 mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r text-xl font-bold text-white">
+                                class="from-primary-500 to-primary-700 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r text-xl font-bold text-white">
                                 @if (auth()->user()->logo_path)
                                     <img src="{{ asset('storage/' . auth()->user()->logo_path) }}" alt="Logo"
                                         class="h-full w-full object-cover" id="currentLogo">
@@ -59,28 +43,21 @@
                             </div>
 
                             <form id="logoUploadForm" action="{{ route('profile.uploadLogo') }}" method="POST"
-                                enctype="multipart/form-data" class="mt-4">
+                                enctype="multipart/form-data">
                                 @csrf
 
-                                <div class="flex flex-col items-center gap-3">
-                                    <label for="logo"
-                                        class="bg-primary-500 hover:bg-primary-600 cursor-pointer rounded-full p-3 text-white shadow-lg transition-colors">
-                                        <i class="fas fa-camera"></i>
-                                        <span class="ml-2 text-sm">Choose Logo</span>
-                                    </label>
+                                <label for="logo"
+                                    class="bg-primary-500 hover:bg-primary-600 absolute bottom-0 right-0 cursor-pointer rounded-full p-2 text-white shadow-lg transition-colors">
+                                    <i class="fas fa-camera text-sm"></i>
+                                </label>
 
-                                    <input type="file" id="logo" name="logo" accept="image/*" class="hidden"
-                                        onchange="previewLogo(this)">
-
-                                    <button type="submit" id="uploadBtn"
-                                        class="bg-primary-500 hover:bg-primary-600 hidden rounded-lg px-4 py-2 text-sm text-white">
-                                        Upload Logo
-                                    </button>
-                                </div>
+                                <input type="file" id="logo" name="logo" accept="image/*" class="hidden"
+                                    onchange="document.getElementById('logoUploadForm').submit();">
                             </form>
-
-                            <img id="logoPreview" class="mx-auto mt-3 hidden h-24 w-24 rounded-full object-cover shadow-md">
                         </div>
+
+                        <!-- Preview (optional - shows below the logo) -->
+                        <img id="logoPreview" class="mt-3 hidden h-24 w-24 rounded-full object-cover shadow-md">
                     </div>
 
                     <h3 class="text-lg font-semibold">{{ auth()->user()->name }}</h3>
@@ -235,12 +212,10 @@
         function previewLogo(input) {
             const file = input.files[0];
             const preview = document.getElementById('logoPreview');
-            const uploadBtn = document.getElementById('uploadBtn');
 
             if (file) {
                 preview.src = URL.createObjectURL(file);
                 preview.classList.remove('hidden');
-                uploadBtn.classList.remove('hidden');
             }
         }
     </script>
