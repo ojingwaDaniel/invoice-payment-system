@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -52,5 +53,35 @@ class ProfileController extends Controller
         ]);
 
         return back()->with('success', '✅ Paystack API keys saved successfully!');
+    }
+
+    public function uploadLogo(Request $request)
+    {
+        $request->validate([
+            'logo' => 'required|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
+        ]);
+
+        $user = auth()->user();
+
+        // Delete old logo if exists
+        if ($user->logo_path && \Storage::exists('public/' . $user->logo_path)) {
+            \Storage::delete('public/' . $user->logo_path);
+        }
+
+        // Store new file
+        $path = $request->file('logo')->store('logos', 'public');
+
+        // Debug: Log the path
+        \Log::info('Logo path: ' . $path);
+
+        // Save path in database
+        $user->logo_path = $path;
+        $saved = $user->save();
+
+        // Debug: Check if save worked
+        \Log::info('Save result: ' . ($saved ? 'true' : 'false'));
+        \Log::info('User logo_path after save: ' . $user->fresh()->logo_path);
+
+        return back()->with('success', 'Logo updated successfully!');
     }
 }

@@ -34,17 +34,17 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
-            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
-                $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                    'secret' => config('services.recaptcha.secret_key'),
-                    'response' => $value,
-                    'remoteip' => request()->ip(),
-                ]);
+            // 'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+            //     $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            //         'secret' => config('services.recaptcha.secret_key'),
+            //         'response' => $value,
+            //         'remoteip' => request()->ip(),
+            //     ]);
 
-                if (! $response->json('success')) {
-                    $fail('reCAPTCHA verification failed. Please try again.');
-                }
-            }],
+            //     if (! $response->json('success')) {
+            //         $fail('reCAPTCHA verification failed. Please try again.');
+            //     }
+            // }],
         ]);
 
 

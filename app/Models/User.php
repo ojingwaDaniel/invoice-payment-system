@@ -25,6 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'address',
         'paystack_public_key',
         'paystack_secret_key',
+        'logo_path',
     ];
 
     /**
