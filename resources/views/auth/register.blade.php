@@ -170,10 +170,10 @@
                         </div>
                         <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                     </div>
-                    {{-- <div class="g-recaptcha mt-4" data-sitekey="{{ config('services.recaptcha.site') }}"></div>
+                    <div class="g-recaptcha mt-4" data-sitekey="{{ config('services.recaptcha.site') }}"></div>
                     @if ($errors->has('g-recaptcha-response'))
                         <p class="mt-2 text-sm text-red-600">{{ $errors->first('g-recaptcha-response') }}</p>
-                    @endif --}}
+                    @endif
 
                     <!-- Submit Button -->
                     <div class="pt-2">

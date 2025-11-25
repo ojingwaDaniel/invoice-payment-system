@@ -159,7 +159,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Product API Route (for AJAX/product details)
     |--------------------------------------------------------------------------
     */
-    Route::get('/api/products/{product}', [ProductApiController::class, 'show'])->name('api.products.show');
 });
 
 /*
@@ -173,3 +172,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/paystack', [ProfileController::class, 'updatePaystackKeys'])->name('profile.updatePaystackKeys');
     Route::post('/profile/upload-logo', [ProfileController::class, 'uploadLogo'])->name('profile.uploadLogo');
 });
+
+Route::get('/invoice/{invoice}/paid', [InvoiceController::class, 'paymentSuccess'])
+    ->name('invoice.paid');
+Route::get('/invoice/{invoice}/receipt', [InvoiceController::class, 'receipt'])
+    ->name('invoice.show.receipt');

@@ -188,7 +188,7 @@ class InvoiceController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('invoice.show',["invoice"=> $invoice])->with('success', 'Invoice created successfully!');
+            return redirect()->route('invoice.show', ["invoice" => $invoice])->with('success', 'Invoice created successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Failed to create invoice: ' . $e->getMessage());
@@ -280,7 +280,7 @@ class InvoiceController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('invoice.index')->with('success', 'Invoice updated successfully.');
+            return redirect()->route('invoice.show',["invoice"=> $invoice->id])->with('success', 'Invoice updated successfully.');
         } catch (\Throwable $e) {
             DB::rollBack();
             return back()->withInput()->withErrors(['error' => 'Failed to update invoice: ' . $e->getMessage()]);
@@ -412,8 +412,8 @@ class InvoiceController extends Controller
         $user = $invoice->user;
 
         // Use merchant-provided Paystack keys (or fallback to default)
-        $paystackPublic = $user->paystack_public_key ?? config('services.paystack.public');
-        $paystackSecret = $user->paystack_secret_key ?? config('services.paystack.secret');
+        $paystackPublic = decrypt($user->paystack_public_key) ?? config('services.paystack.public');
+        $paystackSecret = decrypt($user->paystack_secret_key) ?? config('services.paystack.secret');
 
         // Initialize transaction using these keys
         $paystack = new \Yabacon\Paystack($paystackSecret);
@@ -447,7 +447,7 @@ class InvoiceController extends Controller
         $user = $invoice->user;
 
         // Use the same Paystack secret key
-        $paystackSecret = $user->paystack_secret_key ?? config('services.paystack.secret');
+        $paystackSecret = decrypt($user->paystack_secret_key)   ?? config('services.paystack.secret');
         $paystack = new \Yabacon\Paystack($paystackSecret);
 
         // Get the reference Paystack sent back
@@ -462,10 +462,11 @@ class InvoiceController extends Controller
                 $invoice->status = 'paid';
                 $invoice->paid = $invoice->total_amount;
                 $invoice->payment_method = 'paystack';
+                $invoice->paid_at = now();
                 $invoice->save();
 
                 return redirect()
-                    ->route('invoice.show', $invoice->id)
+                    ->route('invoice.paid', $invoice->id)
                     ->with('success', 'Payment successful! Invoice marked as paid.');
             } else {
                 // ❌ Payment failed or cancelled
@@ -530,5 +531,41 @@ class InvoiceController extends Controller
             'totalRevenue',
             'totalPaid'
         ));
+    }
+
+    public function paymentSuccess(Invoice $invoice)
+    {
+        return view('invoices.payment-success', compact('invoice'));
+    }
+
+    // InvoiceController.php
+
+    public function receipt(Invoice $invoice)
+
+    {
+
+        $user = auth()->user();
+        // Ensure the invoice is paid
+        if (!$invoice->paid) {
+            abort(404, 'Receipt not available for unpaid invoices');
+        }
+
+        // Load relationships
+        $invoice->load(['customer', 'items']);
+
+        // Check if download is requested
+        if (request()->has('download')) {
+            return $this->downloadReceipt($invoice);
+        }
+
+        // Otherwise show the receipt view
+        return view('invoices.receipt', compact('invoice', "user"));
+    }
+
+    private function downloadReceipt(Invoice $invoice)
+    {
+        $user = auth()->user();
+        $pdf = \PDF::loadView('invoices.receipt', compact('invoice', 'user'));
+        return $pdf->download('receipt-' . $invoice->invoice_number . '.pdf');
     }
 }

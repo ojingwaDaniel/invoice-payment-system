@@ -21,6 +21,7 @@ class Invoice extends Model
         'payment_method',
         'vat_amount',
         'is_sent',
+         "paid_at"
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class Invoice extends Model
         'discount' => 'decimal:2',
         'paid' => 'decimal:2',
         'is_sent' => 'boolean',
+        'paid_at' => 'datetime',
     ];
 
     public function items()

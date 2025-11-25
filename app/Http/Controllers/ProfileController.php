@@ -46,11 +46,11 @@ class ProfileController extends Controller
 
         $user = auth()->user();
 
-        // Save to your users table (make sure columns exist)
         $user->update([
-            'paystack_public_key' => Hash::make($request->paystack_public_key) ,
-            'paystack_secret_key' => Hash::make($request->paystack_secret_key) ,
+            'paystack_public_key' => encrypt($request->paystack_public_key),
+            'paystack_secret_key' => encrypt($request->paystack_secret_key),
         ]);
+
 
         return back()->with('success', '✅ Paystack API keys saved successfully!');
     }
@@ -71,16 +71,15 @@ class ProfileController extends Controller
         // Store new file
         $path = $request->file('logo')->store('logos', 'public');
 
-        // Debug: Log the path
-        \Log::info('Logo path: ' . $path);
+        
 
-        // Save path in database
+       
         $user->logo_path = $path;
         $saved = $user->save();
 
-        // Debug: Check if save worked
-        \Log::info('Save result: ' . ($saved ? 'true' : 'false'));
-        \Log::info('User logo_path after save: ' . $user->fresh()->logo_path);
+        
+        
+
 
         return back()->with('success', 'Logo updated successfully!');
     }

@@ -196,6 +196,8 @@
                 </div>
 
                 <div class="rounded-3xl bg-white p-8 shadow-2xl md:p-10">
+        
+                        
                     <div class="mb-8">
                         <h2 class="mb-2 text-3xl font-bold text-gray-900">Sign In</h2>
                         <p class="text-gray-600">Enter your credentials to access your account</p>
@@ -205,6 +207,11 @@
                     @if (session('status'))
                         <div class="mb-6 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
                             {{ session('status') }}
+                        </div>
+                    @endif
+                    @if ($errors->any())
+                        <div class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                            {{ $errors->first() }}
                         </div>
                     @endif
 

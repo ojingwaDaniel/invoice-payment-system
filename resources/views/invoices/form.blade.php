@@ -1,32 +1,44 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="min-h-screen bg-gray-50 py-8">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
             <!-- Header Section -->
-            <div class="mb-8">
+            <div class="mb-10">
                 <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900">
-                            {{ isset($invoice) ? 'Edit Invoice' : 'Create Invoice' }}
-                        </h1>
-                        <p class="mt-2 text-gray-600">
-                            {{ isset($invoice) ? 'Update invoice details' : 'Create a new invoice for your customer' }}
+                        <div class="mb-2 flex items-center gap-3">
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-sm">
+                                <i class="fas fa-file-invoice text-lg text-white"></i>
+                            </div>
+                            <h1 class="text-3xl font-bold text-gray-900">
+                                {{ isset($invoice) ? 'Edit Invoice' : 'Create Invoice' }}
+                            </h1>
+                        </div>
+                        <p class="ml-13 text-gray-600">
+                            {{ isset($invoice) ? 'Update invoice details and items' : 'Create a professional invoice for your customer' }}
                         </p>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                        <i class="fas fa-circle text-xs text-blue-500"></i>
+                        <span>{{ isset($invoice) ? 'Editing Mode' : 'Creation Mode' }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Error / Alert Section -->
             @if (session('error'))
-                <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+                <div class="mb-8 rounded-xl border border-red-200 bg-gradient-to-r from-red-50 to-red-50 p-4 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <i class="fas fa-exclamation-circle text-red-400 mr-2"></i>
-                            <p class="text-sm text-red-700">{{ session('error') }}</p>
+                            <div class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                            <p class="text-sm font-medium text-red-700">{{ session('error') }}</p>
                         </div>
-                        <button type="button" class="text-red-600 hover:text-red-800">
+                        <button type="button" class="text-red-500 transition-colors hover:text-red-700">
                             <i class="fas fa-times text-sm"></i>
                         </button>
                     </div>
@@ -34,20 +46,22 @@
             @endif
 
             @if ($errors->any())
-                <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+                <div class="mb-8 rounded-xl border border-red-200 bg-gradient-to-r from-red-50 to-red-50 p-5 shadow-sm">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <div class="flex items-center mb-2">
-                                <i class="fas fa-exclamation-circle text-red-400 mr-2"></i>
+                            <div class="mb-3 flex items-center">
+                                <div class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
+                                    <i class="fas fa-exclamation-circle text-red-500"></i>
+                                </div>
                                 <p class="text-sm font-medium text-red-700">Please fix the following errors:</p>
                             </div>
-                            <ul class="list-disc list-inside text-sm text-red-600 space-y-1">
+                            <ul class="ml-11 list-inside list-disc space-y-1 text-sm text-red-600">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
                             </ul>
                         </div>
-                        <button type="button" class="text-red-600 hover:text-red-800 ml-4">
+                        <button type="button" class="ml-4 text-red-500 transition-colors hover:text-red-700">
                             <i class="fas fa-times text-sm"></i>
                         </button>
                     </div>
@@ -90,172 +104,248 @@
                 @endif
 
                 <!-- Invoice Details Card -->
-                <div class="mb-6 rounded-xl bg-white p-6 shadow-sm border border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Invoice Details</h3>
+                <div class="mb-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-lg">
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+                            <i class="fas fa-receipt text-sm text-blue-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900">Invoice Details</h3>
+                    </div>
 
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                         <!-- Invoice Number -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="mb-3 block text-sm font-medium text-gray-700">
                                 Invoice Number <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="invoice_number"
-                                value="{{ old('invoice_number', $invoice->invoice_number ?? ($invoice_number ?? '')) }}"
-                                class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500"
-                                readonly>
+                            <div class="relative">
+                                <input type="text" name="invoice_number"
+                                    value="{{ old('invoice_number', $invoice->invoice_number ?? ($invoice_number ?? '')) }}"
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    readonly>
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400">
+                                    <i class="fas fa-hashtag"></i>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Customer -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="mb-3 block text-sm font-medium text-gray-700">
                                 Customer <span class="text-red-500">*</span>
                             </label>
-                            <select name="customer_id" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500" required>
-                                <option value="">-- Select Customer --</option>
-                                @foreach ($customers as $c)
-                                    <option value="{{ $c->id }}"
-                                        {{ old('customer_id', $invoice->customer_id ?? '') == $c->id ? 'selected' : '' }}>
-                                        {{ $c->name }} @if ($c->email)
-                                            ({{ $c->email }})
-                                        @endif
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="relative">
+                                <select name="customer_id"
+                                    class="w-full appearance-none rounded-xl border border-gray-200 px-4 py-3.5 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    required>
+                                    <option value="">-- Select Customer --</option>
+                                    @foreach ($customers as $c)
+                                        <option value="{{ $c->id }}"
+                                            {{ old('customer_id', $invoice->customer_id ?? '') == $c->id ? 'selected' : '' }}>
+                                            {{ $c->name }} @if ($c->email)
+                                                ({{ $c->email }})
+                                            @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Issue Date -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="mb-3 block text-sm font-medium text-gray-700">
                                 Issue Date <span class="text-red-500">*</span>
                             </label>
-                            <input type="date" name="issue_date" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500"
-                                value="{{ old('issue_date', isset($invoice) ? $invoice->issue_date->format('Y-m-d') : date('Y-m-d')) }}"
-                                required>
+                            <div class="relative">
+                                <input type="date" name="issue_date"
+                                    class="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    value="{{ old('issue_date', isset($invoice) ? $invoice->issue_date->format('Y-m-d') : date('Y-m-d')) }}"
+                                    required>
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400">
+                                    <i class="fas fa-calendar"></i>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Due Date -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                            <input type="date" name="due_date" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500"
-                                value="{{ old('due_date', isset($invoice->due_date) ? $invoice->due_date->format('Y-m-d') : '') }}">
+                            <label class="mb-3 block text-sm font-medium text-gray-700">Due Date</label>
+                            <div class="relative">
+                                <input type="date" name="due_date"
+                                    class="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    value="{{ old('due_date', isset($invoice->due_date) ? $invoice->due_date->format('Y-m-d') : '') }}">
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Currency -->
-                    <div class="mt-4 max-w-xs">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <div class="mt-6 max-w-xs">
+                        <label class="mb-3 block text-sm font-medium text-gray-700">
                             Currency <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="currency" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500"
-                            value="{{ old('currency', $invoice->currency ?? 'NGN') }}" required>
+                        <div class="relative">
+                            <input type="text" name="currency"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                value="{{ old('currency', $invoice->currency ?? 'NGN') }}" required>
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Invoice Items Card -->
-                <div class="mb-6 rounded-xl bg-white p-6 shadow-sm border border-gray-200">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium text-gray-900">Invoice Items</h3>
-                        <button type="button" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" id="addItemBtn">
-                            <i class="fas fa-plus"></i>
+                <div class="mb-10 rounded-3xl border border-gray-100 bg-white p-8 shadow-xl">
+                    <!-- Header -->
+                    <div class="mb-7 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 shadow-inner">
+                                <i class="fas fa-cube text-lg text-indigo-600"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold tracking-tight text-gray-900">Invoice Items</h3>
+                        </div>
+
+                        <button type="button" id="addItemBtn"
+                            class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-indigo-500">
+                            <i class="fas fa-plus-circle text-lg"></i>
                             Add Item
                         </button>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
+                    <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+                        <table class="w-full min-w-[1000px]">
+                            <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                                         Product <span class="text-red-500">*</span>
                                     </th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th
+                                        class="w-[15%] px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                                         Qty <span class="text-red-500">*</span>
                                     </th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                                         Unit
                                     </th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                                         Rate <span class="text-red-500">*</span>
                                     </th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th
+                                        class=" px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                                         Discount
                                     </th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th
+                                        class=" px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                                         Amount
                                     </th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+
+                                    <th
+                                        class=" px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                                         Action
                                     </th>
                                 </tr>
                             </thead>
+
                             <tbody id="invoiceItemsBody" class="divide-y divide-gray-200">
-                                <!-- Items will be added here by JavaScript -->
+                                <!-- JS items here -->
                             </tbody>
                         </table>
                     </div>
+
                 </div>
 
                 <!-- Additional Details -->
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <!-- Notes Section -->
                     <div class="lg:col-span-2">
-                        <div class="rounded-xl bg-white p-6 shadow-sm border border-gray-200">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Details</h3>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <div class="rounded-2xl border border-gray-100 bg-white p-8 shadow-lg">
+                            <div class="mb-6 flex items-center gap-3">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100">
+                                    <i class="fas fa-sticky-note text-sm text-amber-600"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">Additional Details</h3>
+                            </div>
+                            <label class="mb-3 block text-sm font-medium text-gray-700">Notes</label>
                             <textarea name="notes" rows="4"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                 placeholder="Add any additional notes or terms...">{{ old('notes', $invoice->notes ?? '') }}</textarea>
                         </div>
                     </div>
 
                     <!-- Summary Section -->
                     <div class="lg:col-span-1">
-                        <div class="rounded-xl bg-gray-50 p-6 border border-gray-200 sticky top-4">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Invoice Summary</h3>
+                        <div
+                            class="sticky top-8 rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 p-8 shadow-lg">
+                            <div class="mb-6 flex items-center gap-3">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
+                                    <i class="fas fa-calculator text-sm text-green-600"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">Invoice Summary</h3>
+                            </div>
 
                             <!-- Global Discount -->
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Global Discount</label>
-                                <input type="number" step="0.01" min="0" name="discount"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500"
-                                    id="globalDiscount" value="{{ $discountData }}">
+                            <div class="mb-6">
+                                <label class="mb-3 block text-sm font-medium text-gray-700">Global Discount</label>
+                                <div class="relative">
+                                    <input type="number" step="0.01" min="0" name="discount"
+                                        class="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                        id="globalDiscount" value="{{ $discountData }}">
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- VAT Rate -->
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">VAT Rate (%)</label>
-                                <input type="number" step="0.01" min="0" name="tax_rate"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500"
-                                    id="taxRate" value="{{ $taxRateData }}">
-                                <p class="mt-1 text-xs text-gray-500">Default: 7.5% (Nigerian VAT)</p>
+                            <div class="mb-8">
+                                <label class="mb-3 block text-sm font-medium text-gray-700">VAT Rate (%)</label>
+                                <div class="relative">
+                                    <input type="number" step="0.01" min="0" name="tax_rate"
+                                        class="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                        id="taxRate" value="{{ $taxRateData }}">
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400">
+                                        <i class="fas fa-percentage"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500">Default: 7.5% (Nigerian VAT)</p>
                             </div>
 
-                            <hr class="mb-4">
+                            <hr class="mb-6 border-gray-300">
 
                             <!-- Summary Breakdown -->
-                            <div class="space-y-2">
-                                <div class="flex justify-between items-center">
+                            <div class="mb-6 space-y-4">
+                                <div class="flex items-center justify-between">
                                     <span class="text-sm text-gray-600">Subtotal:</span>
-                                    <strong class="text-gray-900" id="subtotalDisplay">₦0.00</strong>
+                                    <strong class="text-lg text-gray-900" id="subtotalDisplay">₦0.00</strong>
                                 </div>
-                                <div class="flex justify-between items-center text-red-600">
+                                <div class="flex items-center justify-between text-red-600">
                                     <span class="text-sm">Discount:</span>
-                                    <strong id="discountDisplay">₦0.00</strong>
+                                    <strong class="text-lg" id="discountDisplay">₦0.00</strong>
                                 </div>
-                                <div class="flex justify-between items-center">
+                                <div class="flex items-center justify-between">
                                     <span class="text-sm text-gray-600">After Discount:</span>
-                                    <strong class="text-gray-900" id="afterDiscountDisplay">₦0.00</strong>
+                                    <strong class="text-lg text-gray-900" id="afterDiscountDisplay">₦0.00</strong>
                                 </div>
-                                <div class="flex justify-between items-center text-green-600">
+                                <div class="flex items-center justify-between text-green-600">
                                     <span class="text-sm">VAT (<span id="taxRateDisplay">7.5</span>%):</span>
-                                    <strong id="taxAmountDisplay">₦0.00</strong>
+                                    <strong class="text-lg" id="taxAmountDisplay">₦0.00</strong>
                                 </div>
                             </div>
 
-                            <hr class="my-4">
+                            <hr class="my-6 border-gray-300">
 
                             <!-- Total -->
-                            <div class="flex justify-between items-center">
+                            <div
+                                class="flex items-center justify-between rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
                                 <span class="text-lg font-bold text-gray-900">Total:</span>
                                 <strong class="text-2xl text-blue-600" id="totalDisplay">₦0.00</strong>
                             </div>
@@ -266,14 +356,14 @@
                 </div>
 
                 <!-- Form Actions -->
-                <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3">
+                <div class="mt-10 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-4">
                     <a href="{{ route('invoice.index') }}"
-                       class="mt-3 sm:mt-0 inline-flex justify-center items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 sm:col-start-1">
+                        class="mt-3 inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-8 py-3.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md sm:col-start-1 sm:mt-0">
                         <i class="fas fa-times"></i>
                         Cancel
                     </a>
                     <button type="submit"
-                            class="inline-flex justify-center items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                         <i class="fas fa-save"></i>
                         {{ isset($invoice) ? 'Update Invoice' : 'Save Invoice' }}
                     </button>
@@ -332,68 +422,88 @@
                 const index = this.items.findIndex(i => i.id === item.id);
                 const row = document.createElement('tr');
                 row.id = `row-${item.id}`;
-                row.className = 'hover:bg-gray-50';
+                row.className = 'hover:bg-gray-50 transition-colors duration-150';
 
                 row.innerHTML = `
-                    <td class="px-4 py-3">
-                        <select name="items[${index}][product_id]"
-                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 product-select"
-                                data-item-id="${item.id}" required>
-                            <option value="">-- Select Product --</option>
-                            ${PRODUCTS.map(p => `
-                                <option value="${p.id}"
-                                    data-rate="${p.selling_price}"
-                                    data-unit="${p.unit}"
-                                    ${item.product_id == p.id ? 'selected' : ''}>
-                                    ${p.name}
-                                </option>
-                            `).join('')}
-                        </select>
+                    <td class="px-6 py-4">
+                        <div class="relative">
+                            <select name="items[${index}][product_id]"
+                                    class="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 product-select appearance-none"
+                                    data-item-id="${item.id}" required>
+                                <option value="">-- Select Product --</option>
+                                ${PRODUCTS.map(p => `
+                                                    <option value="${p.id}"
+                                                        data-rate="${p.selling_price}"
+                                                        data-unit="${p.unit}"
+                                                        ${item.product_id == p.id ? 'selected' : ''}>
+                                                        ${p.name}
+                                                    </option>
+                                                `).join('')}
+                            </select>
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
                     </td>
-                    <td class="px-4 py-3">
+                    <td class="px-6 py-4">
                         <input type="number" step="0.01" min="0.01"
                             name="items[${index}][quantity]"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 item-quantity"
+                            class="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 item-quantity number-input"
                             data-item-id="${item.id}"
                             value="${item.quantity}" required>
                     </td>
-                    <td class="px-4 py-3">
+                    <td class="px-6 py-4">
                         <input type="text"
                             name="items[${index}][unit]"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 item-unit"
+                            class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 item-unit"
                             data-item-id="${item.id}"
                             value="${item.unit}" readonly>
                     </td>
-                    <td class="px-4 py-3">
-                        <input type="number" step="0.01" min="0"
-                            name="items[${index}][rate]"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 item-rate"
-                            data-item-id="${item.id}"
-                            value="${item.rate}" required>
+                    <td class="px-6 py-4">
+                        <div class="relative">
+                            <input type="number" step="0.01" min="0"
+                                name="items[${index}][rate]"
+                                class="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 item-rate number-input"
+                                data-item-id="${item.id}"
+                                value="${item.rate}" required>
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-money-bill-wave text-xs"></i>
+                            </div>
+                        </div>
                     </td>
-                    <td class="px-4 py-3">
-                        <input type="number" step="0.01" min="0"
-                            name="items[${index}][discount]"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 item-discount"
-                            data-item-id="${item.id}"
-                            value="${item.discount}">
+                    <td class="px-6 py-4">
+                        <div class="relative">
+                            <input type="number" step="0.01" min="0"
+                                name="items[${index}][discount]"
+                                class="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 item-discount number-input"
+                                data-item-id="${item.id}"
+                                value="${item.discount}">
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-tag text-xs"></i>
+                            </div>
+                        </div>
                     </td>
-                    <td class="px-4 py-3">
-                        <input type="text"
-                            class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 item-amount-display"
-                            value="${this.formatMoney(item.amount)}" readonly>
-                        <input type="hidden" name="items[${index}][amount]"
-                            class="item-amount-hidden"
-                            data-item-id="${item.id}"
-                            value="${item.amount}">
+                    <td class="px-6 py-4">
+                        <div class="relative">
+                            <input type="text"
+                                class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm font-medium text-gray-900 item-amount-display number-display"
+                                value="${this.formatMoney(item.amount)}" readonly>
+                            <input type="hidden" name="items[${index}][amount]"
+                                class="item-amount-hidden"
+                                data-item-id="${item.id}"
+                                value="${item.amount}">
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-calculator text-xs"></i>
+                            </div>
+                        </div>
                     </td>
-                    <td class="px-4 py-3">
+                    <td class="px-6 py-4">
                         <button type="button"
-                            class="inline-flex items-center justify-center rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 hover:text-red-700 remove-item-btn transition-colors"
+                            class="inline-flex items-center justify-center rounded-lg bg-red-50 p-2.5 text-red-500 hover:bg-red-100 hover:text-red-700 remove-item-btn transition-all duration-200"
                             data-item-id="${item.id}"
                             ${this.items.length === 1 ? 'disabled' : ''}
                             title="Remove Item">
-                            <i class="fas fa-trash text-sm"></i>
+                            <i class="fas fa-trash-alt text-sm"></i>
                         </button>
                     </td>
                 `;
@@ -520,4 +630,35 @@
             InvoiceManager.init();
         });
     </script>
+
+    <style>
+        /* Ensure number inputs show full digits clearly */
+        .number-input {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .number-display {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+
+        /* Ensure table columns have enough width */
+        table th,
+        table td {
+            white-space: nowrap;
+        }
+
+        /* Improve number input appearance */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
 @endsection
