@@ -93,21 +93,8 @@
                                 <p class="mt-2 text-xs font-medium text-blue-600">{{ auth()->user()->email }}</p>
                             </div>
 
-                            <!-- Stats -->
-                            <div class="mt-6 grid grid-cols-3 gap-4 rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50 p-4">
-                                <div class="text-center">
-                                    <p class="text-2xl font-bold text-slate-900">98%</p>
-                                    <p class="text-xs text-slate-600">Complete</p>
-                                </div>
-                                <div class="border-x border-slate-200 text-center">
-                                    <p class="text-2xl font-bold text-slate-900">24</p>
-                                    <p class="text-xs text-slate-600">Projects</p>
-                                </div>
-                                <div class="text-center">
-                                    <p class="text-2xl font-bold text-slate-900">5.0</p>
-                                    <p class="text-xs text-slate-600">Rating</p>
-                                </div>
-                            </div>
+    
+                         
                         </div>
                     </div>
 
