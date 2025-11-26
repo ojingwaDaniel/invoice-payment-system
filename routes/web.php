@@ -114,8 +114,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{invoice}/download', [InvoiceController::class, 'download'])->name('download');
         Route::post('/{invoice}/send', [InvoiceController::class, 'send'])->name('send');
         Route::get('/{invoice}/pay', [InvoiceController::class, 'pay'])->name('pay');
-        Route::get('//{invoice}/callback', [InvoiceController::class, 'handleCallback'])
+        Route::get('/{invoice}/callback', [InvoiceController::class, 'handleCallback'])
             ->name('callback');
+        Route::post('/{invoice}/mark-paid', [InvoiceController::class, 'markPaid'])->name('markPaid');
+        Route::post('/{invoice}/mark-partial', [InvoiceController::class, 'markPartial'])->name('markPartial');
     });
 
     /*

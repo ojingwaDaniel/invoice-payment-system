@@ -280,7 +280,7 @@ class InvoiceController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('invoice.show',["invoice"=> $invoice->id])->with('success', 'Invoice updated successfully.');
+            return redirect()->route('invoice.show', ["invoice" => $invoice->id])->with('success', 'Invoice updated successfully.');
         } catch (\Throwable $e) {
             DB::rollBack();
             return back()->withInput()->withErrors(['error' => 'Failed to update invoice: ' . $e->getMessage()]);
@@ -426,6 +426,45 @@ class InvoiceController extends Controller
 
         return redirect($response->data->authorization_url);
     }
+    public function markPaid(Invoice $invoice)
+    {
+        $invoice->paid = $invoice->total_amount;
+        $invoice->status = 'paid';
+        $invoice->save();
+
+        return redirect()->back()->with('success', 'Invoice marked as fully paid.');
+    }
+
+    // Add this method to your InvoiceController
+
+    public function markPartial(Request $request, Invoice $invoice)
+    {
+        $request->validate([
+            'partial_amount' => 'required|numeric|min:0.01|max:' . ($invoice->total_amount - $invoice->paid),
+            'payment_date' => 'nullable|date',
+            'payment_notes' => 'nullable|string|max:500'
+        ]);
+
+        $partialAmount = $request->partial_amount;
+        $newPaidAmount = $invoice->paid + $partialAmount;
+
+        // Update the invoice
+        $invoice->paid = $newPaidAmount;
+
+        // Determine status based on paid amount
+        if ($newPaidAmount >= $invoice->total_amount) {
+            $invoice->status = 'paid';
+        } else {
+            $invoice->status = 'partial';
+        }
+
+        $invoice->save();
+
+
+        return redirect()->route('invoice.show', $invoice)
+            ->with('success', 'Partial payment of ' . $invoice->currency . ' ' . number_format($partialAmount, 2) . ' recorded successfully!');
+    }
+
 
 
     public function updatePaystackKeys(Request $request)
