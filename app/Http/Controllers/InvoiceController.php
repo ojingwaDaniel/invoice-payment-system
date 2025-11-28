@@ -649,6 +649,7 @@ class InvoiceController extends Controller
             $invoice->update([
                 'paid' => $invoice->total_amount,
                 'status' => 'paid',
+                'paid_at' => now(),
             ]);
 
             return view('invoices.payment-success', compact('invoice'));
