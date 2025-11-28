@@ -174,8 +174,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/paystack', [ProfileController::class, 'updatePaystackKeys'])->name('profile.updatePaystackKeys');
     Route::post('/profile/upload-logo', [ProfileController::class, 'uploadLogo'])->name('profile.uploadLogo');
 });
-
+ // public routes
 Route::get('/invoice/{invoice}/paid', [InvoiceController::class, 'paymentSuccess'])
     ->name('invoice.paid');
 Route::get('/invoice/{invoice}/receipt', [InvoiceController::class, 'receipt'])
     ->name('invoice.show.receipt');
+
+Route::get('/pay-invoice/{invoice}', [InvoiceController::class, 'publicPay'])->name('invoice.public.pay');
+Route::get('/pay-invoice/{invoice}/callback', [InvoiceController::class, 'publicCallback'])->name('invoice.public.callback');

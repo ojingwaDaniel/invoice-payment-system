@@ -584,15 +584,11 @@
             </div>
 
             <div class="action-buttons">
-                <a href="{{ route('invoice.pay', $invoice->id) }}"
+                <a href="{{ route('invoice.public.pay', $invoice->id) }}"
                     style="background:#1a56db;color:#ffffff;padding:14px 28px;
           text-decoration:none;border-radius:8px;font-weight:600;
           display:inline-block;font-size:15px;">
                     Pay Now
-                </a>
-
-                <a href="{{ route('invoice.show', $invoice->id) }}" class="btn btn-secondary">
-                    <i class="fas fa-eye"></i> View Invoice Online
                 </a>
             </div>
 

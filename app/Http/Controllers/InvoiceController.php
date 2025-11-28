@@ -607,4 +607,53 @@ class InvoiceController extends Controller
         $pdf = \PDF::loadView('invoices.receipt', compact('invoice', 'user'));
         return $pdf->download('receipt-' . $invoice->invoice_number . '.pdf');
     }
+
+    public function publicPay(Invoice $invoice)
+    {
+        $user = $invoice->user;
+
+        $paystackSecret = $user->paystack_secret_key
+            ? decrypt($user->paystack_secret_key)
+            : config('services.paystack.secret');
+
+        $paystack = new \Yabacon\Paystack($paystackSecret);
+
+        $response = $paystack->transaction->initialize([
+            'amount' => $invoice->total_amount * 100,
+            'email' => $invoice->customer->email,
+            'reference' => 'INV-' . $invoice->id . '-' . time(),
+            'callback_url' => route('invoice.public.callback', $invoice->id),
+        ]);
+
+        return redirect($response->data->authorization_url);
+    }
+
+    public function publicCallback(Request $request, Invoice $invoice)
+    {
+        $user = $invoice->user;
+
+        $paystackSecret = $user->paystack_secret_key
+            ? decrypt($user->paystack_secret_key)
+            : config('services.paystack.secret');
+
+        $paystack = new \Yabacon\Paystack($paystackSecret);
+
+        $reference = $request->query('reference');
+
+        $tranx = $paystack->transaction->verify([
+            'reference' => $reference,
+        ]);
+
+        if ($tranx->data->status === 'success') {
+
+            $invoice->update([
+                'paid' => $invoice->total_amount,
+                'status' => 'paid',
+            ]);
+
+            return view('invoices.payment-success', compact('invoice'));
+        }
+
+        return view('invoices.payment-failed', compact('invoice'));
+    }
 }
