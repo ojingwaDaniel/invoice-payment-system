@@ -583,7 +583,7 @@ class InvoiceController extends Controller
 
     {
 
-        $user = auth()->user();
+        $user = $invoice->user;
         // Ensure the invoice is paid
         if (!$invoice->paid) {
             abort(404, 'Receipt not available for unpaid invoices');
