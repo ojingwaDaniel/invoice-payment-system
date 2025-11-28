@@ -487,28 +487,21 @@
             </div>
         </div>
 
-        <!-- Enhanced Partial Payment Modal -->
-        <div id="partialPaymentModal"
-            class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-            style="animation: fadeIn 0.2s ease-out;">
-            <div class="relative w-full max-w-lg transform rounded-2xl bg-white shadow-2xl transition-all"
-                style="animation: slideUp 0.3s ease-out;">
 
+        <!-- Partial Payment Modal -->
+        <div id="partialPaymentModal"
+            class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50 p-4">
+            <div class="relative w-full max-w-md transform rounded-2xl bg-white shadow-2xl transition-all">
                 <!-- Modal Header -->
-                <div
-                    class="relative overflow-hidden rounded-t-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 px-6 py-5">
-                    <div class="absolute inset-0 bg-black/5"></div>
-                    <div class="relative flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                                <i class="fas fa-money-bill-wave text-lg text-white"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-white">Record Partial Payment</h3>
-                        </div>
+                <div class="rounded-t-2xl bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="flex items-center gap-2 text-xl font-bold text-white">
+                            <i class="fas fa-money-bill-wave"></i>
+                            Record Partial Payment
+                        </h3>
                         <button type="button" onclick="closePartialPaymentModal()"
-                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white transition-all hover:bg-white/20">
-                            <i class="fas fa-times"></i>
+                            class="text-white transition-colors hover:text-gray-200">
+                            <i class="fas fa-times text-xl"></i>
                         </button>
                     </div>
                 </div>
@@ -517,85 +510,63 @@
                 <form method="POST" action="{{ route('invoice.markPartial', $invoice) }}" class="p-6">
                     @csrf
                     <div class="space-y-5">
-
-                        <!-- Invoice Summary Card -->
-                        <div
-                            class="rounded-xl border-2 border-orange-100 bg-gradient-to-br from-orange-50 to-amber-50 p-5">
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-700">Total Amount:</span>
-                                    <span class="text-lg font-bold text-gray-900">
-                                        {{ $invoice->currency }} {{ number_format($invoice->total_amount, 2) }}
-                                    </span>
-                                </div>
-
-                                @if ($invoice->paid > 0)
-                                    <div class="flex items-center justify-between rounded-lg bg-green-100 px-3 py-2">
-                                        <span class="flex items-center gap-2 text-sm font-medium text-green-700">
-                                            <i class="fas fa-check-circle"></i>
-                                            Already Paid:
-                                        </span>
-                                        <span class="font-bold text-green-700">
-                                            {{ $invoice->currency }} {{ number_format($invoice->paid, 2) }}
-                                        </span>
-                                    </div>
-                                @endif
-
-                                <div class="flex items-center justify-between border-t-2 border-orange-200 pt-3">
-                                    <span class="flex items-center gap-2 text-sm font-semibold text-red-600">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                        Remaining Balance:
-                                    </span>
-                                    <span class="text-xl font-bold text-red-600">
-                                        {{ $invoice->currency }}
-                                        {{ number_format($invoice->total_amount - $invoice->paid, 2) }}
-                                    </span>
-                                </div>
+                        <!-- Invoice Summary -->
+                        <div class="space-y-2 rounded-lg bg-gray-50 p-4 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Amount:</span>
+                                <span class="font-semibold text-gray-900">{{ $invoice->currency }}
+                                    {{ number_format($invoice->total_amount, 2) }}</span>
+                            </div>
+                            @if ($invoice->paid > 0)
+                            <div class="flex justify-between text-green-600">
+                                <span>Already Paid:</span>
+                                <span class="font-semibold">{{ $invoice->currency }}
+                                    {{ number_format($invoice->paid, 2) }}</span>
+                            </div>
+                            @endif
+                            <div class="flex justify-between border-t border-gray-200 pt-2">
+                                <span class="text-gray-600">Remaining Balance:</span>
+                                <span class="font-bold text-red-600">{{ $invoice->currency }}
+                                    {{ number_format($invoice->total_amount - $invoice->paid, 2) }}</span>
                             </div>
                         </div>
 
                         <!-- Payment Amount Input -->
                         <div>
-                            <label for="partial_amount"
-                                class="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
-                                <i class="fas fa-dollar-sign text-orange-500"></i>
+                            <label for="partial_amount" class="mb-2 block text-sm font-semibold text-gray-700">
                                 Payment Amount <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                                    <span class="text-base font-semibold text-gray-600">{{ $invoice->currency }}</span>
+                                    <span class="font-medium text-gray-500">{{ $invoice->currency }}</span>
                                 </div>
                                 <input type="number" name="partial_amount" id="partial_amount" step="0.01"
                                     min="0.01" max="{{ $invoice->total_amount - $invoice->paid }}" required
-                                    class="block w-full rounded-xl border-2 border-gray-300 py-3.5 pl-20 pr-4 text-lg font-semibold text-gray-900 placeholder-gray-400 transition-all focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20"
-                                    placeholder="0.00" autofocus>
+                                    class="block w-full rounded-lg border border-gray-300 py-3 pl-16 pr-4 text-gray-900 placeholder-gray-400 transition-colors focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+                                    placeholder="0.00">
                             </div>
-                            <p class="mt-2 flex items-center gap-2 text-xs text-gray-600">
-                                <i class="fas fa-info-circle text-orange-500"></i>
+                            <p class="mt-2 text-xs text-gray-500">
+                                <i class="fas fa-info-circle mr-1"></i>
                                 Enter the amount received from the customer
                             </p>
                         </div>
 
-                        <!-- Payment Date -->
+                        <!-- Payment Date (Optional) -->
                         <div>
-                            <label for="payment_date"
-                                class="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
-                                <i class="fas fa-calendar text-orange-500"></i>
-                                Payment Date
+                            <label for="payment_date" class="mb-2 block text-sm font-semibold text-gray-700">
+                                Payment Date (Optional)
                             </label>
                             <input type="date" name="payment_date" id="payment_date" value="{{ date('Y-m-d') }}"
-                                class="block w-full rounded-xl border-2 border-gray-300 px-4 py-3 text-gray-900 transition-all focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20">
+                                class="block w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 transition-colors focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50">
                         </div>
 
-                        <!-- Payment Notes -->
+                        <!-- Payment Notes (Optional) -->
                         <div>
-                            <label for="payment_notes"
-                                class="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
-                                <i class="fas fa-sticky-note text-orange-500"></i>
-                                Payment Notes <span class="text-xs font-normal text-gray-500">(Optional)</span>
+                            <label for="payment_notes" class="mb-2 block text-sm font-semibold text-gray-700">
+                                Payment Notes (Optional)
                             </label>
                             <textarea name="payment_notes" id="payment_notes" rows="3"
-                                class="block w-full resize-none rounded-xl border-2 border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20"
+                                class="block w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
                                 placeholder="Add any notes about this payment..."></textarea>
                         </div>
                     </div>
@@ -603,13 +574,12 @@
                     <!-- Modal Footer -->
                     <div class="mt-6 flex gap-3">
                         <button type="button" onclick="closePartialPaymentModal()"
-                            class="flex-1 rounded-xl border-2 border-gray-300 bg-white px-5 py-3.5 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:border-gray-400 hover:bg-gray-50">
-                            <i class="fas fa-times mr-2"></i>
+                            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50">
                             Cancel
                         </button>
                         <button type="submit"
-                            class="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:from-amber-600 hover:to-orange-600 hover:shadow-xl">
-                            <i class="fas fa-check-circle mr-2"></i>
+                            class="flex-1 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-yellow-600 hover:to-orange-600">
+                            <i class="fas fa-check mr-2"></i>
                             Record Payment
                         </button>
                     </div>
@@ -618,36 +588,6 @@
         </div>
 
         <style>
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                }
-
-                to {
-                    opacity: 1;
-                }
-            }
-
-            @keyframes slideUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            #partialPaymentModal {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-            }
-
             @keyframes fade-in {
                 from {
                     opacity: 0;
@@ -773,59 +713,6 @@
             document.getElementById('partialPaymentModal')?.addEventListener('click', function(e) {
                 if (e.target === this) {
                     closePartialPaymentModal();
-                }
-            });
-
-            function showPartialPaymentModal() {
-                const modal = document.getElementById('partialPaymentModal');
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                document.body.style.overflow = 'hidden';
-
-                // Focus on the amount input with a slight delay for animation
-                setTimeout(() => {
-                    const input = document.getElementById('partial_amount');
-                    input?.focus();
-                    input?.select();
-                }, 300);
-            }
-
-            function closePartialPaymentModal() {
-                const modal = document.getElementById('partialPaymentModal');
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                document.body.style.overflow = 'auto';
-
-                // Reset form
-                document.getElementById('partial_amount').value = '';
-                document.getElementById('payment_notes').value = '';
-                document.getElementById('payment_date').value = '{{ date('Y-m-d') }}';
-            }
-
-            // Close modal on Escape key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closePartialPaymentModal();
-                }
-            });
-
-            // Close modal when clicking outside
-            document.getElementById('partialPaymentModal')?.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closePartialPaymentModal();
-                }
-            });
-
-            // Validate payment amount
-            document.getElementById('partial_amount')?.addEventListener('input', function(e) {
-                const max = parseFloat(this.max);
-                const value = parseFloat(this.value);
-
-                if (value > max) {
-                    this.value = max;
-                }
-                if (value < 0) {
-                    this.value = 0;
                 }
             });
         </script>
