@@ -1,5 +1,5 @@
 <!-- Premium Simplified Header -->
-<header class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+<header class="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
 
