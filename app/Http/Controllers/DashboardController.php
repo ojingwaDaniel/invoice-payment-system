@@ -128,6 +128,24 @@ class DashboardController extends Controller
             ->where('is_sent', false)
             ->count();
 
+        $recentTransactions = Invoice::where('user_id', $userId)
+            ->whereNotNull('paid')
+            ->where('paid', '>', 0)
+            ->with('customer')
+            ->orderBy('updated_at', 'desc')
+            ->take(10)
+            ->get()
+            ->groupBy(function ($invoice) {
+                $date = $invoice->updated_at;
+                if ($date->isToday()) {
+                    return 'Today';
+                } elseif ($date->isYesterday()) {
+                    return 'Yesterday';
+                } else {
+                    return $date->format('M d, Y');
+                }
+            });
+
 
 
 

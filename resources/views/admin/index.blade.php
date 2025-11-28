@@ -203,7 +203,6 @@
                             </div>
                         </div>
 
-
                     </div>
                 </div>
 
@@ -457,7 +456,6 @@
                     </div>
                 </div>
 
-
             </div>
 
             <!-- Top Customers -->
@@ -644,109 +642,98 @@
             <!-- Bottom Row: Transactions & Sales Stats -->
             <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <!-- Recent Transactions -->
+                <!-- Recent Transactions -->
                 <div class="lg:col-span-2">
                     <div class="h-full rounded-xl bg-white shadow-sm transition-shadow duration-300 hover:shadow-md">
                         <div class="px-6 py-6">
                             <div class="mb-6 flex items-center justify-between">
                                 <h3 class="text-lg font-bold text-gray-900">Recent Transactions</h3>
-                                <a href="transactions.html"
+                                <a href="{{ route('invoice.index') }}"
                                     class="text-sm font-medium text-indigo-600 transition-colors duration-200 hover:text-indigo-700">
                                     View All →
                                 </a>
                             </div>
 
-                            <div class="space-y-6">
-                                <div>
-                                    <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Today</p>
-                                    <div class="space-y-3">
-                                        <div
-                                            class="flex items-center justify-between rounded-xl bg-gray-50 p-4 transition-colors duration-200 hover:bg-gray-100">
-                                            <div class="flex items-center">
-                                                <div
-                                                    class="mr-4 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
-                                                    <svg class="h-5 w-5 text-indigo-600" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p class="text-sm font-semibold text-gray-900">Andrew James</p>
-                                                    <p class="text-xs text-gray-500">#INV45478</p>
-                                                </div>
-                                            </div>
-                                            <span
-                                                class="rounded-lg bg-green-100 px-3 py-1 text-sm font-bold text-green-700">+₦989</span>
-                                        </div>
-
-                                        <div
-                                            class="flex items-center justify-between rounded-xl bg-gray-50 p-4 transition-colors duration-200 hover:bg-gray-100">
-                                            <div class="flex items-center">
-                                                <div
-                                                    class="mr-4 flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
-                                                    <svg class="h-5 w-5 text-red-600" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p class="text-sm font-semibold text-gray-900">John Carter</p>
-                                                    <p class="text-xs text-gray-500">#INV45477</p>
-                                                </div>
-                                            </div>
-                                            <span
-                                                class="rounded-lg bg-red-100 px-3 py-1 text-sm font-bold text-red-700">-₦300</span>
-                                        </div>
-                                    </div>
+                            @if ($recentTransactions->isEmpty())
+                                <div class="flex flex-col items-center justify-center py-12">
+                                    <svg class="mb-4 h-16 w-16 text-gray-300" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <p class="text-center text-gray-500">No transactions yet</p>
+                                    <a href="{{ route('invoice.create') }}"
+                                        class="mt-4 inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-white transition-colors hover:bg-indigo-700">
+                                        <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        Create First Invoice
+                                    </a>
                                 </div>
-
-                                <div>
-                                    <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Yesterday
-                                    </p>
-                                    <div class="space-y-3">
-                                        <div
-                                            class="flex items-center justify-between rounded-xl bg-gray-50 p-4 transition-colors duration-200 hover:bg-gray-100">
-                                            <div class="flex items-center">
-                                                <div
-                                                    class="mr-4 flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
-                                                    <svg class="h-5 w-5 text-green-600" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p class="text-sm font-semibold text-gray-900">Sophia White</p>
-                                                    <p class="text-xs text-gray-500">#INV45476</p>
-                                                </div>
+                            @else
+                                <div class="space-y-6">
+                                    @foreach ($recentTransactions as $period => $transactions)
+                                        <div>
+                                            <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                                {{ $period }}
+                                            </p>
+                                            <div class="space-y-3">
+                                                @foreach ($transactions as $transaction)
+                                                    <div
+                                                        class="flex items-center justify-between rounded-xl bg-gray-50 p-4 transition-all duration-200 hover:bg-gray-100 hover:shadow-sm">
+                                                        <div class="flex min-w-0 flex-1 items-center">
+                                                            <div
+                                                                class="{{ $transaction->status === 'paid' ? 'bg-green-100' : 'bg-indigo-100' }} mr-4 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+                                                                <svg class="{{ $transaction->status === 'paid' ? 'text-green-600' : 'text-indigo-600' }} h-5 w-5"
+                                                                    fill="none" stroke="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    @if ($transaction->status === 'paid')
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M5 13l4 4L19 7" />
+                                                                    @else
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                                    @endif
+                                                                </svg>
+                                                            </div>
+                                                            <div class="min-w-0 flex-1">
+                                                                <p class="truncate text-sm font-semibold text-gray-900">
+                                                                    {{ $transaction->customer->name ?? 'N/A' }}
+                                                                </p>
+                                                                <div class="mt-1 flex items-center gap-2">
+                                                                    <a href="{{ route('invoice.show', $transaction->id) }}"
+                                                                        class="text-xs text-indigo-600 hover:text-indigo-800 hover:underline">
+                                                                        #{{ $transaction->invoice_number }}
+                                                                    </a>
+                                                                    @if ($transaction->payment_method)
+                                                                        <span
+                                                                            class="inline-flex items-center rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700">
+                                                                            {{ ucfirst($transaction->payment_method) }}
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="ml-4 flex flex-col items-end">
+                                                            <span
+                                                                class="{{ $transaction->status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }} whitespace-nowrap rounded-lg px-3 py-1 text-sm font-bold">
+                                                                {{ $transaction->status === 'paid' ? '+' : '' }}₦{{ number_format($transaction->paid, 2) }}
+                                                            </span>
+                                                            <span class="mt-1 text-xs text-gray-500">
+                                                                {{ $transaction->updated_at->format('h:i A') }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
                                             </div>
-                                            <span
-                                                class="rounded-lg bg-green-100 px-3 py-1 text-sm font-bold text-green-700">+₦669</span>
                                         </div>
-
-                                        <div
-                                            class="flex items-center justify-between rounded-xl bg-gray-50 p-4 transition-colors duration-200 hover:bg-gray-100">
-                                            <div class="flex items-center">
-                                                <div
-                                                    class="mr-4 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
-                                                    <svg class="h-5 w-5 text-indigo-600" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p class="text-sm font-semibold text-gray-900">Daniel Martinez</p>
-                                                    <p class="text-xs text-gray-500">#INV45475</p>
-                                                </div>
-                                            </div>
-                                            <span
-                                                class="rounded-lg bg-green-100 px-3 py-1 text-sm font-bold text-green-700">+₦474</span>
-                                        </div>
-                                    </div>
+                                    @endforeach
                                 </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
