@@ -128,7 +128,7 @@ class DashboardController extends Controller
             ->where('is_sent', false)
             ->count();
 
-        $recentTransactions = Invoice::where('user_id', $userId)
+        $recentTransactions = Invoice::where('user_id', $user->id)
             ->whereNotNull('paid')
             ->where('paid', '>', 0)
             ->with('customer')
