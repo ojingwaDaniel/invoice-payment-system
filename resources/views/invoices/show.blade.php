@@ -487,11 +487,11 @@
             </div>
         </div>
 
-
         <!-- Partial Payment Modal -->
         <div id="partialPaymentModal"
-            class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50 p-4">
+            class="fixed inset-0 z-[9999] hidden items-start justify-center overflow-y-auto bg-black bg-opacity-50 p-4 pb-20 pt-20">
             <div class="relative w-full max-w-md transform rounded-2xl bg-white shadow-2xl transition-all">
+
                 <!-- Modal Header -->
                 <div class="rounded-t-2xl bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-4">
                     <div class="flex items-center justify-between">
@@ -518,11 +518,11 @@
                                     {{ number_format($invoice->total_amount, 2) }}</span>
                             </div>
                             @if ($invoice->paid > 0)
-                            <div class="flex justify-between text-green-600">
-                                <span>Already Paid:</span>
-                                <span class="font-semibold">{{ $invoice->currency }}
-                                    {{ number_format($invoice->paid, 2) }}</span>
-                            </div>
+                                <div class="flex justify-between text-green-600">
+                                    <span>Already Paid:</span>
+                                    <span class="font-semibold">{{ $invoice->currency }}
+                                        {{ number_format($invoice->paid, 2) }}</span>
+                                </div>
                             @endif
                             <div class="flex justify-between border-t border-gray-200 pt-2">
                                 <span class="text-gray-600">Remaining Balance:</span>
