@@ -15,6 +15,8 @@ class InvoiceItem extends Model
         'discount',
         'tax_percent',
         'amount',
+        'company_id',
+        'branch_id'
     ];
 
 
@@ -26,5 +28,15 @@ class InvoiceItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 }

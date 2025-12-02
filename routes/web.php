@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminDashboard;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
@@ -155,12 +156,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/callback/{invoice}', [PaymentController::class, 'handleCallback'])->name('callback');
         Route::post('/webhook', [PaymentController::class, 'handleWebhook'])->name('webhook');
     });
+    Route::prefix("branch")->name("branch.")->group(function () {
+        Route::get("/", [BranchController::class, "index"])->name("index");
+        Route::get("/create", [BranchController::class, "create"])->name("create");
+        Route::get("/edit/{branch}", [BranchController::class, "edit"])->name("edit");
+        Route::post("/", [BranchController::class, "store"])->name("store");
+        Route::put("/update/{branch}", [BranchController::class, "update"])->name("update");
+        Route::delete("/update/{branch}", [BranchController::class, "destroy"])->name("destroy");
+    });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Product API Route (for AJAX/product details)
-    |--------------------------------------------------------------------------
-    */
+
 });
 
 /*

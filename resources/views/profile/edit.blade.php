@@ -206,7 +206,7 @@
                                                 <i class="fas fa-building mr-2 text-blue-500"></i>Company Name
                                             </label>
                                             <input type="text" name="company_name"
-                                                value="{{ old('company_name', $user->company_name) }}"
+                                                value="{{ old('company_name', $company->name) }}"
                                                 class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
                                         </div>
 
@@ -224,7 +224,7 @@
                                                 <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>Address
                                             </label>
                                             <input type="text" name="address"
-                                                value="{{ old('address', $user->address) }}"
+                                                value="{{ old('address', $company->address) }}"
                                                 class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
                                         </div>
                                     </div>

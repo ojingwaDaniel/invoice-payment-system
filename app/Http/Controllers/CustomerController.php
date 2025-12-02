@@ -5,20 +5,54 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
+    /**
+     * Restrict access to customers within same company + branch
+     */
+    private function authorizeCustomerAccess(Customer $customer)
+    {
+        $user = auth()->user();
 
+        // Company must match
+        if ($customer->company_id !== $user->company_id) {
+            abort(403, 'Unauthorized: You cannot access customers from another company.');
+        }
+
+        // Admin can see all customers under the company
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        // Accountant must stay within branch
+        if ($customer->branch_id !== $user->branch_id) {
+            abort(403, 'Unauthorized: You cannot access customers from another branch.');
+        }
+
+        return true;
+    }
+
+    /**
+     *  List customers for THIS COMPANY + branch for accountants
+     */
     public function index(Request $request)
     {
-        $userId = auth()->id();
+        $user = auth()->user();
 
-        $query = Customer::where("user_id", $userId)->withCount('invoices');
+        // Base filter: always restrict to the company
+        $query = Customer::where("company_id", $user->company_id)
+            ->withCount('invoices');
 
-        // Search functionality
-        if ($request->has('search') && $request->search) {
+        // Branch restriction for non-admins
+        if ($user->role !== 'admin') {
+            $query->where("branch_id", $user->branch_id);
+        }
+
+        // Search
+        if ($request->filled('search')) {
             $search = $request->search;
+
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
@@ -29,6 +63,7 @@ class CustomerController extends Controller
 
         // Sorting
         $sort = $request->get('sort', 'name');
+
         switch ($sort) {
             case 'name_desc':
                 $query->orderBy('name', 'desc');
@@ -45,17 +80,24 @@ class CustomerController extends Controller
 
         $customers = $query->paginate(15);
 
-        // Calculate statistics
+        /**
+         * Build stats: also scoped to company + branch logic
+         */
+        $statsQuery = Customer::where("company_id", $user->company_id);
+
+        if ($user->role !== 'admin') {
+            $statsQuery->where("branch_id", $user->branch_id);
+        }
 
         $stats = [
-            'active_customers' => Customer::where("user_id", $userId)->count(),
+            'active_customers' => $statsQuery->count(),
 
             'total_invoices' => Invoice::whereIn(
                 'customer_id',
-                Customer::where("user_id", $userId)->pluck('id')
+                $statsQuery->pluck('id')
             )->count(),
 
-            'new_this_month' => Customer::where("user_id", $userId)
+            'new_this_month' => $statsQuery
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count(),
@@ -78,31 +120,47 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email',
-            'phone' => 'required|string|max:20',
+            'name'    => 'required|string|max:255',
+            'email'   => 'required|email|unique:customers,email',
+            'phone'   => 'required|string|max:20',
             'address' => 'required|string|max:500',
         ]);
 
-        try {
-            $validated['user_id'] = auth()->id(); // 👈 add current logged in user
-            Customer::create($validated);
+        $user = auth()->user();
 
-            return redirect()->route('customer.index')->with('success', 'Customer created successfully!');
+        try {
+            Customer::create([
+                'name'       => $validated['name'],
+                'email'      => $validated['email'],
+                'phone'      => $validated['phone'],
+                'address'    => $validated['address'],
+                'user_id'    => $user->id,
+                'company_id' => $user->company_id,
+                'branch_id'  => $user->role === 'admin'
+                    ? $user->branch_id
+                    : $user->branch_id, 
+            ]);
+
+            return redirect()->route('customer.index')
+                ->with('success', 'Customer created successfully!');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Failed to create customer: ' . $e->getMessage());
+            return back()->withInput()
+                ->with('error', 'Failed to create customer: ' . $e->getMessage());
         }
     }
-
 
     /**
      * Show single customer
      */
     public function show(Customer $customer)
     {
-        $customer->load(['invoices' => function ($query) {
-            $query->latest()->take(10);
-        }]);
+        $this->authorizeCustomerAccess($customer);
+
+        $customer->load([
+            'invoices' => function ($query) {
+                $query->latest()->take(10);
+            }
+        ]);
 
         return view('customers.show', compact('customer'));
     }
@@ -112,6 +170,7 @@ class CustomerController extends Controller
      */
     public function edit(Customer $customer)
     {
+        $this->authorizeCustomerAccess($customer);
         return view('customers.form', compact('customer'));
     }
 
@@ -120,18 +179,23 @@ class CustomerController extends Controller
      */
     public function update(Request $request, Customer $customer)
     {
+        $this->authorizeCustomerAccess($customer);
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email,' . $customer->id,
-            'phone' => 'required|string|max:20',
+            'name'    => 'required|string|max:255',
+            'email'   => 'required|email|unique:customers,email,' . $customer->id,
+            'phone'   => 'required|string|max:20',
             'address' => 'required|string|max:500',
         ]);
 
         try {
             $customer->update($validated);
-            return redirect()->route('customer.show', $customer)->with('success', 'Customer updated successfully!');
+
+            return redirect()->route('customer.show', $customer)
+                ->with('success', 'Customer updated successfully!');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Failed to update customer: ' . $e->getMessage());
+            return back()->withInput()
+                ->with('error', 'Failed to update customer: ' . $e->getMessage());
         }
     }
 
@@ -140,11 +204,16 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer)
     {
+        $this->authorizeCustomerAccess($customer);
+
         try {
             $customer->delete();
-            return redirect()->route('customer.index')->with('success', 'Customer deleted successfully!');
+
+            return redirect()->route('customer.index')
+                ->with('success', 'Customer deleted successfully!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete customer: ' . $e->getMessage());
+            return back()
+                ->with('error', 'Failed to delete customer: ' . $e->getMessage());
         }
     }
 }

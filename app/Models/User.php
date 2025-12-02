@@ -11,71 +11,45 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
-        'password',
         'phone',
-        'company_name',
-        'address',
-        'paystack_public_key',
-        'paystack_secret_key',
-        'logo_path',
+        'password',
+        'role',
+        'company_id',
+        'branch_id',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+
+    public function company()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Company::class);
     }
 
-    /**
-     * Get invoices created by this user
-     */
-    public function invoices()
+    public function branch()
     {
-        return $this->hasMany(Invoice::class);
+        return $this->belongsTo(Branch::class);
     }
 
-    /**
-     * Get customers created by this user
-     */
-    public function customers()
+    // Optional role helpers
+    public function isAdmin(): bool
     {
-        return $this->hasMany(Customer::class);
+        return $this->role === 'admin';
     }
 
-    /**
-     * Get products created by this user
-     */
-    public function products()
+    public function isAccountant(): bool
     {
-        return $this->hasMany(Product::class);
-    }
-    public function units()
-    {
-        return $this->hasMany(Unit::class);
+        return $this->role === 'accountant';
     }
 }

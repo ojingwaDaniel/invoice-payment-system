@@ -22,7 +22,8 @@ class Product extends Model
         'unit',
         'type',
         'image',
-        
+        'company_id'
+
 
     ];
     protected $casts = [
@@ -42,6 +43,12 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 
 }

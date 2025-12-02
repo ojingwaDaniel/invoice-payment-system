@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     //
-    protected $fillable = ['name',"user_id"];
+    protected $fillable = ['name',"user_id","company_id"];
 
     public function products()
     {
@@ -15,5 +15,10 @@ class Category extends Model
     }
     public function users(){
         return $this->belongsToMany(User::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }

@@ -7,78 +7,83 @@ use Illuminate\Http\Request;
 
 class UnitController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    public function index()
     {
-        $units = $request->user()->units()->latest()->get();
+        $companyId = auth()->user()->company_id;
+
+        $units = Unit::where('company_id', $companyId)
+            ->latest()
+            ->get();
 
         return view('units.index', compact('units'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
-        return view("units.form");
+        return view('units.form');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
+        $companyId = auth()->user()->company_id;
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:units,name,NULL,id,company_id,' . $companyId,
             'short_name' => 'nullable|string|max:255',
         ]);
 
-        $request->user()->units()->create($validated);
+        Unit::create([
+            'name' => $validated['name'],
+            'short_name' => $validated['short_name'] ?? null,
+            'company_id' => $companyId,
+        ]);
 
-        return redirect()->route("unit.index")->with('success', 'Unit created successfully');
+        return redirect()->route('unit.index')
+            ->with('success', 'Unit created successfully');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Unit $unit)
     {
+        $this->authorizeUnit($unit);
 
-
-        return view("units.form", compact("unit"));
+        return view('units.form', compact('unit'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(Request $request, Unit $unit)
     {
-        //
+        $this->authorizeUnit($unit);
+
+        $companyId = auth()->user()->company_id;
+
         $validated = $request->validate([
-            "name" => "required|string",
-            "short_name" => "nullable|string"
+            'name' => 'required|string|max:255|unique:units,name,' . $unit->id . ',id,company_id,' . $companyId,
+            'short_name' => 'nullable|string|max:255',
         ]);
+
         $unit->update($validated);
-        return redirect()->route("unit.index")->with("success", "updated the unit sucessfully");
+
+        return redirect()->route('unit.index')
+            ->with('success', 'Unit updated successfully');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Unit $unit)
     {
+        $this->authorizeUnit($unit);
+
         $unit->delete();
-        return redirect()->route("unit.index")->with("success", "successfully deleted the unit");
-  }
+
+        return redirect()->route('unit.index')
+            ->with('success', 'Unit deleted successfully');
+    }
+
+
+    private function authorizeUnit(Unit $unit)
+    {
+        if ($unit->company_id !== auth()->user()->company_id) {
+            abort(403, 'Unauthorized access');
+        }
+    }
 }

@@ -66,7 +66,7 @@
                     <button id="user-menu-btn"
                             class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 transition-all">
                         <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm">
-                            {{ substr(Auth::user()->company_name ?? 'U', 0, 1) }}
+                            {{ substr(Auth::user()->company->name?? 'U', 0, 1) }}
                         </div>
                         <svg class="w-4 h-4 text-gray-500 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -79,11 +79,11 @@
                         <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50">
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold shadow-sm">
-                                    {{ substr(Auth::user()->company_name ?? 'U', 0, 1) }}
+                                    {{ substr($companyName ?? 'U', 0, 1) }}
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <h6 class="text-sm font-semibold text-gray-900 truncate">
-                                        {{ Auth::user()->company_name ?? 'User' }}
+                                        {{ Auth::user()->company->name ?? 'User' }}
                                     </h6>
                                     <p class="text-xs text-gray-600 truncate">{{ Auth::user()->email }}</p>
                                 </div>

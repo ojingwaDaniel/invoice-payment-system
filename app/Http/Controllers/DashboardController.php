@@ -10,25 +10,39 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $user = Auth::user();
 
-        // Basic Metrics
-        $totalInvoices = Invoice::where('user_id', $user->id)->count();
-        $totalProducts = Product::where('user_id', $user->id)->count();
-        $totalCustomers = Customer::where('user_id', $user->id)->count();
-        $recentCustomers = Customer::where('user_id', $user->id)->latest()->take(5)->get();
+        // Scope variables
+        $companyId = $user->company_id;
+        $branchId  = $user->branch_id;
 
-        $totalAmountDue = Invoice::where('user_id', $user->id)
-            ->sum('total_amount') - Invoice::where('user_id', $user->id)->sum('paid');
+        // Base query (company + branch)
+        $invoiceQuery = Invoice::where('company_id', $companyId);
+        $customerQuery = Customer::where('company_id', $companyId);
+        $productQuery = Product::where('company_id', $companyId);
 
-        $invoices = $user->invoices;
+        if ($branchId) {
+            $invoiceQuery->where('branch_id', $branchId);
+            $customerQuery->where('branch_id', $branchId);
 
-        // Invoice Statistics
+        }
+
+        /** ▬▬▬ BASIC METRICS ▬▬▬ **/
+        $totalInvoices = $invoiceQuery->count();
+        $totalCustomers = $customerQuery->count();
+        $totalProducts = $productQuery->count();
+
+        $recentCustomers = $customerQuery->latest()->take(5)->get();
+
+        $totalAmountDue =
+            $invoiceQuery->sum('total_amount') - $invoiceQuery->sum('paid');
+
+
+        /** ▬▬▬ INVOICE COLLECTION ▬▬▬ **/
+        $invoices = $invoiceQuery->with('items')->get();
+
         $invoiced = $invoices->sum(function ($invoice) {
             $subtotal = $invoice->items->sum('amount');
             $discount = $invoice->discount ?? 0;
@@ -49,14 +63,14 @@ class DashboardController extends Controller
                 return $total - $invoice->paid;
             });
 
-        // Total Sales (This month)
-        $totalSales = Invoice::where('user_id', $user->id)
+
+        /** ▬▬▬ SALES THIS MONTH ▬▬▬ **/
+        $totalSales = $invoiceQuery->clone()
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->sum('paid');
 
-        // Sales Growth (Compare with last month)
-        $lastMonthSales = Invoice::where('user_id', $user->id)
+        $lastMonthSales = $invoiceQuery->clone()
             ->whereMonth('created_at', now()->subMonth()->month)
             ->whereYear('created_at', now()->subMonth()->year)
             ->sum('paid');
@@ -65,56 +79,58 @@ class DashboardController extends Controller
             ? round((($totalSales - $lastMonthSales) / $lastMonthSales) * 100, 2)
             : 0;
 
-        // Sales Target (Example: set to 150% of last month or a fixed amount)
         $salesTarget = $lastMonthSales * 1.5;
 
-        // Total Invoice Income (All time paid)
-        $totalInvoiceIncome = Invoice::where('user_id', $user->id)->sum('paid');
 
-        // Paid Invoices Count
-        $paidInvoices = Invoice::where('user_id', $user->id)
-            ->where('status', 'paid')
-            ->count();
+        /** ▬▬▬ FINANCIAL METRICS ▬▬▬ **/
+        $totalInvoiceIncome = $invoiceQuery->sum('paid');
+        $paidInvoices = $invoiceQuery->where('status', 'paid')->count();
 
-        // Average Invoice Amount
         $avgInvoiceAmount = $totalInvoices > 0
-            ? Invoice::where('user_id', $user->id)->avg('total_amount')
+            ? $invoiceQuery->avg('total_amount')
             : 0;
 
-        // Recent Invoices (Last 5)
-        $recentInvoices = Invoice::where('user_id', $user->id)
+
+        /** ▬▬▬ RECENT INVOICES ▬▬▬ **/
+        $recentInvoices = $invoiceQuery->with('customer')->latest()->take(5)->get();
+
+
+        /** ▬▬▬ RECENT TRANSACTIONS ▬▬▬ **/
+        $recentTransactions = $invoiceQuery
+            ->whereNotNull('paid')
+            ->where('paid', '>', 0)
             ->with('customer')
-            ->latest()
-            ->take(5)
-            ->get();
-
-
-        $recentTransactions = Invoice::where('user_id', $user->id)
-            ->latest()
-            ->take(5)
+            ->orderBy('updated_at', 'desc')
+            ->take(10)
             ->get()
-            ->map(function ($invoice) {
-                return (object) [
-                    'description' => 'Invoice Payment - ' . $invoice->invoice_number,
-                    'amount' => $invoice->paid,
-                    'type' => $invoice->paid > 0 ? 'credit' : 'debit',
-                    'created_at' => $invoice->created_at
-                ];
+            ->groupBy(function ($invoice) {
+                $date = $invoice->updated_at;
+
+                if ($date->isToday()) {
+                    return 'Today';
+                } elseif ($date->isYesterday()) {
+                    return 'Yesterday';
+                }
+                return $date->format('M d, Y');
             });
-        $topCustomers = Customer::where('user_id', $user->id)
+
+
+        /** ▬▬▬ TOP CUSTOMERS ▬▬▬ **/
+        $topCustomers = $customerQuery
             ->withSum('invoices', 'paid')
             ->withCount('invoices')
             ->orderByDesc('invoices_sum_paid')
             ->take(5)
             ->get();
-        // Total number of sales (invoices) this month
-        $totalSalesCount = Invoice::where('user_id', $user->id)
+
+
+        /** ▬▬▬ SALES ACTIVITY COUNT ▬▬▬ **/
+        $totalSalesCount = $invoiceQuery->clone()
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
 
-        // Compare with last month
-        $lastMonthSalesCount = Invoice::where('user_id', $user->id)
+        $lastMonthSalesCount = $invoiceQuery->clone()
             ->whereMonth('created_at', now()->subMonth()->month)
             ->whereYear('created_at', now()->subMonth()->year)
             ->count();
@@ -124,29 +140,8 @@ class DashboardController extends Controller
             : 0;
 
 
-        $pendingInvoices = Invoice::where('user_id', $user->id)
-            ->where('is_sent', false)
-            ->count();
-
-        $recentTransactions = Invoice::where('user_id', $user->id)
-            ->whereNotNull('paid')
-            ->where('paid', '>', 0)
-            ->with('customer')
-            ->orderBy('updated_at', 'desc')
-            ->take(10)
-            ->get()
-            ->groupBy(function ($invoice) {
-                $date = $invoice->updated_at;
-                if ($date->isToday()) {
-                    return 'Today';
-                } elseif ($date->isYesterday()) {
-                    return 'Yesterday';
-                } else {
-                    return $date->format('M d, Y');
-                }
-            });
-
-
+        /** ▬▬▬ UNSENT INVOICES ▬▬▬ **/
+        $pendingInvoices = $invoiceQuery->where('is_sent', false)->count();
 
 
         return view('admin.index', compact(

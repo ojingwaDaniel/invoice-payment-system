@@ -99,8 +99,6 @@
         </button>
     </div>
 
-    
-
     <!-- Navigation -->
     <div class="flex-1 overflow-y-auto">
         <div class="p-6">
@@ -275,8 +273,43 @@
 
                     </ul>
                 </li>
+
+
+            @if (Auth::check() && Auth::user()->isAdmin())
+                <li class="mb-6">
+                    <span class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Company</span>
+
+                    <ul class="mt-2 space-y-1">
+                        <!-- Branch List -->
+                        <li>
+                            <a href="{{ route('branch.index') }}"
+                                class="{{ request()->routeIs('branch.index') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-700 hover:bg-gray-50' }} group flex items-center rounded-xl px-3 py-3 transition-all duration-200">
+                                <svg class="{{ request()->routeIs('branch.index') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }} mr-3 h-5 w-5"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 7h18M3 12h18M3 17h18" />
+                                </svg>
+                                <span class="font-medium">Branches</span>
+                            </a>
+                        </li>
+
+                        <!-- Create Branch -->
+                        <li>
+                            <a href="{{ route('branch.create') }}"
+                                class="{{ request()->routeIs('branch.create') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-700 hover:bg-gray-50' }} block rounded-xl px-3 py-3 transition-all duration-200">
+                                <span class="font-medium">Create Branch</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            @endif
             </ul>
+
+
+
+
         </div>
+
     </div>
 
     <!-- User Profile -->
@@ -287,7 +320,7 @@
                 {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 2)) }}
             </div>
             <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-medium text-gray-900">{{ Auth::user()->company_name ?? 'User' }}</p>
+                <p class="truncate text-sm font-medium text-gray-900">{{ Auth::user()->company->name ?? 'User' }}</p>
                 <p class="truncate text-xs text-gray-500">{{ Auth::user()->email ?? 'user@example.com' }}</p>
             </div>
             <button
