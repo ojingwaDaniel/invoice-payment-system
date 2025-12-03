@@ -132,17 +132,28 @@
                                 <i
                                     class="fas fa-chevron-right ml-auto opacity-0 transition-opacity duration-300 group-hover:opacity-100"></i>
                             </a>
+                            @if (auth()->user()->role === 'admin')
+                                <a href="#paystack" onclick="showSection('paystack')"
+                                    class="nav-link group flex items-center rounded-2xl px-4 py-3.5 font-medium text-slate-700 transition-all duration-300 hover:bg-slate-50">
+                                    <div
+                                        class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-blue-500 group-hover:to-indigo-600 group-hover:text-white group-hover:shadow-lg">
+                                        <i class="fas fa-credit-card"></i>
+                                    </div>
+                                    <span>Payment Keys</span>
+                                    <i
+                                        class="fas fa-chevron-right ml-auto opacity-0 transition-opacity duration-300 group-hover:opacity-100"></i>
+                                </a> <a href="#paystack" onclick="showSection('paystack')"
+                                    class="nav-link group flex items-center rounded-2xl px-4 py-3.5 font-medium text-slate-700 transition-all duration-300 hover:bg-slate-50">
+                                    <div
+                                        class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-blue-500 group-hover:to-indigo-600 group-hover:text-white group-hover:shadow-lg">
+                                        <i class="fas fa-credit-card"></i>
+                                    </div>
+                                    <span>Payment Keys</span>
+                                    <i
+                                        class="fas fa-chevron-right ml-auto opacity-0 transition-opacity duration-300 group-hover:opacity-100"></i>
+                                </a>
+                            @endif
 
-                            <a href="#paystack" onclick="showSection('paystack')"
-                                class="nav-link group flex items-center rounded-2xl px-4 py-3.5 font-medium text-slate-700 transition-all duration-300 hover:bg-slate-50">
-                                <div
-                                    class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-blue-500 group-hover:to-indigo-600 group-hover:text-white group-hover:shadow-lg">
-                                    <i class="fas fa-credit-card"></i>
-                                </div>
-                                <span>Payment Keys</span>
-                                <i
-                                    class="fas fa-chevron-right ml-auto opacity-0 transition-opacity duration-300 group-hover:opacity-100"></i>
-                            </a>
                         </nav>
 
                         <!-- Quick Actions -->
@@ -197,7 +208,8 @@
                                             <label class="mb-2 block text-sm font-semibold text-slate-700">
                                                 <i class="fas fa-envelope mr-2 text-blue-500"></i>Email Address
                                             </label>
-                                            <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                                            <input type="email" name="email"
+                                                value="{{ old('email', $user->email) }}"
                                                 class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
                                         </div>
                                         @if (auth()->user()->role === 'admin')
