@@ -11,7 +11,10 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS (dev CDN OK for Ngrok testing) -->
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -33,6 +36,9 @@
                         sans: ['Inter', 'sans-serif']
                     }
                 }
+            },
+            corePlugins: {
+                preflight: false, // Disable Tailwind's reset to avoid conflicts with Bootstrap
             }
         }
     </script>
@@ -57,6 +63,11 @@
                 margin-left: 0;
             }
         }
+
+        /* Hide Alpine.js elements until loaded */
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 
     @stack('styles')
@@ -65,11 +76,16 @@
 <body class="font-sans">
     <div class="flex h-screen bg-gray-50" x-data="sidebar()">
         <!-- Mobile Overlay -->
-        <div x-show="sidebarOpen" x-transition:enter="transition-opacity ease-linear duration-300"
-            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0" @click="sidebarOpen = false"
-            class="sidebar-overlay fixed inset-0 z-30 bg-gray-900 bg-opacity-50 lg:hidden" x-cloak>
+        <div x-show="sidebarOpen"
+            x-transition:enter="transition-opacity ease-linear duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity ease-linear duration-300"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @click="sidebarOpen = false"
+            class="sidebar-overlay fixed inset-0 z-30 bg-gray-900 bg-opacity-50 lg:hidden"
+            x-cloak>
         </div>
 
         @include('layouts.sidebar')
@@ -82,6 +98,9 @@
             </main>
         </div>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         document.addEventListener('alpine:init', () => {
