@@ -122,18 +122,14 @@
                         <h2 class="mb-4 text-sm font-bold text-gray-900">Billing From</h2>
                         @if ($invoice->user)
                             <div class="space-y-2 text-sm">
-                                <p class="font-semibold text-gray-900">{{ $invoice->user->company_name ?? 'Company Name' }}
+                                <p class="font-semibold text-gray-900">{{ $invoice->user->company->name ?? 'Company Name' }}
                                 </p>
-                                @if ($invoice->user->address)
-                                    <p class="text-gray-600">{{ $invoice->user->address }}</p>
-                                @endif
-                                @if ($invoice->user->phone)
-                                    <p class="text-gray-600">Phone : {{ $invoice->user->phone }}</p>
-                                @endif
-                                <p class="text-gray-600">Email : {{ $invoice->user->email }}</p>
-                                @if ($invoice->user->website)
-                                    <p class="text-gray-600">GST : {{ $invoice->user->website }}</p>
-                                @endif
+                                <p class="text-gray-600">{{ $invoice->user->company->address }}</p>
+
+                                <p class="text-gray-600">Phone : {{ $invoice->user->company->phone }}</p>
+
+                                <p class="text-gray-600">Email : {{ $invoice->user->company->email }}</p>
+
                             </div>
                         @endif
                     </div>
