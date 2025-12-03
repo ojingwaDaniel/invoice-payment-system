@@ -88,23 +88,26 @@
                                         @endif
 
                                         <!-- Upload Button -->
-                                        <form id="logoUploadForm" action="{{ route('profile.uploadLogo') }}" method="POST"
-                                            enctype="multipart/form-data" class="absolute -bottom-2 -right-2">
-                                            @csrf
-                                            <label for="logo"
-                                                class="flex h-12 w-12 cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl">
-                                                <i class="fas fa-camera"></i>
-                                            </label>
-                                            <input type="file" id="logo" name="logo" accept="image/*"
-                                                class="hidden">
-                                            <div class="mt-4 flex justify-center">
-                                                <button type="submit"
-                                                    class="flex items-center space-x-2 rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-300 hover:bg-slate-200 hover:shadow-sm">
-                                                    <i class="fas fa-upload text-blue-500"></i>
-                                                    Upload Logo
-                                                </button>
-                                            </div>
-                                        </form>
+                                        @if (auth()->user()->role === 'admin')
+                                            <form id="logoUploadForm" action="{{ route('profile.uploadLogo') }}"
+                                                method="POST" enctype="multipart/form-data"
+                                                class="absolute -bottom-2 -right-2">
+                                                @csrf
+                                                <label for="logo"
+                                                    class="flex h-12 w-12 cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl">
+                                                    <i class="fas fa-camera"></i>
+                                                </label>
+                                                <input type="file" id="logo" name="logo" accept="image/*"
+                                                    class="hidden">
+                                                <div class="mt-4 flex justify-center">
+                                                    <button type="submit"
+                                                        class="flex items-center space-x-2 rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-300 hover:bg-slate-200 hover:shadow-sm">
+                                                        <i class="fas fa-upload text-blue-500"></i>
+                                                        Upload Logo
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        @endif
 
                                     </div>
                                 </div>
