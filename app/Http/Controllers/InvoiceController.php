@@ -189,7 +189,7 @@ class InvoiceController extends Controller
 
             $invoice = Invoice::create([
                 'company_id' => $user->company_id,
-                'branch_id' => $user->branch_id,    // branch of creator
+                'branch_id' => $user->branch_id,
                 'user_id' => $user->id,
                 'customer_id' => $validated['customer_id'],
                 'invoice_number' => $validated['invoice_number'],
@@ -206,6 +206,8 @@ class InvoiceController extends Controller
             foreach ($items as $itemData) {
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
+                    'company_id' => $user->company_id,
+                    'branch_id' => $user->branch_id,
                     'product_id' => $itemData['product_id'],
                     'quantity' => $itemData['quantity'],
                     'unit' => $itemData['unit'] ?? '',
@@ -315,6 +317,8 @@ class InvoiceController extends Controller
             foreach ($items as $itemData) {
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
+                    'company_id' => $user->company_id,
+                    'branch_id' => $user->branch_id,
                     'product_id' => $itemData['product_id'],
                     'quantity' => $itemData['quantity'],
                     'unit' => $itemData['unit'] ?? '',
