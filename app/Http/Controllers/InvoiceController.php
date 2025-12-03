@@ -695,7 +695,7 @@ class InvoiceController extends Controller
     public function receipt(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
-        $user = auth()->id();
+        $user = auth()->user();
 
         if (!$invoice->paid) {
             abort(404, 'Receipt not available for unpaid invoices');
