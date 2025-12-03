@@ -459,12 +459,11 @@
                                                 </div>
 
                                                 <!-- Info -->
-                                                <!-- Info -->
                                                 <div class="min-w-0 flex-1">
-                                                    <h3 class="truncate text-sm font-semibold text-gray-900">
+                                                    <h3 class="text-sm font-semibold text-gray-900">
                                                         {{ $accountant->name }}
                                                     </h3>
-                                                    <p class="w-full truncate text-xs text-gray-500"
+                                                    <p class="break-words text-xs text-gray-500"
                                                         title="{{ $accountant->email }}">
                                                         {{ $accountant->email }}
                                                     </p>
@@ -478,7 +477,7 @@
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
-                                                        class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-500 transition hover:bg-red-100 hover:text-red-600">
+                                                        class="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-500 transition hover:bg-red-100 hover:text-red-600">
                                                         <svg class="h-4 w-4" fill="none" stroke="currentColor"
                                                             stroke-width="2.2" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
