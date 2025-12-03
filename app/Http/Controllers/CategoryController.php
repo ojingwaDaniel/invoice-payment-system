@@ -50,6 +50,7 @@ class CategoryController extends Controller
         Category::create([
             'name' => $validated['name'],
             'company_id' => $companyId,
+            'user_id' => auth()->id(),
         ]);
 
         return redirect()->route('category.index')
