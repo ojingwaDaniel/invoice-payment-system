@@ -491,7 +491,7 @@ class InvoiceController extends Controller
             'amount' => $invoice->total_amount * 100,
             'email' => $invoice->customer->email,
             'reference' => 'INV-' . $invoice->id . '-' . time(),
-            'callback_url' => route('invoice.handle.callback', $invoice->id),
+            'callback_url' => route('invoice.callback', $invoice->id),
         ]);
 
         return redirect($response->data->authorization_url);
@@ -710,30 +710,5 @@ class InvoiceController extends Controller
         return view('invoices.receipt', compact('invoice'));
     }
 
-    public function handlePaystackCallback($invoiceId)
-    {
-        $paystackSecret = env('PAYSTACK_SECRET_KEY');
-        $paystack = new \Yabacon\Paystack($paystackSecret);
 
-        $trx = $paystack->transaction->verify([
-            'reference' => request('reference'),
-        ]);
-
-        if (!$trx || $trx->data->status !== 'success') {
-            return redirect()->route('invoice.show', $invoiceId)
-                ->with('error', 'Payment failed or cancelled.');
-        }
-
-        // Mark invoice as paid
-        $invoice = Invoice::findOrFail($invoiceId);
-        $invoice->update([
-            'status' => 'paid',
-            'paid' => $invoice->total_amount,
-            'paid_at' => now(),
-            'payment_method' => 'paystack',
-        ]);
-
-        return redirect()->route('invoice.show', $invoiceId)
-            ->with('success', 'Payment successful!');
-    }
 }
