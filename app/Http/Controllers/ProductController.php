@@ -82,6 +82,7 @@ class ProductController extends Controller
         ]);
 
         $validated['company_id'] = $companyId;
+        $validated['user_id'] = auth()->id();
 
         // Save category name too
         $category = Category::find($request->category_id);
