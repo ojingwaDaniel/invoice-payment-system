@@ -323,8 +323,8 @@
                     <div class="flex items-center justify-between">
                         <div class="text-sm text-gray-600">
                             @if ($invoice->user)
-                                <p class="font-semibold">{{ $invoice->user->company_name ?? 'Company Name' }}</p>
-                                <p>{{ $invoice->user->address ?? '15 Hodges Mews, High Wycombe HP12 3JL, United Kingdom' }}
+                                <p class="font-semibold">{{ $invoice->user->company->name ?? 'Company Name' }}</p>
+                                <p>{{ $invoice->user->company->address ?? '15 Hodges Mews, High Wycombe HP12 3JL, United Kingdom' }}
                                 </p>
                             @endif
                         </div>
