@@ -91,54 +91,29 @@
                     <!-- Invoice Details -->
                     <div>
                         <h2 class="mb-4 text-sm font-bold text-gray-900">Invoice Details</h2>
+                        <div class="space-y-2 text-sm">
                             <div>
-                                <h2 class="mb-4 text-sm font-bold text-gray-900">Invoice Details</h2>
-                                <div class="space-y-2 text-sm">
-                                    <div>
-                                        <span class="text-gray-600">Invoice Number : </span>
-                                        <span class="font-semibold text-gray-900">{{ $invoice->invoice_number }}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">Issued On : </span>
-                                        <span
-                                            class="font-semibold text-gray-900">{{ $invoice->issue_date->format('d M Y') }}</span>
-                                    </div>
-                                    @if ($invoice->due_date)
-                                        <div>
-                                            <span class="text-gray-600">Due Date : </span>
-                                            <span
-                                                class="font-semibold text-gray-900">{{ $invoice->due_date->format('d M Y') }}</span>
-                                        </div>
-                                    @endif
-                                    @if ($invoice->status !== 'paid' && $invoice->due_date)
-                                        @php
-                                            $daysUntilDue = \Carbon\Carbon::now()
-                                                ->startOfDay()
-                                                ->diffInDays($invoice->due_date->startOfDay(), false);
-                                        @endphp
-                                        <div class="pt-1">
-                                            @if ($daysUntilDue > 0)
-                                                <span
-                                                    class="inline-block rounded bg-red-100 px-2 py-1 text-xs font-bold text-red-700">
-                                                    Due in {{ abs($daysUntilDue) }}
-                                                    {{ abs($daysUntilDue) == 1 ? 'day' : 'days' }}
-                                                </span>
-                                            @elseif ($daysUntilDue == 0)
-                                                <span
-                                                    class="inline-block rounded bg-orange-100 px-2 py-1 text-xs font-bold text-orange-700">
-                                                    Due Today
-                                                </span>
-                                            @else
-                                                <span
-                                                    class="inline-block rounded bg-red-100 px-2 py-1 text-xs font-bold text-red-700">
-                                                    Overdue by {{ abs($daysUntilDue) }}
-                                                    {{ abs($daysUntilDue) == 1 ? 'day' : 'days' }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                    @endif
-                                </div>
+                                <span class="text-gray-600">Invoice Number : </span>
+                                <span class="font-semibold text-gray-900">{{ $invoice->invoice_number }}</span>
                             </div>
+                            <div>
+                                <span class="text-gray-600">Issued On : </span>
+                                <span class="font-semibold text-gray-900">{{ $invoice->issue_date->format('d M Y') }}</span>
+                            </div>
+                            @if ($invoice->due_date)
+                                <div>
+                                    <span class="text-gray-600">Due Date : </span>
+                                    <span
+                                        class="font-semibold text-gray-900">{{ $invoice->due_date->format('d M Y') }}</span>
+                                </div>
+                            @endif
+                            @if ($invoice->status !== 'paid')
+                                <div class="pt-1">
+                                    <span class="inline-block rounded bg-red-100 px-2 py-1 text-xs font-bold text-red-700">
+                                        Due in {{ \Carbon\Carbon::now()->diffInDays($invoice->due_date, false) }} days
+                                    </span>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
@@ -147,8 +122,7 @@
                         <h2 class="mb-4 text-sm font-bold text-gray-900">Billing From</h2>
                         @if ($invoice->user)
                             <div class="space-y-2 text-sm">
-                                <p class="font-semibold text-gray-900">
-                                    {{ $invoice->user->company->name ?? 'Company Name' }}
+                                <p class="font-semibold text-gray-900">{{ $invoice->user->company->name ?? 'Company Name' }}
                                 </p>
                                 <p class="text-gray-600">{{ $invoice->user->company->address }}</p>
 
@@ -515,6 +489,7 @@
             </div>
         </div>
     </div>
+
 
     <style>
         @keyframes fade-in {
