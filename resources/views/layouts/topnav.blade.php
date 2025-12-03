@@ -85,7 +85,7 @@
                                     <h6 class="text-sm font-semibold text-gray-900 truncate">
                                         {{ Auth::user()->company->name ?? 'User' }}
                                     </h6>
-                                    <p class="text-xs text-gray-600 truncate">{{ Auth::user()->email }}</p>
+                                    <p class="text-xs text-gray-600 truncate">{{ Auth::user()->name}}</p>
                                 </div>
                             </div>
                         </div>
