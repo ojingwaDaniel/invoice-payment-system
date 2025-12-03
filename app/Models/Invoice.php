@@ -24,6 +24,7 @@ class Invoice extends Model
         'paid_at',
         'company_id',
         'branch_id',
+        'created_by'
     ];
 
     protected $casts = [
@@ -57,5 +58,9 @@ class Invoice extends Model
     }
     public function company(){
         return $this->belongsTo(Company::class);
+    }
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

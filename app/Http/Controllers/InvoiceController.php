@@ -201,6 +201,7 @@ class InvoiceController extends Controller
                 'total_amount' => $total,
                 'vat_amount' => round($vatAmount, 2),
                 'status' => 'unpaid',
+                'created_by' => auth()->id(),
             ]);
 
             foreach ($items as $itemData) {
