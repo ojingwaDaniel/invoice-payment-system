@@ -14,36 +14,13 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    }
-                }
-            },
-            corePlugins: {
-                preflight: false, // Disable Tailwind's reset to avoid conflicts with Bootstrap
-            }
-        }
-    </script>
-
     <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
         @media (min-width: 992px) {
             .header {
                 margin-left: 100px;
@@ -64,7 +41,6 @@
             }
         }
 
-        /* Hide Alpine.js elements until loaded */
         [x-cloak] {
             display: none !important;
         }
@@ -73,8 +49,8 @@
     @stack('styles')
 </head>
 
-<body class="font-sans">
-    <div class="flex h-screen bg-gray-50" x-data="sidebar()">
+<body>
+    <div x-data="sidebar()">
         <!-- Mobile Overlay -->
         <div x-show="sidebarOpen"
             x-transition:enter="transition-opacity ease-linear duration-300"
@@ -84,23 +60,24 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
             @click="sidebarOpen = false"
-            class="sidebar-overlay fixed inset-0 z-30 bg-gray-900 bg-opacity-50 lg:hidden"
+            class="sidebar-overlay position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-lg-none"
+            style="z-index: 30;"
             x-cloak>
         </div>
 
         @include('layouts.sidebar')
 
-        <div class="flex flex-1 flex-col overflow-hidden">
+        <div class="d-flex flex-column" style="min-height: 100vh;">
             @include('layouts.topnav')
 
-            <main class="mt-10 flex-1 overflow-y-auto bg-gray-50 p-6">
+            <main class="flex-grow-1 bg-light p-4" style="margin-top: 60px;">
                 @yield('content')
             </main>
         </div>
     </div>
 
     <!-- Bootstrap JS -->
-    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         document.addEventListener('alpine:init', () => {
