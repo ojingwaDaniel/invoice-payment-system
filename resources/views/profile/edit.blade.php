@@ -200,8 +200,8 @@
                                             <input type="email" name="email" value="{{ old('email', $user->email) }}"
                                                 class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
                                         </div>
-
-                                        <div class="group">
+                                        @if (auth()->user()->role === "admin")
+                                           <div class="group">
                                             <label class="mb-2 block text-sm font-semibold text-slate-700">
                                                 <i class="fas fa-building mr-2 text-blue-500"></i>Company Name
                                             </label>
@@ -227,6 +227,10 @@
                                                 value="{{ old('address', $company->address) }}"
                                                 class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
                                         </div>
+
+                                        @endif
+
+
                                     </div>
 
                                     <div
