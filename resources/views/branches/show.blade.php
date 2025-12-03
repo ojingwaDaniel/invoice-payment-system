@@ -201,6 +201,7 @@
                 </div>
 
                 <!-- Accountants Section -->
+                <!-- Accountants Section -->
                 <div class="lg:col-span-1">
                     <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg">
                         <div class="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-6 py-4">
@@ -220,7 +221,7 @@
                                 <div class="space-y-4">
                                     @foreach ($branch->accountants as $accountant)
                                         <div
-                                            class="rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300 hover:shadow-md">
+                                            class="relative rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300 hover:shadow-md">
                                             <div class="flex items-start justify-between">
                                                 <div class="flex items-center">
                                                     <div class="mr-3 rounded-full bg-indigo-100 p-3">
@@ -230,26 +231,27 @@
                                                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                         </svg>
                                                     </div>
-                                                    <div>
+                                                    <div class="pr-12">
                                                         <h3 class="font-semibold text-gray-900">{{ $accountant->name }}
                                                         </h3>
                                                         <p class="text-sm text-gray-600">{{ $accountant->email }}</p>
                                                     </div>
                                                 </div>
+                                                <!-- Delete Button - Fixed Position -->
                                                 <form
                                                     action="{{ route('branch.accountant.destroy', [$branch->id, $accountant->id]) }}"
-                                                    method="POST" onsubmit="return confirm('Remove this accountant?');"
-                                                    class="flex items-center">
+                                                    method="POST"
+                                                    onsubmit="return confirm('Are you sure you want to remove {{ $accountant->name }}?');"
+                                                    class="absolute right-4 top-4">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
-                                                        class="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-3 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-100">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor"
+                                                        class="flex items-center justify-center rounded-full bg-red-500 p-2 text-white shadow-md transition-all hover:scale-110 hover:bg-red-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2">
+                                                        <svg class="h-5 w-5" fill="none" stroke="currentColor"
                                                             stroke-width="2" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
-                                                        Remove
                                                     </button>
                                                 </form>
                                             </div>
