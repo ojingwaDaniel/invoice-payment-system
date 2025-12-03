@@ -15,17 +15,17 @@ class CustomerController extends Controller
     {
         $user = auth()->user();
 
-        // Company must match
+        // Must belong to the same company
         if ($customer->company_id !== $user->company_id) {
             abort(403, 'Unauthorized: You cannot access customers from another company.');
         }
 
-        // Admin can see all customers under the company
+        // Admin can see all company customers
         if ($user->role === 'admin') {
             return true;
         }
 
-        // Accountant must stay within branch
+        // Branch users can only see customers in their own branch
         if ($customer->branch_id !== $user->branch_id) {
             abort(403, 'Unauthorized: You cannot access customers from another branch.');
         }
@@ -34,25 +34,23 @@ class CustomerController extends Controller
     }
 
     /**
-     *  List customers for THIS COMPANY + branch for accountants
+     * List customers (with branch isolation)
      */
     public function index(Request $request)
     {
         $user = auth()->user();
 
-        // Base filter: always restrict to the company
-        $query = Customer::where("company_id", $user->company_id)
+        $query = Customer::where('company_id', $user->company_id)
             ->withCount('invoices');
 
-        // Branch restriction for non-admins
+        // Branch users only see their branch
         if ($user->role !== 'admin') {
-            $query->where("branch_id", $user->branch_id);
+            $query->where('branch_id', $user->branch_id);
         }
 
-        // Search
+        // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
-
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
@@ -63,7 +61,6 @@ class CustomerController extends Controller
 
         // Sorting
         $sort = $request->get('sort', 'name');
-
         switch ($sort) {
             case 'name_desc':
                 $query->orderBy('name', 'desc');
@@ -80,23 +77,15 @@ class CustomerController extends Controller
 
         $customers = $query->paginate(15);
 
-        /**
-         * Build stats: also scoped to company + branch logic
-         */
-        $statsQuery = Customer::where("company_id", $user->company_id);
-
+        // Build stats scoped to company + branch logic
+        $statsQuery = Customer::where('company_id', $user->company_id);
         if ($user->role !== 'admin') {
-            $statsQuery->where("branch_id", $user->branch_id);
+            $statsQuery->where('branch_id', $user->branch_id);
         }
 
         $stats = [
             'active_customers' => $statsQuery->count(),
-
-            'total_invoices' => Invoice::whereIn(
-                'customer_id',
-                $statsQuery->pluck('id')
-            )->count(),
-
+            'total_invoices' => Invoice::whereIn('customer_id', $statsQuery->pluck('id'))->count(),
             'new_this_month' => $statsQuery
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
@@ -119,14 +108,16 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name'    => 'required|string|max:255',
-            'email'   => 'required|email|unique:customers,email',
-            'phone'   => 'required|string|max:20',
-            'address' => 'required|string|max:500',
-        ]);
-
         $user = auth()->user();
+
+        // Validation
+        $validated = $request->validate([
+            'name'       => 'required|string|max:255',
+            'email'      => 'required|email|unique:customers,email',
+            'phone'      => 'required|string|max:20',
+            'address'    => 'required|string|max:500',
+            'branch_id'  => $user->role === 'admin' ? 'required|exists:branches,id' : 'nullable',
+        ]);
 
         try {
             Customer::create([
@@ -137,8 +128,8 @@ class CustomerController extends Controller
                 'user_id'    => $user->id,
                 'company_id' => $user->company_id,
                 'branch_id'  => $user->role === 'admin'
-                    ? $user->branch_id
-                    : $user->branch_id, 
+                    ? $validated['branch_id']
+                    : $user->branch_id,
             ]);
 
             return redirect()->route('customer.index')
