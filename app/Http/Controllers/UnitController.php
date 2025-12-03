@@ -36,7 +36,9 @@ class UnitController extends Controller
             'name' => $validated['name'],
             'short_name' => $validated['short_name'] ?? null,
             'company_id' => $companyId,
+            'user_id' => auth()->id(),
         ]);
+
 
         return redirect()->route('unit.index')
             ->with('success', 'Unit created successfully');
