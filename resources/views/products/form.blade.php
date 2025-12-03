@@ -61,7 +61,7 @@
             <div class="p-6" x-data="{ type: '{{ old('type', $product->type ?? 'product') }}' }">
 
                 <form action="{{ isset($product) ? route('product.update', $product->id) : route('product.store') }}"
-                    method="POST" enctype="multipart/form-data" x-on:submit="['selling_price','purchase_price'].forEach(i => $el.querySelector(`[name='${i}']`).value = $el.querySelector(`[name='${i}']`).value.replace(/,/g,''))">
+                    method="POST" enctype="multipart/form-data">
                     @csrf
                     @if (isset($product))
                         @method('PUT')
@@ -169,22 +169,31 @@
                     <hr class="my-6 border-gray-200">
 
                     <!-- Pricing + Quantity -->
-                    <!-- Selling Price -->
-                    <div>
+                    <div x-data="{ value: '{{ old('selling_price', $product->selling_price ?? '') }}' }">
                         <label class="mb-2 block text-sm font-medium text-gray-700">Selling Price (₦)</label>
-                        <input type="text" name="selling_price" x-data x-model="selling_price"
-                            x-init="selling_price = '{{ old('selling_price', $product->selling_price ?? '') }}'"
-                            x-on:input="selling_price = $event.target.value.replace(/,/g,'').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                        <input type="text" name="selling_price" x-model="value"
+                            x-on:input="
+                   value = value.replace(/[^0-9.]/g,'');
+                   let parts = value.split('.');
+                   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                   value = parts.join('.');
+               "
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                            placeholder="0.00">
                     </div>
 
                     <!-- Purchase Price -->
-                    <div>
+                    <div x-data="{ value: '{{ old('purchase_price', $product->purchase_price ?? '') }}' }">
                         <label class="mb-2 block text-sm font-medium text-gray-700">Purchase Price (₦)</label>
-                        <input type="text" name="purchase_price" x-data x-model="purchase_price"
-                            x-init="purchase_price = '{{ old('purchase_price', $product->purchase_price ?? '') }}'"
-                            x-on:input="purchase_price = $event.target.value.replace(/,/g,'').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                        <input type="text" name="purchase_price" x-model="value"
+                            x-on:input="
+                   value = value.replace(/[^0-9.]/g,'');
+                   let parts = value.split('.');
+                   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                   value = parts.join('.');
+               "
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                            placeholder="0.00">
                     </div>
 
                     <!-- Quantity -->
