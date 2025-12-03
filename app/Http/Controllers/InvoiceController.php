@@ -695,6 +695,7 @@ class InvoiceController extends Controller
     public function receipt(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
+        $user = auth()->id();
 
         if (!$invoice->paid) {
             abort(404, 'Receipt not available for unpaid invoices');
@@ -707,7 +708,7 @@ class InvoiceController extends Controller
             return $pdf->download('receipt-' . $invoice->invoice_number . '.pdf');
         }
 
-        return view('invoices.receipt', compact('invoice'));
+        return view('invoices.receipt', compact('invoice',"user"));
     }
 
 
