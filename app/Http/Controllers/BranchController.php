@@ -3,8 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AccountCreatedMail;
+use Closure;
+use Illuminate\Auth\Events\Registered;
 
 class BranchController extends Controller
 {
@@ -15,16 +22,16 @@ class BranchController extends Controller
     {
         $user = Auth::user();
 
-        // Company admin sees all branches in the company
         if ($user->role === 'admin') {
-            $branches = Branch::where('company_id', $user->company_id)->get();
+            // Eager load accountants to prevent N+1 queries
+            $branches = Branch::where('company_id', $user->company_id)->with('accountants')->get();
         } else {
-            // Other roles see only their own branch
-            $branches = Branch::where('id', $user->branch_id)->get();
+            $branches = Branch::where('id', $user->branch_id)->with('accountants')->get();
         }
 
         return view("branches.index", compact('branches'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -62,6 +69,9 @@ class BranchController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
+    public function show(Branch $branch){
+        return view("branches.show", compact("branch"));
+    }
     public function edit(string $id)
     {
         $user = Auth::user();
@@ -108,12 +118,63 @@ class BranchController extends Controller
     {
         $user = Auth::user();
 
+
         $branch = Branch::where('company_id', $user->company_id)
             ->where('id', $id)
             ->firstOrFail();
+        if ($branch->is_head_office) {
+            return redirect()->back()->with('error', 'The Head Office branch cannot be deleted.');
+        }
 
         $branch->delete();
 
         return back()->with('success', 'Branch deleted successfully.');
+    }
+
+
+    public function storeAccountant(Request $request, Branch $branch)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+        ]);
+
+        $password = Str::random(10);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($password),
+            'role' => 'accountant',
+            'company_id' => $branch->company_id,
+            'branch_id' => $branch->id,
+            'must_change_password' => true,
+        ]);
+        event(new Registered($user));
+
+        // send email to accountant with credentials (Laravel Notification/Mail)
+        Mail::to($user->email)->send(new AccountCreatedMail($user, $password));
+
+        return redirect()->back()->with('success', 'Accountant created successfully!');
+    }
+    public function destroyAccountant(Branch $branch, User $user)
+    {
+        // Ensure the user is actually an accountant of this branch
+        if ($user->role !== 'accountant' || $user->branch_id !== $branch->id) {
+            return redirect()->back()->with('error', 'Invalid accountant');
+        }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', 'Accountant deleted successfully.');
+    }
+
+    public function handle($request, Closure $next)
+    {
+        if (auth()->user()->must_change_password) {
+            return redirect()->route('password.change');
+        }
+
+        return $next($request);
     }
 }

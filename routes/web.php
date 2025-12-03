@@ -160,9 +160,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get("/", [BranchController::class, "index"])->name("index");
         Route::get("/create", [BranchController::class, "create"])->name("create");
         Route::get("/edit/{branch}", [BranchController::class, "edit"])->name("edit");
+        Route::get("/{branch}", [BranchController::class, "show"])->name("show");
         Route::post("/", [BranchController::class, "store"])->name("store");
         Route::put("/update/{branch}", [BranchController::class, "update"])->name("update");
         Route::delete("/update/{branch}", [BranchController::class, "destroy"])->name("destroy");
+        Route::post('/{branch}/accountant', [BranchController::class, 'storeAccountant'])->name('accountant.store');
+        Route::delete('/{branch}/accountant/{user}', [BranchController::class, 'destroyAccountant'])
+            ->name('accountant.destroy');
     });
 
 

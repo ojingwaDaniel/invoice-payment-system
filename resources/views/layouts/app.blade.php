@@ -7,9 +7,7 @@
 
     <title>{{ config('app.name', 'Bizin') }}</title>
 
-    <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('img/favicon.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/apple-touch-icon.png') }}">
+  
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -20,18 +18,7 @@
     <!-- AlpineJS -->
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
-    <!-- CSS Assets -->
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('plugins/tabler-icons/tabler-icons.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('plugins/daterangepicker/daterangepicker.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap-datetimepicker.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('plugins/fontawesome/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('plugins/simplebar/simplebar.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/iconsax.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 
-    <!-- Theme Script -->
-    <script src="{{ asset('js/theme-script.js') }}"></script>
 
     <script>
         tailwind.config = {
@@ -81,16 +68,7 @@
         </div>
     </div>
 
-    <!-- JS Assets -->
-    <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/feather.min.js') }}"></script>
-    <script src="{{ asset('js/jquery.slimscroll.min.js') }}"></script>
-    <script src="{{ asset('plugins/daterangepicker/daterangepicker.js') }}"></script>
-    <script src="{{ asset('js/moment.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap-datetimepicker.min.js') }}"></script>
-    <script src="{{ asset('plugins/simplebar/simplebar.min.js') }}"></script>
-    <script src="{{ asset('js/script.js') }}"></script>
+
 
     <script>
         document.addEventListener('alpine:init', () => {

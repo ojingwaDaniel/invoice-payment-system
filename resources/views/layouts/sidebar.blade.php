@@ -89,7 +89,19 @@
     <div class="flex items-center justify-between border-b border-gray-100 p-6">
         <div>
             <h1 class="text-xl font-bold text-gray-800">{{ config('app.name') }}</h1>
-            <p class="text-sm text-gray-500">Admin Dashboard</p>
+            <p class="text-sm text-gray-500">
+                @if (Auth::check())
+                    @if (Auth::user()->role === 'admin')
+                        Admin Dashboard
+                    @elseif(Auth::user()->role === 'accountant')
+                        Branch Accountant Dashboard
+                    @else
+                        Dashboard
+                    @endif
+                @else
+                    Dashboard
+                @endif
+            </p>
         </div>
         <button @click="toggleSidebar()"
             class="flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-gray-100 lg:hidden">
@@ -274,39 +286,35 @@
                     </ul>
                 </li>
 
+                @if (Auth::check() && Auth::user()->isAdmin())
+                    <li class="mb-6">
+                        <span class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Company</span>
 
-            @if (Auth::check() && Auth::user()->isAdmin())
-                <li class="mb-6">
-                    <span class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Company</span>
+                        <ul class="mt-2 space-y-1">
+                            <!-- Branch List -->
+                            <li>
+                                <a href="{{ route('branch.index') }}"
+                                    class="{{ request()->routeIs('branch.index') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-700 hover:bg-gray-50' }} group flex items-center rounded-xl px-3 py-3 transition-all duration-200">
+                                    <svg class="{{ request()->routeIs('branch.index') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }} mr-3 h-5 w-5"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 7h18M3 12h18M3 17h18" />
+                                    </svg>
+                                    <span class="font-medium">Branches</span>
+                                </a>
+                            </li>
 
-                    <ul class="mt-2 space-y-1">
-                        <!-- Branch List -->
-                        <li>
-                            <a href="{{ route('branch.index') }}"
-                                class="{{ request()->routeIs('branch.index') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-700 hover:bg-gray-50' }} group flex items-center rounded-xl px-3 py-3 transition-all duration-200">
-                                <svg class="{{ request()->routeIs('branch.index') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }} mr-3 h-5 w-5"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 7h18M3 12h18M3 17h18" />
-                                </svg>
-                                <span class="font-medium">Branches</span>
-                            </a>
-                        </li>
-
-                        <!-- Create Branch -->
-                        <li>
-                            <a href="{{ route('branch.create') }}"
-                                class="{{ request()->routeIs('branch.create') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-700 hover:bg-gray-50' }} block rounded-xl px-3 py-3 transition-all duration-200">
-                                <span class="font-medium">Create Branch</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            @endif
+                            <!-- Create Branch -->
+                            <li>
+                                <a href="{{ route('branch.create') }}"
+                                    class="{{ request()->routeIs('branch.create') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-700 hover:bg-gray-50' }} block rounded-xl px-3 py-3 transition-all duration-200">
+                                    <span class="font-medium">Create Branch</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
             </ul>
-
-
-
 
         </div>
 

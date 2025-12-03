@@ -60,6 +60,7 @@ class RegisteredUserController extends Controller
                 'company_id' => $company->id,
                 'name' => 'Head Office',
                 'address' => $request->address,
+                'is_head_office' => true,
 
 
             ]);

@@ -11,7 +11,7 @@ class Branch extends Model
     protected $fillable = ['name', 'company_id', 'address'];
 
 
-   
+
 
     public function users()
     {
@@ -25,5 +25,10 @@ class Branch extends Model
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function accountants()
+    {
+        return $this->hasMany(User::class)->where('role', 'accountant');
     }
 }

@@ -641,8 +641,7 @@
 
             <!-- Bottom Row: Transactions & Sales Stats -->
             <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <!-- Recent Transactions -->
-                <!-- Recent Transactions -->
+
                 <div class="lg:col-span-2">
                     <div class="h-full rounded-xl bg-white shadow-sm transition-shadow duration-300 hover:shadow-md">
                         <div class="px-6 py-6">
@@ -747,17 +746,7 @@
                                     <p class="mb-1 text-sm text-gray-600">Total Invoice Income</p>
                                     <h3 class="text-3xl font-bold text-gray-900">₦{{ number_format($received, 2) }}</h3>
                                 </div>
-                                <div class="text-right">
-                                    <div class="mb-1 flex items-center font-semibold text-green-600">
-                                        <svg class="mr-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        30.2%
-                                    </div>
-                                    <p class="text-xs text-gray-500">vs Last Week</p>
-                                </div>
+                               
                             </div>
                             <div id="invoice_income"
                                 class="mt-4 flex h-32 items-center justify-center rounded-lg bg-gradient-to-r from-indigo-50 to-purple-50">
