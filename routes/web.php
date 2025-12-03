@@ -171,3 +171,4 @@ Route::get('/invoice/{invoice}/paid', [InvoiceController::class, 'paymentSuccess
 Route::get('/invoice/{invoice}/receipt', [InvoiceController::class, 'receipt'])->name('invoice.show.receipt');
 Route::get('/pay-invoice/{invoice}', [InvoiceController::class, 'publicPay'])->name('invoice.public.pay');
 Route::get('/pay-invoice/{invoice}/callback', [InvoiceController::class, 'publicCallback'])->name('invoice.public.callback');
+
