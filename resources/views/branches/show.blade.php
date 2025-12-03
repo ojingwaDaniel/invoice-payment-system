@@ -459,19 +459,15 @@
                                                 </div>
 
                                                 <!-- Info -->
-                                                <div class="flex-1">
-                                                    <h3 class="text-sm font-semibold text-gray-900">
+                                                <!-- Info -->
+                                                <div class="min-w-0 flex-1">
+                                                    <h3 class="truncate text-sm font-semibold text-gray-900">
                                                         {{ $accountant->name }}
                                                     </h3>
-                                                    <p class="text-xs text-gray-500">{{ $accountant->email }}</p>
-
-                                                    <div class="mt-2">
-                                                        <span
-                                                            class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                                                            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                                                            Active
-                                                        </span>
-                                                    </div>
+                                                    <p class="w-full truncate text-xs text-gray-500"
+                                                        title="{{ $accountant->email }}">
+                                                        {{ $accountant->email }}
+                                                    </p>
                                                 </div>
 
                                                 <!-- Delete -->
@@ -481,9 +477,8 @@
                                                     onsubmit="return confirm('Remove {{ $accountant->name }} from this branch?');">
                                                     @csrf
                                                     @method('DELETE')
-
                                                     <button type="submit"
-                                                        class="rounded-full p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600">
+                                                        class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-500 transition hover:bg-red-100 hover:text-red-600">
                                                         <svg class="h-4 w-4" fill="none" stroke="currentColor"
                                                             stroke-width="2.2" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
