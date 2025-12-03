@@ -113,7 +113,7 @@
                                 <div class="text-center">
                                     <h3 class="text-xl font-bold text-slate-900">{{ auth()->user()->name }}</h3>
                                     <p class="mt-1 text-sm text-slate-500">
-                                        {{ auth()->user()->company_name ?: 'No company set' }}</p>
+                                        {{ auth()->user()->company->name ?: 'No company set' }}</p>
                                     <p class="mt-2 text-xs font-medium text-blue-600">{{ auth()->user()->email }}</p>
                                 </div>
 
