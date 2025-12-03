@@ -212,7 +212,7 @@
 
                                         <div class="group">
                                             <label class="mb-2 block text-sm font-semibold text-slate-700">
-                                                <i class="fas fa-phone mr-2 text-blue-500"></i>Phone Number
+                                                <i class="fas fa-phone mr-2 text-blue-500"></i> Company Phone Number
                                             </label>
                                             <input type="text" name="phone"
                                                 value="{{ old('phone', $company->phone) }}"
