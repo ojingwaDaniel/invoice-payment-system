@@ -426,77 +426,66 @@
 
                 <!-- Enhanced Accountants Section -->
                 <div class="lg:col-span-1">
-                    <div
-                        class="sticky top-8 overflow-hidden rounded-3xl bg-white/70 shadow-2xl ring-1 ring-gray-100/50 backdrop-blur-xl">
+                    <div class="sticky top-8 overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl">
 
                         <!-- Header -->
-                        <div
-                            class="border-b border-gray-100 bg-gradient-to-r from-white/60 to-gray-50/60 px-8 py-6 backdrop-blur-xl">
-                            <div class="flex flex-col justify-between sm:flex-row sm:items-center">
+                        <div class="border-b border-gray-100 bg-gradient-to-b from-white to-gray-50 px-8 py-6">
+                            <div class="flex items-center justify-between">
                                 <div>
-                                    <h2 class="text-2xl font-bold tracking-tight text-gray-900">Accountants</h2>
-                                    <p class="text-sm text-gray-600">Manage financial operators for this branch</p>
+                                    <h2 class="text-xl font-bold tracking-tight text-gray-900">Accountants</h2>
+                                    <p class="mt-1 text-sm text-gray-500">Manage financial operators for this branch</p>
                                 </div>
 
                                 <button onclick="openModal('create-accountant-modal')"
-                                    class="group mt-4 inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:bg-emerald-700 hover:shadow-xl sm:mt-0">
-                                    <svg class="mr-2 h-5 w-5 transition-transform group-hover:scale-110" fill="none"
-                                        stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    <span>Add Accountant</span>
+                                    class="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-700">
+                                    <span class="text-lg leading-none">+</span> Add
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Content -->
-                        <div class="p-8">
-
+                        <!-- Body -->
+                        <div class="px-8 py-6">
                             @if ($branch->accountants->count())
-                                <div class="space-y-6">
+                                <div class="space-y-5">
                                     @foreach ($branch->accountants as $accountant)
                                         <div
-                                            class="relative rounded-2xl border border-gray-200 bg-white p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300 hover:shadow-2xl">
-                                            <div class="flex items-start justify-between">
+                                            class="group relative rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-lg">
+                                            <div class="flex items-center gap-4">
 
-                                                <!-- Left Section -->
-                                                <div class="flex items-center">
-                                                    <div
-                                                        class="mr-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-lg font-bold text-white shadow-md">
-                                                        {{ strtoupper(substr($accountant->name, 0, 1)) }}
-                                                    </div>
+                                                <!-- Avatar -->
+                                                <div
+                                                    class="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-lg font-semibold text-white shadow">
+                                                    {{ strtoupper(substr($accountant->name, 0, 1)) }}
+                                                </div>
 
-                                                    <div>
-                                                        <h3 class="text-lg font-semibold text-gray-900">
-                                                            {{ $accountant->name }}
-                                                        </h3>
-                                                        <p class="text-sm text-gray-500">{{ $accountant->email }}</p>
+                                                <!-- Info -->
+                                                <div class="flex-1">
+                                                    <h3 class="text-sm font-semibold text-gray-900">
+                                                        {{ $accountant->name }}
+                                                    </h3>
+                                                    <p class="text-xs text-gray-500">{{ $accountant->email }}</p>
 
+                                                    <div class="mt-2">
                                                         <span
-                                                            class="mt-2 inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
-                                                            <svg class="mr-1 h-3 w-3" fill="currentColor"
-                                                                viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd"
-                                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                                    clip-rule="evenodd" />
-                                                            </svg>
+                                                            class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                                                            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
                                                             Active
                                                         </span>
                                                     </div>
                                                 </div>
 
-                                                <!-- Delete Button -->
+                                                <!-- Delete -->
                                                 <form
                                                     action="{{ route('branch.accountant.destroy', [$branch->id, $accountant->id]) }}"
-                                                    method="POST">
+                                                    method="POST"
+                                                    onsubmit="return confirm('Remove {{ $accountant->name }} from this branch?');">
                                                     @csrf
                                                     @method('DELETE')
 
                                                     <button type="submit"
-                                                        onclick="return confirm('Remove {{ $accountant->name }} from this branch?');"
-                                                        class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-white to-gray-50 shadow-md ring-1 ring-gray-200 transition-all hover:from-rose-50 hover:to-rose-100 hover:text-rose-600 hover:shadow-lg hover:ring-rose-300">
+                                                        class="rounded-full p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600">
                                                         <svg class="h-4 w-4" fill="none" stroke="currentColor"
-                                                            stroke-width="2.5" viewBox="0 0 24 24">
+                                                            stroke-width="2.2" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 d="M6 18L18 6M6 6l12 12" />
                                                         </svg>
@@ -509,27 +498,27 @@
                                 </div>
                             @else
                                 <!-- Empty State -->
-                                <div class="py-16 text-center">
+                                <div class="py-10 text-center">
                                     <div
-                                        class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-gray-50 to-gray-100 shadow-xl">
-                                        <svg class="h-12 w-12 text-gray-400" fill="none" stroke="currentColor"
+                                        class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+                                        <svg class="h-10 w-10 text-gray-400" fill="none" stroke="currentColor"
                                             stroke-width="1.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                         </svg>
                                     </div>
 
-                                    <h3 class="text-xl font-semibold text-gray-800">No Accountants Assigned</h3>
-                                    <p class="mt-2 text-gray-500">Add accountants to manage financial operations.</p>
+                                    <h3 class="mt-4 text-lg font-semibold text-gray-900">No accountants assigned</h3>
+                                    <p class="text-sm text-gray-500">Add accountants to manage branch invoices</p>
 
                                     <button onclick="openModal('create-accountant-modal')"
-                                        class="mt-6 inline-flex items-center rounded-xl bg-emerald-600 px-8 py-3 font-semibold text-white shadow-lg transition-all hover:bg-emerald-700 hover:shadow-xl">
-                                        Add First Accountant
+                                        class="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-emerald-700">
+                                        + Add First Accountant
                                     </button>
                                 </div>
                             @endif
-
                         </div>
+
                     </div>
                 </div>
 
