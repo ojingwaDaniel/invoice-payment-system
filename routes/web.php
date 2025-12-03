@@ -1,19 +1,15 @@
 <?php
 
-use App\Http\Controllers\AdminDashboard;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\ProductApiController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaystackController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
@@ -29,26 +25,7 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Email Verification Routes
-|--------------------------------------------------------------------------
-*/
-Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->middleware('auth')->name('verification.notice');
-
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-    return redirect('/admin/dashboard')->with('verified', true);
-})->middleware(['auth', 'signed'])->name('verification.verify');
-
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('message', 'Verification link sent!');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-
-/*
-|--------------------------------------------------------------------------
-| Authenticated & Verified User Routes
+| Authenticated + Verified Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -115,8 +92,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{invoice}/download', [InvoiceController::class, 'download'])->name('download');
         Route::post('/{invoice}/send', [InvoiceController::class, 'send'])->name('send');
         Route::get('/{invoice}/pay', [InvoiceController::class, 'pay'])->name('pay');
-        Route::get('/{invoice}/callback', [InvoiceController::class, 'handleCallback'])
-            ->name('callback');
+        Route::get('/{invoice}/callback', [InvoiceController::class, 'handleCallback'])->name('callback');
         Route::post('/{invoice}/mark-paid', [InvoiceController::class, 'markPaid'])->name('markPaid');
         Route::post('/{invoice}/mark-partial', [InvoiceController::class, 'markPartial'])->name('markPartial');
     });
@@ -140,7 +116,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     | Paystack Routes
     |--------------------------------------------------------------------------
-    | Each company connects their own Paystack account (API keys)
     */
     Route::prefix('paystack')->name('paystack.')->group(function () {
         Route::get('/connect', [PaystackController::class, 'showConnectForm'])->name('connect');
@@ -149,27 +124,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Payment Routes (for invoices)
+    | Payment Routes
     |--------------------------------------------------------------------------
     */
     Route::prefix('payment')->name('payment.')->group(function () {
         Route::get('/callback/{invoice}', [PaymentController::class, 'handleCallback'])->name('callback');
         Route::post('/webhook', [PaymentController::class, 'handleWebhook'])->name('webhook');
     });
-    Route::prefix("branch")->name("branch.")->group(function () {
-        Route::get("/", [BranchController::class, "index"])->name("index");
-        Route::get("/create", [BranchController::class, "create"])->name("create");
-        Route::get("/edit/{branch}", [BranchController::class, "edit"])->name("edit");
-        Route::get("/{branch}", [BranchController::class, "show"])->name("show");
-        Route::post("/", [BranchController::class, "store"])->name("store");
-        Route::put("/update/{branch}", [BranchController::class, "update"])->name("update");
-        Route::delete("/update/{branch}", [BranchController::class, "destroy"])->name("destroy");
+
+    /*
+    |--------------------------------------------------------------------------
+    | Branch Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('branch')->name('branch.')->group(function () {
+        Route::get('/', [BranchController::class, 'index'])->name('index');
+        Route::get('/create', [BranchController::class, 'create'])->name('create');
+        Route::get('/edit/{branch}', [BranchController::class, 'edit'])->name('edit');
+        Route::get('/{branch}', [BranchController::class, 'show'])->name('show');
+        Route::post('/', [BranchController::class, 'store'])->name('store');
+        Route::put('/update/{branch}', [BranchController::class, 'update'])->name('update');
+        Route::delete('/update/{branch}', [BranchController::class, 'destroy'])->name('destroy');
         Route::post('/{branch}/accountant', [BranchController::class, 'storeAccountant'])->name('accountant.store');
-        Route::delete('/{branch}/accountant/{user}', [BranchController::class, 'destroyAccountant'])
-            ->name('accountant.destroy');
+        Route::delete('/{branch}/accountant/{user}', [BranchController::class, 'destroyAccountant'])->name('accountant.destroy');
     });
-
-
 });
 
 /*
@@ -183,11 +161,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/paystack', [ProfileController::class, 'updatePaystackKeys'])->name('profile.updatePaystackKeys');
     Route::post('/profile/upload-logo', [ProfileController::class, 'uploadLogo'])->name('profile.uploadLogo');
 });
- // public routes
-Route::get('/invoice/{invoice}/paid', [InvoiceController::class, 'paymentSuccess'])
-    ->name('invoice.paid');
-Route::get('/invoice/{invoice}/receipt', [InvoiceController::class, 'receipt'])
-    ->name('invoice.show.receipt');
 
+/*
+|--------------------------------------------------------------------------
+| PUBLIC ROUTES FOR INVOICE PAYMENT
+|--------------------------------------------------------------------------
+*/
+Route::get('/invoice/{invoice}/paid', [InvoiceController::class, 'paymentSuccess'])->name('invoice.paid');
+Route::get('/invoice/{invoice}/receipt', [InvoiceController::class, 'receipt'])->name('invoice.show.receipt');
 Route::get('/pay-invoice/{invoice}', [InvoiceController::class, 'publicPay'])->name('invoice.public.pay');
 Route::get('/pay-invoice/{invoice}/callback', [InvoiceController::class, 'publicCallback'])->name('invoice.public.callback');

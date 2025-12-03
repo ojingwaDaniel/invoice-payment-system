@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Branch extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'company_id', 'address'];
-
-
+    protected $fillable = ['name', 'company_id', 'address',"is_head_office"];
+    protected $casts = [
+        'is_head_office' => 'boolean',
+    ];
 
 
     public function users()
