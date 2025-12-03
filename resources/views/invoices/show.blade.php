@@ -328,7 +328,7 @@
                                 </p>
                             @endif
                         </div>
-                        @if ($invoice->user && $invoice->user->logo_path)
+                        @if ($invoice->company && $invoice->company->logo_path)
                             <div class="h-12 w-24">
                                 <img src="{{ asset('storage/' . $invoice->user->logo_path) }}"
                                     alt="{{ $invoice->user->company_name ?? 'Company Logo' }}"

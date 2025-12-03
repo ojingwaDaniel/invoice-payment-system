@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Invoice extends Model
 {
     protected $fillable = [
-        'user_id',       
+        'user_id',
         'customer_id',
         'invoice_number',
         'issue_date',
@@ -54,5 +54,8 @@ class Invoice extends Model
     public function branch()
     {
         return $this->belongsTo(Branch::class);
+    }
+    public function company(){
+        return $this->belongsTo(Company::class);
     }
 }
