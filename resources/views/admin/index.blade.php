@@ -599,7 +599,7 @@
                                             ₦{{ number_format($invoice->total_amount, 2) }}
                                         </td>
                                         <td class="whitespace-nowrap px-4 py-4 text-sm font-semibold text-green-600">
-                                            ₦{{ number_format($invoice->amount_paid ?? 0, 2) }}
+                                            ₦{{ number_format($invoice->paid ?? 0, 2) }}
                                         </td>
                                         <td class="whitespace-nowrap px-4 py-4">
                                             <span
