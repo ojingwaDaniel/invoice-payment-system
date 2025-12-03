@@ -44,9 +44,9 @@
                             <h1 class="text-3xl font-bold text-gray-900">Invoice</h1>
                             @if ($invoice->user)
                                 <p class="mt-2 font-semibold text-gray-900">
-                                    {{ $invoice->user->company_name ?? 'Company Name' }}</p>
+                                    {{ $invoice->user->company->name ?? 'Company Name' }}</p>
                                 <p class="mt-1 text-sm text-gray-600">
-                                    {{ $invoice->user->address ?? '15 Hodges Mews, High Wycombe HP12 3JL, United Kingdom' }}
+                                    {{ $invoice->user->company->address ?? '15 Hodges Mews, High Wycombe HP12 3JL, United Kingdom' }}
                                 </p>
                             @endif
                         </div>
