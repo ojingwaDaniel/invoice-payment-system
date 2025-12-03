@@ -91,22 +91,6 @@
                     <!-- Invoice Details -->
                     <div>
                         <h2 class="mb-4 text-sm font-bold text-gray-900">Invoice Details</h2>
-                        <div class="space-y-2 text-sm">
-                            <div>
-                                <span class="text-gray-600">Invoice Number : </span>
-                                <span class="font-semibold text-gray-900">{{ $invoice->invoice_number }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-600">Issued On : </span>
-                                <span class="font-semibold text-gray-900">{{ $invoice->issue_date->format('d M Y') }}</span>
-                            </div>
-                            @if ($invoice->due_date)
-                                <div>
-                                    <span class="text-gray-600">Due Date : </span>
-                                    <span
-                                        class="font-semibold text-gray-900">{{ $invoice->due_date->format('d M Y') }}</span>
-                                </div>
-                            @endif
                             <div>
                                 <h2 class="mb-4 text-sm font-bold text-gray-900">Invoice Details</h2>
                                 <div class="space-y-2 text-sm">
