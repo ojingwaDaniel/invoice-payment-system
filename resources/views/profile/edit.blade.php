@@ -215,13 +215,13 @@
                                                 <i class="fas fa-phone mr-2 text-blue-500"></i>Phone Number
                                             </label>
                                             <input type="text" name="phone"
-                                                value="{{ old('phone', $user->phone) }}"
+                                                value="{{ old('phone', $company->phone) }}"
                                                 class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
                                         </div>
 
                                         <div class="group md:col-span-2">
                                             <label class="mb-2 block text-sm font-semibold text-slate-700">
-                                                <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>Address
+                                                <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i> Company Address
                                             </label>
                                             <input type="text" name="address"
                                                 value="{{ old('address', $company->address) }}"
