@@ -200,36 +200,35 @@
                                             <input type="email" name="email" value="{{ old('email', $user->email) }}"
                                                 class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
                                         </div>
-                                        @if (auth()->user()->role === "admin")
-                                           <div class="group">
-                                            <label class="mb-2 block text-sm font-semibold text-slate-700">
-                                                <i class="fas fa-building mr-2 text-blue-500"></i>Company Name
-                                            </label>
-                                            <input type="text" name="company_name"
-                                                value="{{ old('company_name', $company->name) }}"
-                                                class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
-                                        </div>
+                                        @if (auth()->user()->role === 'admin')
+                                            <div class="group">
+                                                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                                                    <i class="fas fa-building mr-2 text-blue-500"></i>Company Name
+                                                </label>
+                                                <input type="text" name="company_name"
+                                                    value="{{ old('company_name', $company->name) }}"
+                                                    class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
+                                            </div>
 
-                                        <div class="group">
-                                            <label class="mb-2 block text-sm font-semibold text-slate-700">
-                                                <i class="fas fa-phone mr-2 text-blue-500"></i> Company Phone Number
-                                            </label>
-                                            <input type="text" name="phone"
-                                                value="{{ old('phone', $company->phone) }}"
-                                                class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
-                                        </div>
+                                            <div class="group">
+                                                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                                                    <i class="fas fa-phone mr-2 text-blue-500"></i> Company Phone Number
+                                                </label>
+                                                <input type="text" name="phone"
+                                                    value="{{ old('phone', $company->phone) }}"
+                                                    class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
+                                            </div>
 
-                                        <div class="group md:col-span-2">
-                                            <label class="mb-2 block text-sm font-semibold text-slate-700">
-                                                <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i> Company Address
-                                            </label>
-                                            <input type="text" name="address"
-                                                value="{{ old('address', $company->address) }}"
-                                                class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
-                                        </div>
-
+                                            <div class="group md:col-span-2">
+                                                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                                                    <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i> Company
+                                                    Address
+                                                </label>
+                                                <input type="text" name="address"
+                                                    value="{{ old('address', $company->address) }}"
+                                                    class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 transition-all duration-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10">
+                                            </div>
                                         @endif
-
 
                                     </div>
 
@@ -254,99 +253,103 @@
                         </div>
 
                         <!-- Paystack Integration Section -->
-                        <div id="paystack-section"
-                            class="section-content hidden overflow-hidden rounded-3xl bg-white shadow-xl transition-all duration-300">
-                            <!-- Header -->
-                            <div class="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50 px-8 py-6">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <h2 class="text-2xl font-bold text-slate-900">Paystack Integration</h2>
-                                        <p class="mt-1 text-sm text-slate-600">Securely manage your payment gateway
-                                            credentials</p>
-                                    </div>
-                                    <div
-                                        class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg">
-                                        <i class="fas fa-lock text-xl text-white"></i>
+                        @if (auth()->user()->role === 'admin')
+                            <div id="paystack-section"
+                                class="section-content hidden overflow-hidden rounded-3xl bg-white shadow-xl transition-all duration-300">
+                                <!-- Header -->
+                                <div class="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50 px-8 py-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h2 class="text-2xl font-bold text-slate-900">Paystack Integration</h2>
+                                            <p class="mt-1 text-sm text-slate-600">Securely manage your payment gateway
+                                                credentials</p>
+                                        </div>
+                                        <div
+                                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg">
+                                            <i class="fas fa-lock text-xl text-white"></i>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Form -->
-                            <div class="p-8">
-                                <form action="{{ route('profile.updatePaystackKeys') }}" method="POST">
-                                    @csrf
-                                    <div class="space-y-6">
+                                <!-- Form -->
+                                <div class="p-8">
+                                    <form action="{{ route('profile.updatePaystackKeys') }}" method="POST">
+                                        @csrf
+                                        <div class="space-y-6">
 
-                                        <!-- Public Key -->
-                                        <div class="group">
-                                            <label class="mb-2 block text-sm font-semibold text-slate-700">
-                                                <i class="fas fa-key mr-2 text-green-500"></i>Paystack Public Key
-                                            </label>
-                                            <div class="relative">
-                                                <input type="password" id="public_key" name="paystack_public_key"
-                                                    value="{{ old('paystack_public_key', auth()->user()->paystack_public_key) }}"
-                                                    class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 pr-12 font-mono text-sm transition-all duration-300 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-green-500/10"
-                                                    readonly>
-                                                <button type="button" onclick="toggleKey('public_key', this)"
-                                                    class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Secret Key -->
-                                        <div class="group">
-                                            <label class="mb-2 block text-sm font-semibold text-slate-700">
-                                                <i class="fas fa-shield-alt mr-2 text-green-500"></i>Paystack Secret Key
-                                            </label>
-                                            <div class="relative">
-                                                <input type="password" id="secret_key" name="paystack_secret_key"
-                                                    value="{{ old('paystack_secret_key', auth()->user()->paystack_secret_key) }}"
-                                                    class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 pr-12 font-mono text-sm transition-all duration-300 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-green-500/10"
-                                                    readonly>
-                                                <button type="button" onclick="toggleKey('secret_key', this)"
-                                                    class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Security Notice -->
-                                        <div
-                                            class="rounded-2xl border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6">
-                                            <div class="flex items-start">
-                                                <div
-                                                    class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white">
-                                                    <i class="fas fa-exclamation-triangle"></i>
-                                                </div>
-                                                <div class="ml-4">
-                                                    <h4 class="font-semibold text-amber-900">Security Notice</h4>
-                                                    <p class="mt-1 text-sm text-amber-700">Keep your API keys confidential.
-                                                        Never share them publicly or commit them to version control.</p>
+                                            <!-- Public Key -->
+                                            <div class="group">
+                                                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                                                    <i class="fas fa-key mr-2 text-green-500"></i>Paystack Public Key
+                                                </label>
+                                                <div class="relative">
+                                                    <input type="password" id="public_key" name="paystack_public_key"
+                                                        value="{{ old('paystack_public_key', auth()->user()->paystack_public_key) }}"
+                                                        class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 pr-12 font-mono text-sm transition-all duration-300 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-green-500/10"
+                                                        readonly>
+                                                    <button type="button" onclick="toggleKey('public_key', this)"
+                                                        class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
 
-                                    <div
-                                        class="mt-8 flex items-center justify-between rounded-2xl bg-gradient-to-r from-slate-50 to-green-50 p-6">
-                                        <div class="flex items-center text-sm text-slate-600">
-                                            <i class="fas fa-shield-alt mr-2 text-green-500"></i>
-                                            <span>Keys are encrypted and stored securely</span>
-                                        </div>
-                                        <button type="submit"
-                                            class="group relative overflow-hidden rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-3.5 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                                            <span class="relative z-10 flex items-center">
-                                                <i class="fas fa-check mr-2"></i>Update Keys
-                                            </span>
+                                            <!-- Secret Key -->
+                                            <div class="group">
+                                                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                                                    <i class="fas fa-shield-alt mr-2 text-green-500"></i>Paystack Secret
+                                                    Key
+                                                </label>
+                                                <div class="relative">
+                                                    <input type="password" id="secret_key" name="paystack_secret_key"
+                                                        value="{{ old('paystack_secret_key', auth()->user()->paystack_secret_key) }}"
+                                                        class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 pr-12 font-mono text-sm transition-all duration-300 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-green-500/10"
+                                                        readonly>
+                                                    <button type="button" onclick="toggleKey('secret_key', this)"
+                                                        class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Security Notice -->
                                             <div
-                                                class="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-600 to-teal-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                                class="rounded-2xl border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6">
+                                                <div class="flex items-start">
+                                                    <div
+                                                        class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white">
+                                                        <i class="fas fa-exclamation-triangle"></i>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <h4 class="font-semibold text-amber-900">Security Notice</h4>
+                                                        <p class="mt-1 text-sm text-amber-700">Keep your API keys
+                                                            confidential.
+                                                            Never share them publicly or commit them to version control.</p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </button>
-                                    </div>
-                                </form>
+                                        </div>
+
+                                        <div
+                                            class="mt-8 flex items-center justify-between rounded-2xl bg-gradient-to-r from-slate-50 to-green-50 p-6">
+                                            <div class="flex items-center text-sm text-slate-600">
+                                                <i class="fas fa-shield-alt mr-2 text-green-500"></i>
+                                                <span>Keys are encrypted and stored securely</span>
+                                            </div>
+                                            <button type="submit"
+                                                class="group relative overflow-hidden rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-3.5 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                                                <span class="relative z-10 flex items-center">
+                                                    <i class="fas fa-check mr-2"></i>Update Keys
+                                                </span>
+                                                <div
+                                                    class="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-600 to-teal-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
+                        @endif
 
                     </div>
                 </div>
