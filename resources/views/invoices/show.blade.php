@@ -63,7 +63,7 @@
                                 </div>
                             @else
                                 <div class="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-                                    <span class="text-xs font-bold uppercase text-red-700">Due</span>
+                                    <span class="text-xs font-bold uppercase text-red-700">Unpaid</span>
                                 </div>
                             @endif
 
