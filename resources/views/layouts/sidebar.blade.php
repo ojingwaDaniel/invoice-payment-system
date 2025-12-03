@@ -329,7 +329,7 @@
             </div>
             <div class="min-w-0 flex-1">
                 <p class="truncate text-sm font-medium text-gray-900">{{ Auth::user()->company->name ?? 'User' }}</p>
-                <p class="truncate text-xs text-gray-500">{{ Auth::user()->email ?? 'user@example.com' }}</p>
+                <p class="truncate text-xs text-gray-500">{{ Auth::user()->name ?? 'user@example.com' }}</p>
             </div>
             <button
                 class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-gray-100">
