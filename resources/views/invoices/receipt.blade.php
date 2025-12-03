@@ -9,12 +9,12 @@
             body { background: white; }
             .print-shadow { box-shadow: none !important; }
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .animate-fade-in {
             animation: fadeIn 0.5s ease-out;
         }
@@ -24,27 +24,27 @@
 <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen py-8 px-4">
 
 <div class="max-w-4xl mx-auto">
-    
+
     <!-- Action Buttons -->
     <div class="no-print flex justify-between items-center mb-6 animate-fade-in">
-        <a href="javascript:history.back()" 
+        <a href="javascript:history.back()"
            class="inline-flex items-center text-gray-600 hover:text-gray-900 font-medium transition">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
             Back
         </a>
-        
+
         <div class="flex gap-3">
-            <button onclick="window.print()" 
+            <button onclick="window.print()"
                     class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg transition-all">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                 </svg>
                 Print
             </button>
-            
-            <a href="{{ route('invoice.show.receipt', $invoice->id) }}?download=1" 
+
+            <a href="{{ route('invoice.show.receipt', $invoice->id) }}?download=1"
                class="inline-flex items-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg transition-all">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -56,7 +56,7 @@
 
     <!-- Receipt Card -->
     <div class="bg-white print-shadow shadow-2xl rounded-2xl overflow-hidden animate-fade-in">
-        
+
         <!-- Header with Success Badge -->
         <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-6">
             <div class="flex justify-between items-start">
@@ -78,21 +78,21 @@
         </div>
 
         <div class="p-8 md:p-10">
-            
+
             <!-- Company & Customer Info -->
             <div class="grid md:grid-cols-2 gap-8 mb-8 pb-8 border-b border-gray-200">
                 <!-- From -->
                 <div>
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">From</h3>
                     <div class="space-y-1">
-                        <p class="text-lg font-bold text-gray-900">{{ $user->company_name }}</p>
-                        <p class="text-gray-600">{{ $user->address }}</p>
-                       
-                        <p class="text-gray-600">{{ $user->email }}</p>
-                        <p class="text-gray-600">{{ $user->phone }}</p>
+                        <p class="text-lg font-bold text-gray-900">{{ $user->company->name }}</p>
+                        <p class="text-gray-600">{{ $user->company->address }}</p>
+
+                        <p class="text-gray-600">{{ $user->company->email }}</p>
+                        <p class="text-gray-600">{{ $user->company->phone }}</p>
                     </div>
                 </div>
-                
+
                 <!-- To -->
                 <div>
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Bill To</h3>
@@ -119,14 +119,14 @@
                         {{ $invoice->created_at->format('d M Y') }}
                     </div>
                 </div>
-                
+
                 <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5">
                     <div class="text-xs font-semibold text-green-600 uppercase tracking-wider mb-2">Payment Date</div>
                     <div class="text-lg font-bold text-gray-900">
                         {{ $invoice->paid_at->format('d M Y') }}
                     </div>
                 </div>
-                
+
                 <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-5">
                     <div class="text-xs font-semibold text-purple-600 uppercase tracking-wider mb-2">Payment Method</div>
                     <div class="text-lg font-bold text-gray-900">
@@ -154,7 +154,7 @@
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="py-4 px-4">
                                     <div class="font-semibold text-gray-900">{{ $item->product->name }}</div>
-                                
+
                                 </td>
                                 <td class="py-4 px-4 text-center text-gray-900">{{ $item->quantity }}</td>
                                 <td class="py-4 px-4 text-right text-gray-900">₦{{ number_format($item->rate, 2) }}</td>
@@ -178,21 +178,21 @@
                         <span class="font-semibold">₦{{ number_format($invoice->subtotal, 2) }}</span>
                     </div>
                     @endif
-                    
+
                     @if(isset($invoice->tax) && $invoice->tax > 0)
                     <div class="flex justify-between text-gray-600">
                         <span>Tax:</span>
                         <span class="font-semibold">₦{{ number_format($invoice->tax, 2) }}</span>
                     </div>
                     @endif
-                    
+
                     @if(isset($invoice->discount) && $invoice->discount > 0)
                     <div class="flex justify-between text-green-600">
                         <span>Discount:</span>
                         <span class="font-semibold">-₦{{ number_format($invoice->discount, 2) }}</span>
                     </div>
                     @endif
-                    
+
                     <div class="border-t-2 border-gray-200 pt-3">
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold text-gray-900">Total Amount:</span>
