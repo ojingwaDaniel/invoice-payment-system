@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Invoice;
+use App\Mail\ReceiptMail;
 
 class PaymentController extends Controller
 {
@@ -21,14 +24,14 @@ class PaymentController extends Controller
         }
 
         // Get the company that owns this invoice
-        $company = $invoice->user; // assumes Invoice belongsTo User
+        $company = $invoice->company;
         $secretKey = $company->paystack_secret_key ?? config('services.paystack.secret');
 
         if (!$secretKey) {
             return redirect()->route('dashboard')->with('error', 'Company has no Paystack key connected.');
         }
 
-        // Verify payment with the company’s Paystack key
+        // Verify payment
         $response = Http::withToken($secretKey)
             ->get("https://api.paystack.co/transaction/verify/{$reference}");
 
@@ -38,18 +41,28 @@ class PaymentController extends Controller
 
         $data = $response->json();
 
-        // Check Paystack response
+        // Check Paystack success
         if (isset($data['data']['status']) && $data['data']['status'] === 'success') {
-            // ✅ Update invoice as paid
+
+            // MARK AS PAID
             $invoice->update([
                 'status' => 'paid',
                 'payment_method' => 'paystack',
                 'paid' => $invoice->total_amount,
+                'paid_at' => now(),
             ]);
+
+            // GENERATE PDF RECEIPT
+            $pdf = Pdf::loadView('invoices.receipt-download', [
+                'invoice' => $invoice
+            ])->output();
+
+            // SEND RECEIPT EMAIL
+            Mail::to($invoice->customer->email)->send(new ReceiptMail($invoice, $pdf));
 
             return redirect()
                 ->route('invoices.show', $invoice->id)
-                ->with('success', '✅ Payment verified successfully!');
+                ->with('success', 'Payment verified and receipt emailed to customer!');
         }
 
         return redirect()
@@ -66,28 +79,39 @@ class PaymentController extends Controller
         $data = $request->data ?? [];
 
         if ($event === 'charge.success' && isset($data['reference'])) {
+
             $reference = $data['reference'];
             $invoice = Invoice::where('invoice_number', $reference)->first();
 
             if ($invoice) {
-                $company = $invoice->user;
+
+                $company = $invoice->company;
                 $secret = $company->paystack_secret_key ?? config('services.paystack.secret');
                 $signature = $request->header('x-paystack-signature');
 
-                // Verify signature
+                // Validate signature
                 if (!$signature || $signature !== hash_hmac('sha512', $request->getContent(), $secret)) {
                     Log::warning("Invalid Paystack webhook signature for invoice {$invoice->id}");
                     return response('Invalid signature', 401);
                 }
 
-                // ✅ Update invoice as paid
+                // UPDATE INVOICE
                 $invoice->update([
                     'status' => 'paid',
                     'payment_method' => 'paystack',
                     'paid' => $invoice->total_amount,
+                    'paid_at' => now(),
                 ]);
 
-                Log::info("Invoice {$invoice->id} marked as paid via webhook.");
+                // CREATE PDF FOR EMAIL
+                $pdf = Pdf::loadView('invoices.receipt-download', [
+                    'invoice' => $invoice
+                ])->output();
+
+                // SEND EMAIL
+                Mail::to($invoice->customer->email)->send(new ReceiptMail($invoice, $pdf));
+
+                Log::info("Invoice {$invoice->id} marked as paid AND receipt emailed via webhook.");
             }
         }
 
