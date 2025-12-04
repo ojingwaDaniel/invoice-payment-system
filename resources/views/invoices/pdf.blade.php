@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Invoice #{{ $invoice->invoice_number }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Invoice</title>
     <style>
-        /* Reset and Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -13,278 +12,340 @@
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            font-size: 14px;
-            color: #1f2937;
-            line-height: 1.5;
-            padding: 30px;
-            background: white;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #1a1a1a;
+            line-height: 1.6;
+            background: #ffffff;
         }
 
         .invoice-container {
             max-width: 800px;
             margin: 0 auto;
+            padding: 50px 40px;
             background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e5e7eb;
         }
 
-        /* Clean Header with Logo */
+        /* Header Section */
         .header {
-            padding: 30px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            margin-bottom: 50px;
+            border-bottom: 3px solid #0066ff;
+            padding-bottom: 30px;
         }
 
         .header-content {
             display: flex;
             justify-content: space-between;
-            width: 100%;
             align-items: flex-start;
         }
 
         .header-info h1 {
-            font-size: 28px;
+            font-size: 42px;
             font-weight: 700;
-            margin-bottom: 5px;
-            color: #111827;
+            color: #0066ff;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
         }
 
         .invoice-number {
-            font-size: 16px;
-            color: #6b7280;
-            margin-bottom: 15px;
+            font-size: 18px;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 20px;
         }
 
         .invoice-meta {
             display: flex;
-            gap: 20px;
-            margin-top: 10px;
+            gap: 30px;
+            align-items: center;
+            margin-top: 15px;
         }
 
         .status {
-            padding: 6px 12px;
+            display: inline-block;
+            padding: 8px 20px;
             border-radius: 20px;
-            font-weight: 600;
             font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
         }
 
         .status-paid {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
+            background: #d4edda;
+            color: #155724;
         }
 
         .status-partial {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fde68a;
+            background: #fff3cd;
+            color: #856404;
         }
 
         .status-unpaid {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .dates {
             font-size: 13px;
-            color: #6b7280;
+            line-height: 1.8;
         }
 
-        .dates div {
-            margin-bottom: 4px;
+        .dates strong {
+            color: #333;
+            font-weight: 600;
         }
 
-        /* Logo Container */
+        /* Logo Section */
         .logo-container {
             text-align: right;
         }
 
         .company-logo {
-            max-width: 150px;
+            max-width: 160px;
             max-height: 80px;
-            margin-bottom: 8px;
-            border: 1px solid #f3f4f6;
-            padding: 8px;
-            background: white;
+            object-fit: contain;
+            margin-bottom: 10px;
         }
 
         .logo-placeholder {
-            width: 150px;
+            width: 80px;
             height: 80px;
-            background: #f3f4f6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            border: 1px solid #e5e7eb;
+            margin-left: auto;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .logo-placeholder span {
-            font-size: 18px;
+            color: white;
+            font-size: 28px;
             font-weight: 700;
-            color: #6b7280;
         }
 
         .company-name {
-            font-weight: 600;
-            color: #374151;
-            font-size: 16px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-top: 8px;
         }
 
         /* Parties Section */
         .parties {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 40px;
+            margin-bottom: 45px;
             padding: 30px;
-            border-bottom: 1px solid #e5e7eb;
+            background: #f8f9fa;
+            border-radius: 12px;
         }
 
         .party h3 {
-            font-size: 14px;
-            color: #374151;
-            margin-bottom: 12px;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            color: #0066ff;
+            font-weight: 700;
+            margin-bottom: 15px;
         }
 
         .party strong {
-            display: block;
             font-size: 16px;
+            color: #1a1a1a;
+            display: block;
             margin-bottom: 8px;
-            color: #111827;
         }
 
         .party p {
-            margin-bottom: 4px;
-            color: #6b7280;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.7;
+            margin: 3px 0;
         }
 
-        /* Items Table */
+        /* Table Section */
         .table-container {
-            padding: 0 30px;
-            margin: 20px 0;
+            margin-bottom: 40px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         .items {
             width: 100%;
             border-collapse: collapse;
+            background: white;
         }
 
-        .items th {
+        .items thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .items thead th {
+            padding: 16px 15px;
             text-align: left;
-            padding: 12px 8px;
-            border-bottom: 2px solid #e5e7eb;
-            font-weight: 600;
-            color: #374151;
-            font-size: 13px;
+            font-size: 12px;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: white;
         }
 
-        .items td {
-            padding: 12px 8px;
-            border-bottom: 1px solid #f3f4f6;
+        .items tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s ease;
         }
 
-        .items tbody tr:last-child td {
+        .items tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .items tbody tr:last-child {
             border-bottom: none;
         }
 
-        .text-right {
-            text-align: right;
+        .items tbody td {
+            padding: 18px 15px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .items tbody td strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .items tbody td small {
+            color: #6b7280;
+            font-size: 12px;
+            display: block;
+            margin-top: 4px;
         }
 
         .text-center {
             text-align: center;
         }
 
+        .text-right {
+            text-align: right;
+        }
+
         /* Totals Section */
         .totals-container {
-            padding: 0 30px;
-            margin-bottom: 30px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 40px;
         }
 
         .totals {
-            width: 300px;
-            margin-left: auto;
+            min-width: 400px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
         }
 
         .totals-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #f3f4f6;
+            padding: 12px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .totals-row:last-child {
             border-bottom: none;
         }
 
+        .totals-row span:first-child {
+            color: #666;
+        }
+
+        .totals-row span:last-child {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
         .totals-vat {
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: 6px;
-            margin: 10px 0;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #e5e7eb;
         }
 
         .totals-total {
-            background: #1f2937;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 15px -25px -25px -25px;
+            padding: 20px 25px;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .totals-total .totals-row {
+            border: none;
+        }
+
+        .totals-total .totals-row span {
             color: white;
-            padding: 16px;
-            border-radius: 6px;
-            margin-top: 15px;
+            font-size: 18px;
             font-weight: 700;
         }
 
         .paid-amount {
-            background: #f0fdf4;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 10px;
-            border-left: 3px solid #10b981;
+            background: #d4edda;
+            margin: 15px -25px 0 -25px;
+            padding: 15px 25px;
+        }
+
+        .paid-amount .totals-row span {
+            color: #155724;
+            font-weight: 600;
         }
 
         .due-amount {
-            background: #fef2f2;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 10px;
-            border-left: 3px solid #ef4444;
-            font-weight: 600;
+            background: #fff3cd;
+            margin: 0 -25px -25px -25px;
+            padding: 15px 25px;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .due-amount .totals-row span {
+            color: #856404;
+            font-weight: 700;
+            font-size: 16px;
         }
 
         /* Notes Section */
         .notes-container {
-            padding: 0 30px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .notes {
-            background: #f8fafc;
-            padding: 16px;
-            border-radius: 6px;
-            border-left: 3px solid #3b82f6;
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            border-radius: 8px;
         }
 
         .notes strong {
+            color: #92400e;
+            font-size: 14px;
             display: block;
             margin-bottom: 8px;
-            color: #374151;
         }
 
-        /* Footer with Logo */
+        .notes p {
+            color: #78350f;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* Footer Section */
         .footer {
-            padding: 25px 30px;
-            border-top: 1px solid #e5e7eb;
-            background: #f9fafb;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #e5e7eb;
         }
 
         .footer-content {
@@ -298,88 +359,65 @@
         }
 
         .footer-text p {
-            margin-bottom: 5px;
+            font-size: 11px;
             color: #6b7280;
+            line-height: 1.7;
+            margin: 4px 0;
+        }
+
+        .footer-text p:first-child {
             font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .footer-logo-container {
+            margin-left: 30px;
         }
 
         .footer-logo {
             max-width: 100px;
             max-height: 50px;
-            border: 1px solid #e5e7eb;
-            padding: 4px;
-            background: white;
+            object-fit: contain;
+            opacity: 0.6;
         }
 
         .footer-logo-placeholder {
-            width: 100px;
+            width: 50px;
             height: 50px;
-            background: #f3f4f6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
-            border: 1px solid #e5e7eb;
+            opacity: 0.6;
         }
 
         .footer-logo-placeholder span {
-            font-size: 14px;
+            color: white;
+            font-size: 18px;
             font-weight: 700;
-            color: #6b7280;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            body {
-                padding: 15px;
-            }
-
-            .header-content {
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .logo-container {
-                text-align: left;
-            }
-
-            .parties {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .totals {
-                width: 100%;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
         }
 
         /* Print Optimization */
         @media print {
             body {
+                margin: 0;
                 padding: 0;
-                background: white;
             }
 
             .invoice-container {
-                box-shadow: none;
-                border: none;
-                border-radius: 0;
+                padding: 30px;
+                max-width: 100%;
             }
+        }
 
-            .totals-total {
-                background: #1f2937 !important;
-                -webkit-print-color-adjust: exact;
-            }
+        /* PDF Rendering Optimization */
+        @page {
+            margin: 15mm;
         }
     </style>
 </head>
-
 <body>
     <div class="invoice-container">
         <!-- Header with Logo -->
@@ -387,40 +425,22 @@
             <div class="header-content">
                 <div class="header-info">
                     <h1>INVOICE</h1>
-                    <div class="invoice-number">#{{ $invoice->invoice_number }}</div>
+                    <div class="invoice-number">#INV-2024-001</div>
 
                     <div class="invoice-meta">
-                        <span
-                            class="status @if ($invoice->status === 'paid') status-paid
-                            @elseif($invoice->status === 'partial') status-partial
-                            @else status-unpaid @endif">
-                            {{ strtoupper($invoice->status) }}
-                        </span>
+                        <span class="status status-paid">PAID</span>
                         <div class="dates">
-                            <div><strong>Issue Date:</strong> {{ $invoice->issue_date->format('M d, Y') }}</div>
-                            <div><strong>Due Date:</strong>
-                                @if ($invoice->due_date)
-                                    {{ $invoice->due_date->format('M d, Y') }}
-                                @else
-                                    N/A
-                                @endif
-                            </div>
+                            <div><strong>Issue Date:</strong> Jan 15, 2024</div>
+                            <div><strong>Due Date:</strong> Feb 15, 2024</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="logo-container">
-                    @if ($invoice->user && $invoice->user->logo_path)
-                        <img src="{{ public_path('storage/' . $invoice->user->logo_path) }}"
-                            alt="{{ $invoice->user->company_name ?? 'Company Logo' }}" class="company-logo">
-                    @else
-                        <div class="logo-placeholder">
-                            <span>{{ substr($invoice->user->company_name ?? 'CO', 0, 2) }}</span>
-                        </div>
-                    @endif
-                    @if ($invoice->user && $invoice->user->company_name)
-                        <div class="company-name">{{ $invoice->user->company_name }}</div>
-                    @endif
+                    <div class="logo-placeholder">
+                        <span>AC</span>
+                    </div>
+                    <div class="company-name">Acme Corporation</div>
                 </div>
             </div>
         </div>
@@ -429,18 +449,17 @@
         <div class="parties">
             <div class="party">
                 <h3>Bill To</h3>
-                <strong>{{ $invoice->customer->name }}</strong>
-                <p>{{ $invoice->customer->email ?? '' }}</p>
-                <p>{{ $invoice->customer->phone ?? '' }}</p>
-                <p>{{ $invoice->customer->address ?? '' }}</p>
+                <strong>John Doe Enterprise</strong>
+                <p>john.doe@example.com</p>
+                <p>+234 803 123 4567</p>
+                <p>123 Business Street, Victoria Island, Lagos, Nigeria</p>
             </div>
             <div class="party">
                 <h3>From</h3>
-                <strong>{{ $invoice->user->company_name ?? 'Your Company' }}</strong>
-                <p>{{ $invoice->user->email ?? '' }}</p>
-                <p>{{ $invoice->user->phone ?? '' }}</p>
-                <p>{{ $invoice->user->address ?? '' }}</p>
-                
+                <strong>Acme Corporation</strong>
+                <p>hello@acmecorp.com</p>
+                <p>+234 901 234 5678</p>
+                <p>456 Corporate Avenue, Lekki Phase 1, Lagos, Nigeria</p>
             </div>
         </div>
 
@@ -457,104 +476,88 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($invoice->items as $item)
-                        <tr>
-                            <td>
-                                <strong>{{ $item->product->name ?? 'N/A' }}</strong>
-                                @if ($item->unit)
-                                    <br><small style="color: #6b7280; font-size: 12px;">Unit:
-                                        {{ $item->unit }}</small>
-                                @endif
-                            </td>
-                            <td class="text-center">{{ $item->quantity }}</td>
-                            <td class="text-right">{{ $invoice->currency }} {{ number_format($item->rate, 2) }}</td>
-                            <td class="text-right">
-                                @if ($item->discount > 0)
-                                    {{ $invoice->currency }} {{ number_format($item->discount, 2) }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="text-right">
-                                <strong>{{ $invoice->currency }} {{ number_format($item->amount, 2) }}</strong>
-                            </td>
-                        </tr>
-                    @endforeach
+                    <tr>
+                        <td>
+                            <strong>Premium Web Design Package</strong>
+                            <small>Unit: Service</small>
+                        </td>
+                        <td class="text-center">1</td>
+                        <td class="text-right">₦ 500,000.00</td>
+                        <td class="text-right">₦ 50,000.00</td>
+                        <td class="text-right"><strong>₦ 450,000.00</strong></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>SEO Optimization</strong>
+                            <small>Unit: Monthly</small>
+                        </td>
+                        <td class="text-center">3</td>
+                        <td class="text-right">₦ 75,000.00</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right"><strong>₦ 225,000.00</strong></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Content Management System</strong>
+                            <small>Unit: License</small>
+                        </td>
+                        <td class="text-center">1</td>
+                        <td class="text-right">₦ 150,000.00</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right"><strong>₦ 150,000.00</strong></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
         <!-- Totals -->
-        @php
-            $subtotal = $invoice->items->sum('amount');
-            $afterDiscount = max(0, $subtotal - ($invoice->discount ?? 0));
-            $vatAmount = $invoice->vat_amount ?? ($afterDiscount * ($invoice->tax_rate ?? 7.5)) / 100;
-            $totalAmount = $afterDiscount + $vatAmount;
-        @endphp
-
         <div class="totals-container">
             <div class="totals">
                 <div class="totals-row">
                     <span>Subtotal:</span>
-                    <span><strong>{{ $invoice->currency }} {{ number_format($subtotal, 2) }}</strong></span>
+                    <span><strong>₦ 825,000.00</strong></span>
                 </div>
 
-                @if ($invoice->discount > 0)
-                    <div class="totals-row">
-                        <span>Discount:</span>
-                        <span>-{{ $invoice->currency }} {{ number_format($invoice->discount, 2) }}</span>
-                    </div>
-                    <div class="totals-row">
-                        <span>After Discount:</span>
-                        <span><strong>{{ $invoice->currency }} {{ number_format($afterDiscount, 2) }}</strong></span>
-                    </div>
-                @endif
+                <div class="totals-row">
+                    <span>Discount:</span>
+                    <span>-₦ 50,000.00</span>
+                </div>
+
+                <div class="totals-row">
+                    <span>After Discount:</span>
+                    <span><strong>₦ 775,000.00</strong></span>
+                </div>
 
                 <div class="totals-vat">
-                    <div class="totals-row" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
-                        <span>VAT ({{ $invoice->tax_rate ?? 7.5 }}%):</span>
-                        <span><strong>{{ $invoice->currency }} {{ number_format($vatAmount, 2) }}</strong></span>
+                    <div class="totals-row">
+                        <span>VAT (7.5%):</span>
+                        <span><strong>₦ 58,125.00</strong></span>
                     </div>
                 </div>
 
                 <div class="totals-total">
-                    <div class="totals-row" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
+                    <div class="totals-row">
                         <span>Total Amount:</span>
-                        <span>{{ $invoice->currency }} {{ number_format($totalAmount, 2) }}</span>
+                        <span>₦ 833,125.00</span>
                     </div>
                 </div>
 
-                @if ($invoice->paid > 0)
-                    <div class="paid-amount">
-                        <div class="totals-row" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
-                            <span>Amount Paid:</span>
-                            <span><strong>{{ $invoice->currency }}
-                                    {{ number_format($invoice->paid, 2) }}</strong></span>
-                        </div>
+                <div class="paid-amount">
+                    <div class="totals-row">
+                        <span>Amount Paid:</span>
+                        <span><strong>₦ 833,125.00</strong></span>
                     </div>
-
-                    @if ($totalAmount - $invoice->paid > 0)
-                        <div class="due-amount">
-                            <div class="totals-row" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
-                                <span>Balance Due:</span>
-                                <span>{{ $invoice->currency }}
-                                    {{ number_format($totalAmount - $invoice->paid, 2) }}</span>
-                            </div>
-                        </div>
-                    @endif
-                @endif
+                </div>
             </div>
         </div>
 
         <!-- Notes -->
-        @if ($invoice->notes)
-            <div class="notes-container">
-                <div class="notes">
-                    <strong>Notes:</strong>
-                    <p>{{ $invoice->notes }}</p>
-                </div>
+        <div class="notes-container">
+            <div class="notes">
+                <strong>Notes:</strong>
+                <p>Payment received via bank transfer on January 20, 2024. Thank you for choosing our services. We appreciate your prompt payment and look forward to continuing our partnership.</p>
             </div>
-        @endif
+        </div>
 
         <!-- Footer with Logo -->
         <div class="footer">
@@ -562,23 +565,16 @@
                 <div class="footer-text">
                     <p>Thank you for your business!</p>
                     <p>This is a computer-generated invoice. No signature is required.</p>
-                    <p>If you have any questions, please contact us at
-                        {{ $invoice->user->email ?? 'our support email' }}</p>
+                    <p>If you have any questions, please contact us at hello@acmecorp.com</p>
                 </div>
 
                 <div class="footer-logo-container">
-                    @if ($invoice->user && $invoice->user->logo_path)
-                        <img src="{{ asset('storage/' . $invoice->user->logo_path) }}"
-                            alt="{{ $invoice->user->company_name ?? 'Company Logo' }}" class="footer-logo">
-                    @else
-                        <div class="footer-logo-placeholder">
-                            <span>{{ substr($invoice->user->company_name ?? 'CO', 0, 2) }}</span>
-                        </div>
-                    @endif
+                    <div class="footer-logo-placeholder">
+                        <span>AC</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </body>
-
 </html>
