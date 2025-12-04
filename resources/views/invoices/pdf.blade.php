@@ -287,7 +287,7 @@
         }
 
         .totals-total .totals-row span {
-            color: white;
+            color: black;
             font-size: 18px;
             font-weight: 700;
         }
