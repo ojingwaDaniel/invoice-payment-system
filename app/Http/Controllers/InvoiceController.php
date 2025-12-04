@@ -706,11 +706,12 @@ class InvoiceController extends Controller
 
         // FIXED: Add 'user' to PDF view
         if (request()->has('download')) {
-            $pdf = Pdf::loadView('invoices.receipt', compact('invoice', 'user'))
+            $pdf = Pdf::loadView('invoices.receipt-pdf', compact('invoice', 'user'))
                 ->setPaper('a4', 'portrait');
 
             return $pdf->download('receipt-' . $invoice->invoice_number . '.pdf');
         }
+
 
         // FIXED: user already included here
         return view('invoices.receipt', compact('invoice', 'user'));
