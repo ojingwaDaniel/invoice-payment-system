@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Receipt - Invoice #{{ $invoice->invoice_number }}</title>
@@ -406,14 +407,14 @@
         <div class="parties">
             <div class="party">
                 <h3>From</h3>
-                <div class="party-name">{{ $user->company->name ?? $user->company_name ?? 'Your Company' }}</div>
-                @if(isset($user->company->address) || isset($user->address))
+                <div class="party-name">{{ $user->company->name ?? ($user->company_name ?? 'Your Company') }}</div>
+                @if (isset($user->company->address) || isset($user->address))
                     <p>{{ $user->company->address ?? $user->address }}</p>
                 @endif
-                @if(isset($user->company->email) || isset($user->email))
+                @if (isset($user->company->email) || isset($user->email))
                     <p>{{ $user->company->email ?? $user->email }}</p>
                 @endif
-                @if(isset($user->company->phone) || isset($user->phone))
+                @if (isset($user->company->phone) || isset($user->phone))
                     <p>{{ $user->company->phone ?? $user->phone }}</p>
                 @endif
             </div>
@@ -421,13 +422,13 @@
             <div class="party">
                 <h3>Bill To</h3>
                 <div class="party-name">{{ $invoice->customer->name }}</div>
-                @if($invoice->customer->email)
+                @if ($invoice->customer->email)
                     <p>{{ $invoice->customer->email }}</p>
                 @endif
-                @if($invoice->customer->phone)
+                @if ($invoice->customer->phone)
                     <p>{{ $invoice->customer->phone }}</p>
                 @endif
-                @if($invoice->customer->address)
+                @if ($invoice->customer->address)
                     <p>{{ $invoice->customer->address }}</p>
                 @endif
             </div>
@@ -437,12 +438,15 @@
         <div class="info-cards">
             <div class="info-card">
                 <div class="info-card-label">Invoice Date</div>
-                <div class="info-card-value">{{ $invoice->issue_date ? $invoice->issue_date->format('d M Y') : $invoice->created_at->format('d M Y') }}</div>
+                <div class="info-card-value">
+                    {{ $invoice->issue_date ? $invoice->issue_date->format('d M Y') : $invoice->created_at->format('d M Y') }}
+                </div>
             </div>
 
             <div class="info-card">
                 <div class="info-card-label">Payment Date</div>
-                <div class="info-card-value">{{ $invoice->paid_at ? $invoice->paid_at->format('d M Y') : now()->format('d M Y') }}</div>
+                <div class="info-card-value">
+                    {{ $invoice->paid_at ? $invoice->paid_at->format('d M Y') : now()->format('d M Y') }}</div>
             </div>
 
             <div class="info-card">
@@ -452,37 +456,40 @@
         </div>
 
         <!-- Items Table -->
-        @if($invoice->items && $invoice->items->count() > 0)
-        <div class="items-section">
-            <h3>Items</h3>
-            <div class="table-container">
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th class="text-center">Qty</th>
-                            <th class="text-right">Unit Price</th>
-                            <th class="text-right">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($invoice->items as $item)
-                        <tr>
-                            <td>
-                                <div class="item-name">{{ $item->product->name ?? 'N/A' }}</div>
-                                @if($item->unit)
-                                    <small style="color: #6b7280; font-size: 12px;">Unit: {{ $item->unit }}</small>
-                                @endif
-                            </td>
-                            <td class="text-center">{{ $item->quantity }}</td>
-                            <td class="text-right">{{ $invoice->currency }} {{ number_format($item->rate, 2) }}</td>
-                            <td class="text-right"><strong>{{ $invoice->currency }} {{ number_format($item->amount, 2) }}</strong></td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        @if ($invoice->items && $invoice->items->count() > 0)
+            <div class="items-section">
+                <h3>Items</h3>
+                <div class="table-container">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-right">Unit Price</th>
+                                <th class="text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($invoice->items as $item)
+                                <tr>
+                                    <td>
+                                        <div class="item-name">{{ $item->product->name ?? 'N/A' }}</div>
+                                        @if ($item->unit)
+                                            <small style="color: #6b7280; font-size: 12px;">Unit:
+                                                {{ $item->unit }}</small>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">{{ $item->quantity }}</td>
+                                    <td class="text-right">{{ $invoice->currency }}
+                                        {{ number_format($item->rate, 2) }}</td>
+                                    <td class="text-right"><strong>{{ $invoice->currency }}
+                                            {{ number_format($item->amount, 2) }}</strong></td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
         @endif
 
         <!-- Totals -->
@@ -500,18 +507,18 @@
                     <span>{{ $invoice->currency }} {{ number_format($subtotal, 2) }}</span>
                 </div>
 
-                @if(isset($invoice->discount) && $invoice->discount > 0)
-                <div class="totals-row" style="color: #10b981;">
-                    <span>Discount:</span>
-                    <span>-{{ $invoice->currency }} {{ number_format($invoice->discount, 2) }}</span>
-                </div>
+                @if (isset($invoice->discount) && $invoice->discount > 0)
+                    <div class="totals-row" style="color: #10b981;">
+                        <span>Discount:</span>
+                        <span>-{{ $invoice->currency }} {{ number_format($invoice->discount, 2) }}</span>
+                    </div>
                 @endif
 
-                @if($vatAmount > 0)
-                <div class="totals-row">
-                    <span>VAT ({{ $invoice->tax_rate ?? 7.5 }}%):</span>
-                    <span>{{ $invoice->currency }} {{ number_format($vatAmount, 2) }}</span>
-                </div>
+                @if ($vatAmount > 0)
+                    <div class="totals-row">
+                        <span>VAT ({{ $invoice->tax_rate ?? 7.5 }}%):</span>
+                        <span>{{ $invoice->currency }} {{ number_format($vatAmount, 2) }}</span>
+                    </div>
                 @endif
 
                 <div class="totals-divider"></div>
@@ -531,6 +538,20 @@
             </div>
             <div class="verified-badge">VERIFIED</div>
         </div>
+        <div style="text-align: right; margin-bottom: 20px;">
+            <a href="{{ route('invoices.receipt', ['invoice' => $invoice->id, 'download' => true]) }}"
+                style="
+            background: #059669;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 600;
+       ">
+                Download PDF
+            </a>
+        </div>
 
         <!-- Footer -->
         <div class="receipt-footer">
@@ -538,7 +559,7 @@
                 This is an official payment receipt. For any queries, please contact our support team.
             </p>
             <p class="footer-text">
-                {{ $user->company->email ?? $user->email ?? 'support@company.com' }}
+                {{ $user->company->email ?? ($user->email ?? 'support@company.com') }}
             </p>
             <p class="footer-timestamp">
                 Generated on {{ now()->format('d M Y, h:i A') }}
@@ -547,4 +568,5 @@
 
     </div>
 </body>
+
 </html>
