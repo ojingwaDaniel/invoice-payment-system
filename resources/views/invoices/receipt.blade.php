@@ -539,7 +539,7 @@
             <div class="verified-badge">VERIFIED</div>
         </div>
         <div style="text-align: right; margin-bottom: 20px;">
-            <a href="{{ route('invoices.receipt', ['invoice' => $invoice->id, 'download' => true]) }}"
+            <a href="{{ route('invoice.show.receipt', ['invoice' => $invoice->id, 'download' => true]) }}"
                 style="
             background: #059669;
             color: #fff;
