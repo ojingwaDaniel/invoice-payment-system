@@ -17,7 +17,7 @@
                     </div>
                     <div>
                         <a href="{{ route('customer.index') }}"
-                           class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                            class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
                             <i class="fas fa-arrow-left"></i>
                             Back to Customers
                         </a>
@@ -25,16 +25,16 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
                 <!-- Main Form -->
                 <div class="lg:col-span-2">
-                    <div class="rounded-xl bg-white p-6 shadow-sm border border-gray-200">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                         <!-- Alerts -->
-                        @if(session('error'))
+                        @if (session('error'))
                             <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
-                                        <i class="fas fa-exclamation-circle text-red-400 mr-2"></i>
+                                        <i class="fas fa-exclamation-circle mr-2 text-red-400"></i>
                                         <p class="text-sm text-red-700">{{ session('error') }}</p>
                                     </div>
                                     <button type="button" class="text-red-600 hover:text-red-800">
@@ -44,48 +44,44 @@
                             </div>
                         @endif
 
-                        @if($errors->any())
+                        @if ($errors->any())
                             <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1">
-                                        <div class="flex items-center mb-2">
-                                            <i class="fas fa-exclamation-circle text-red-400 mr-2"></i>
+                                        <div class="mb-2 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-2 text-red-400"></i>
                                             <p class="text-sm font-medium text-red-700">Please fix the following errors:</p>
                                         </div>
-                                        <ul class="list-disc list-inside text-sm text-red-600 space-y-1">
-                                            @foreach($errors->all() as $error)
+                                        <ul class="list-inside list-disc space-y-1 text-sm text-red-600">
+                                            @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
                                             @endforeach
                                         </ul>
                                     </div>
-                                    <button type="button" class="text-red-600 hover:text-red-800 ml-4">
+                                    <button type="button" class="ml-4 text-red-600 hover:text-red-800">
                                         <i class="fas fa-times text-sm"></i>
                                     </button>
                                 </div>
                             </div>
                         @endif
 
-                        <form action="{{ isset($customer) ? route('customer.update', $customer->id) : route('customer.store') }}"
-                              method="POST"
-                              novalidate
-                              class="space-y-6">
+                        <form
+                            action="{{ isset($customer) ? route('customer.update', $customer->id) : route('customer.store') }}"
+                            method="POST" novalidate class="space-y-6">
                             @csrf
-                            @if(isset($customer))
+                            @if (isset($customer))
                                 @method('PUT')
                             @endif
 
                             <!-- Customer Name -->
                             <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="name" class="mb-2 block text-sm font-medium text-gray-700">
                                     Customer Name <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text"
-                                       class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 @error('name') border-red-300 @enderror"
-                                       id="name"
-                                       name="name"
-                                       placeholder="Enter customer full name"
-                                       value="{{ old('name', $customer->name ?? '') }}"
-                                       required>
+                                    class="@error('name') border-red-300 @enderror w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500"
+                                    id="name" name="name" placeholder="Enter customer full name"
+                                    value="{{ old('name', $customer->name ?? '') }}" required>
                                 @error('name')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -94,7 +90,7 @@
 
                             <!-- Email -->
                             <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="email" class="mb-2 block text-sm font-medium text-gray-700">
                                     Email Address <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
@@ -102,12 +98,9 @@
                                         <i class="fas fa-envelope text-gray-400"></i>
                                     </div>
                                     <input type="email"
-                                           class="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 @error('email') border-red-300 @enderror"
-                                           id="email"
-                                           name="email"
-                                           placeholder="customer@example.com"
-                                           value="{{ old('email', $customer->email ?? '') }}"
-                                           required>
+                                        class="@error('email') border-red-300 @enderror w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-blue-500"
+                                        id="email" name="email" placeholder="customer@example.com"
+                                        value="{{ old('email', $customer->email ?? '') }}" required>
                                 </div>
                                 @error('email')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -117,7 +110,7 @@
 
                             <!-- Phone -->
                             <div>
-                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="phone" class="mb-2 block text-sm font-medium text-gray-700">
                                     Phone Number <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
@@ -125,12 +118,9 @@
                                         <i class="fas fa-phone text-gray-400"></i>
                                     </div>
                                     <input type="tel"
-                                           class="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 @error('phone') border-red-300 @enderror"
-                                           id="phone"
-                                           name="phone"
-                                           placeholder="+234 xxx xxx xxxx"
-                                           value="{{ old('phone', $customer->phone ?? '') }}"
-                                           required>
+                                        class="@error('phone') border-red-300 @enderror w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-blue-500"
+                                        id="phone" name="phone" placeholder="+234 xxx xxx xxxx"
+                                        value="{{ old('phone', $customer->phone ?? '') }}" required>
                                 </div>
                                 @error('phone')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -140,19 +130,17 @@
 
                             <!-- Address -->
                             <div>
-                                <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="address" class="mb-2 block text-sm font-medium text-gray-700">
                                     Address <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
-                                    <div class="pointer-events-none absolute top-3 left-3">
+                                    <div class="pointer-events-none absolute left-3 top-3">
                                         <i class="fas fa-map-marker-alt text-gray-400"></i>
                                     </div>
-                                    <textarea class="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 @error('address') border-red-300 @enderror"
-                                              id="address"
-                                              name="address"
-                                              rows="3"
-                                              placeholder="Enter complete address including street, city, state, and postal code"
-                                              required>{{ old('address', $customer->address ?? '') }}</textarea>
+                                    <textarea
+                                        class="@error('address') border-red-300 @enderror w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-blue-500"
+                                        id="address" name="address" rows="3"
+                                        placeholder="Enter complete address including street, city, state, and postal code" required>{{ old('address', $customer->address ?? '') }}</textarea>
                                 </div>
                                 @error('address')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -161,22 +149,25 @@
                             </div>
 
                             <!-- Customer Info Preview (Edit Mode) -->
-                            @if(isset($customer))
+                            @if (isset($customer))
                                 <div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
                                     <div class="flex items-start">
-                                        <i class="fas fa-info-circle text-blue-400 mt-0.5 mr-3"></i>
+                                        <i class="fas fa-info-circle mr-3 mt-0.5 text-blue-400"></i>
                                         <div class="flex-1">
-                                            <h4 class="text-sm font-medium text-blue-900 mb-2">Customer Information</h4>
-                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-blue-800">
+                                            <h4 class="mb-2 text-sm font-medium text-blue-900">Customer Information</h4>
+                                            <div class="grid grid-cols-1 gap-2 text-xs text-blue-800 sm:grid-cols-2">
                                                 <div>
-                                                    <span class="font-medium">Created:</span> {{ $customer->created_at->format('d M, Y') }}
+                                                    <span class="font-medium">Created:</span>
+                                                    {{ $customer->created_at->format('d M, Y') }}
                                                 </div>
                                                 <div>
-                                                    <span class="font-medium">Last Updated:</span> {{ $customer->updated_at->format('d M, Y') }}
+                                                    <span class="font-medium">Last Updated:</span>
+                                                    {{ $customer->updated_at->format('d M, Y') }}
                                                 </div>
-                                                @if($customer->invoices_count > 0)
+                                                @if ($customer->invoices_count > 0)
                                                     <div class="sm:col-span-2">
-                                                        <span class="font-medium">Total Invoices:</span> {{ $customer->invoices_count }}
+                                                        <span class="font-medium">Total Invoices:</span>
+                                                        {{ $customer->invoices_count }}
                                                     </div>
                                                 @endif
                                             </div>
@@ -186,26 +177,51 @@
                             @endif
 
                             <!-- Form Actions -->
-                            <div class="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-4 pt-6 border-t border-gray-200">
+                            <div
+                                class="flex flex-col-reverse gap-4 border-t border-gray-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
                                 <a href="{{ route('customer.index') }}"
-                                   class="inline-flex justify-center items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
                                     <i class="fas fa-times"></i>
                                     Cancel
                                 </a>
                                 <button type="submit"
-                                        class="inline-flex justify-center items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                                     <i class="fas fa-save"></i>
                                     {{ isset($customer) ? 'Update Customer' : 'Save Customer' }}
                                 </button>
                             </div>
+                            @if (auth()->user()->role === 'admin')
+                                <div>
+                                    <label for="branch_id" class="mb-2 block text-sm font-medium text-gray-700">
+                                        Select Branch <span class="text-red-500">*</span>
+                                    </label>
+
+                                    <select id="branch_id" name="branch_id"
+                                        class="@error('branch_id') border-red-300 @enderror w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+                                        required>
+                                        <option value="">-- Select Branch --</option>
+                                        @foreach (\App\Models\Branch::where('company_id', auth()->user()->company_id)->get() as $branch)
+                                            <option value="{{ $branch->id }}"
+                                                {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                                                {{ $branch->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                    @error('branch_id')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            @endif
+
                         </form>
                     </div>
                 </div>
 
                 <!-- Tips Sidebar -->
                 <div class="lg:col-span-1">
-                    <div class="rounded-xl bg-white p-6 shadow-sm border border-gray-200">
-                        <div class="flex items-center mb-4">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                        <div class="mb-4 flex items-center">
                             <div class="rounded-lg bg-yellow-100 p-2">
                                 <i class="fas fa-lightbulb text-yellow-600"></i>
                             </div>
@@ -214,42 +230,45 @@
 
                         <div class="space-y-4">
                             <div class="flex items-start">
-                                <i class="fas fa-envelope text-blue-500 mt-1 mr-3 text-sm"></i>
+                                <i class="fas fa-envelope mr-3 mt-1 text-sm text-blue-500"></i>
                                 <div>
-                                    <h4 class="text-sm font-medium text-gray-900 mb-1">Email</h4>
-                                    <p class="text-xs text-gray-600">Make sure the email is valid as it will be used for sending invoices</p>
+                                    <h4 class="mb-1 text-sm font-medium text-gray-900">Email</h4>
+                                    <p class="text-xs text-gray-600">Make sure the email is valid as it will be used for
+                                        sending invoices</p>
                                 </div>
                             </div>
 
                             <div class="flex items-start">
-                                <i class="fas fa-phone text-green-500 mt-1 mr-3 text-sm"></i>
+                                <i class="fas fa-phone mr-3 mt-1 text-sm text-green-500"></i>
                                 <div>
-                                    <h4 class="text-sm font-medium text-gray-900 mb-1">Phone</h4>
+                                    <h4 class="mb-1 text-sm font-medium text-gray-900">Phone</h4>
                                     <p class="text-xs text-gray-600">Include country code for international customers</p>
                                 </div>
                             </div>
 
                             <div class="flex items-start">
-                                <i class="fas fa-map-marker-alt text-purple-500 mt-1 mr-3 text-sm"></i>
+                                <i class="fas fa-map-marker-alt mr-3 mt-1 text-sm text-purple-500"></i>
                                 <div>
-                                    <h4 class="text-sm font-medium text-gray-900 mb-1">Address</h4>
+                                    <h4 class="mb-1 text-sm font-medium text-gray-900">Address</h4>
                                     <p class="text-xs text-gray-600">Complete address helps with shipping and billing</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Quick Stats (Edit Mode) -->
-                        @if(isset($customer) && $customer->invoices_count > 0)
-                            <div class="mt-6 pt-6 border-t border-gray-200">
-                                <h4 class="text-sm font-medium text-gray-900 mb-3">Quick Stats</h4>
+                        @if (isset($customer) && $customer->invoices_count > 0)
+                            <div class="mt-6 border-t border-gray-200 pt-6">
+                                <h4 class="mb-3 text-sm font-medium text-gray-900">Quick Stats</h4>
                                 <div class="space-y-2">
-                                    <div class="flex justify-between items-center">
+                                    <div class="flex items-center justify-between">
                                         <span class="text-xs text-gray-600">Total Invoices</span>
-                                        <span class="text-sm font-medium text-gray-900">{{ $customer->invoices_count }}</span>
+                                        <span
+                                            class="text-sm font-medium text-gray-900">{{ $customer->invoices_count }}</span>
                                     </div>
-                                    <div class="flex justify-between items-center">
+                                    <div class="flex items-center justify-between">
                                         <span class="text-xs text-gray-600">Member Since</span>
-                                        <span class="text-sm font-medium text-gray-900">{{ $customer->created_at->format('M Y') }}</span>
+                                        <span
+                                            class="text-sm font-medium text-gray-900">{{ $customer->created_at->format('M Y') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -257,15 +276,16 @@
                     </div>
 
                     <!-- Additional Help Card -->
-                    <div class="mt-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border border-blue-200">
-                        <div class="flex items-center mb-3">
-                            <i class="fas fa-question-circle text-blue-500 mr-2"></i>
+                    <div class="mt-4 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 p-6">
+                        <div class="mb-3 flex items-center">
+                            <i class="fas fa-question-circle mr-2 text-blue-500"></i>
                             <h4 class="text-sm font-medium text-blue-900">Need Help?</h4>
                         </div>
-                        <p class="text-xs text-blue-700 mb-3">
+                        <p class="mb-3 text-xs text-blue-700">
                             Ensure all required fields (marked with *) are filled correctly for better customer management.
                         </p>
-                        <a href="#" class="inline-flex items-center text-xs font-medium text-blue-600 hover:text-blue-800">
+                        <a href="#"
+                            class="inline-flex items-center text-xs font-medium text-blue-600 hover:text-blue-800">
                             View documentation
                             <i class="fas fa-arrow-right ml-1 text-xs"></i>
                         </a>
@@ -277,7 +297,7 @@
 
     <script>
         // Form validation feedback
-        (function () {
+        (function() {
             'use strict'
             const forms = document.querySelectorAll('form[novalidate]')
             Array.from(forms).forEach(form => {
@@ -357,6 +377,7 @@
 
         // Auto-save draft (optional feature)
         let saveTimeout;
+
         function autoSaveDraft() {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
