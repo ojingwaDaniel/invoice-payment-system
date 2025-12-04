@@ -510,7 +510,7 @@ class InvoiceController extends Controller
         $invoice->paid_at = now();
         $invoice->save();
 
-        return redirect()->back()->with('success', 'Invoice marked as fully paid.');
+        return redirect()->route("invoice.show.receipt");
     }
 
     /**
