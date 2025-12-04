@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Invoice</title>
+    <meta charset="utf-8">
+    <title>Invoice #{{ $invoice->invoice_number }}</title>
     <style>
         * {
             margin: 0;
@@ -277,7 +277,7 @@
 
         .totals-total {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 15px -25px -25px -25px;
+            margin: 15px -25px 0 -25px;
             padding: 20px 25px;
             border-radius: 0 0 12px 12px;
         }
@@ -410,6 +410,24 @@
                 padding: 30px;
                 max-width: 100%;
             }
+
+            .totals-total {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .items thead {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .logo-placeholder {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
 
         /* PDF Rendering Optimization */
@@ -418,6 +436,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="invoice-container">
         <!-- Header with Logo -->
@@ -425,22 +444,40 @@
             <div class="header-content">
                 <div class="header-info">
                     <h1>INVOICE</h1>
-                    <div class="invoice-number">#INV-2024-001</div>
+                    <div class="invoice-number">#{{ $invoice->invoice_number }}</div>
 
                     <div class="invoice-meta">
-                        <span class="status status-paid">PAID</span>
+                        <span
+                            class="status @if ($invoice->status === 'paid') status-paid
+                            @elseif($invoice->status === 'partial') status-partial
+                            @else status-unpaid @endif">
+                            {{ strtoupper($invoice->status) }}
+                        </span>
                         <div class="dates">
-                            <div><strong>Issue Date:</strong> Jan 15, 2024</div>
-                            <div><strong>Due Date:</strong> Feb 15, 2024</div>
+                            <div><strong>Issue Date:</strong> {{ $invoice->issue_date->format('M d, Y') }}</div>
+                            <div><strong>Due Date:</strong>
+                                @if ($invoice->due_date)
+                                    {{ $invoice->due_date->format('M d, Y') }}
+                                @else
+                                    N/A
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="logo-container">
-                    <div class="logo-placeholder">
-                        <span>AC</span>
-                    </div>
-                    <div class="company-name">Acme Corporation</div>
+                    @if ($invoice->user && $invoice->user->logo_path)
+                        <img src="{{ public_path('storage/' . $invoice->user->logo_path) }}"
+                            alt="{{ $invoice->user->company_name ?? 'Company Logo' }}" class="company-logo">
+                    @else
+                        <div class="logo-placeholder">
+                            <span>{{ substr($invoice->user->company_name ?? 'CO', 0, 2) }}</span>
+                        </div>
+                    @endif
+                    @if ($invoice->user && $invoice->user->company_name)
+                        <div class="company-name">{{ $invoice->user->company_name }}</div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -449,17 +486,32 @@
         <div class="parties">
             <div class="party">
                 <h3>Bill To</h3>
-                <strong>John Doe Enterprise</strong>
-                <p>john.doe@example.com</p>
-                <p>+234 803 123 4567</p>
-                <p>123 Business Street, Victoria Island, Lagos, Nigeria</p>
+                <strong>{{ $invoice->customer->name }}</strong>
+                @if ($invoice->customer->email)
+                    <p>{{ $invoice->customer->email }}</p>
+                @endif
+                @if ($invoice->customer->phone)
+                    <p>{{ $invoice->customer->phone }}</p>
+                @endif
+                @if ($invoice->customer->address)
+                    <p>{{ $invoice->customer->address }}</p>
+                @endif
+                @if ($invoice->customer->gst)
+                    <p>GST: {{ $invoice->customer->gst }}</p>
+                @endif
             </div>
             <div class="party">
                 <h3>From</h3>
-                <strong>Acme Corporation</strong>
-                <p>hello@acmecorp.com</p>
-                <p>+234 901 234 5678</p>
-                <p>456 Corporate Avenue, Lekki Phase 1, Lagos, Nigeria</p>
+                <strong>{{ $invoice->user->company->name ?? $invoice->user->company_name ?? 'Your Company' }}</strong>
+                @if ($invoice->user->company->email ?? $invoice->user->email)
+                    <p>{{ $invoice->user->company->email ?? $invoice->user->email }}</p>
+                @endif
+                @if ($invoice->user->company->phone ?? $invoice->user->phone)
+                    <p>{{ $invoice->user->company->phone ?? $invoice->user->phone }}</p>
+                @endif
+                @if ($invoice->user->company->address ?? $invoice->user->address)
+                    <p>{{ $invoice->user->company->address ?? $invoice->user->address }}</p>
+                @endif
             </div>
         </div>
 
@@ -476,88 +528,112 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>
-                            <strong>Premium Web Design Package</strong>
-                            <small>Unit: Service</small>
-                        </td>
-                        <td class="text-center">1</td>
-                        <td class="text-right">₦ 500,000.00</td>
-                        <td class="text-right">₦ 50,000.00</td>
-                        <td class="text-right"><strong>₦ 450,000.00</strong></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>SEO Optimization</strong>
-                            <small>Unit: Monthly</small>
-                        </td>
-                        <td class="text-center">3</td>
-                        <td class="text-right">₦ 75,000.00</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right"><strong>₦ 225,000.00</strong></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>Content Management System</strong>
-                            <small>Unit: License</small>
-                        </td>
-                        <td class="text-center">1</td>
-                        <td class="text-right">₦ 150,000.00</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right"><strong>₦ 150,000.00</strong></td>
-                    </tr>
+                    @foreach ($invoice->items as $item)
+                        <tr>
+                            <td>
+                                <strong>{{ $item->product->name ?? 'N/A' }}</strong>
+                                @if ($item->unit)
+                                    <small>Unit: {{ $item->unit }}</small>
+                                @endif
+                            </td>
+                            <td class="text-center">{{ $item->quantity }}</td>
+                            <td class="text-right">{{ $invoice->currency }} {{ number_format($item->rate, 2) }}</td>
+                            <td class="text-right">
+                                @if ($item->discount > 0)
+                                    {{ $invoice->currency }} {{ number_format($item->discount, 2) }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="text-right">
+                                <strong>{{ $invoice->currency }} {{ number_format($item->amount, 2) }}</strong>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
 
         <!-- Totals -->
+        @php
+            $subtotal = $invoice->items->sum('amount');
+            $afterDiscount = max(0, $subtotal - ($invoice->discount ?? 0));
+            $vatAmount = $invoice->vat_amount ?? ($afterDiscount * ($invoice->tax_rate ?? 7.5)) / 100;
+            $totalAmount = $afterDiscount + $vatAmount;
+        @endphp
+
         <div class="totals-container">
             <div class="totals">
                 <div class="totals-row">
                     <span>Subtotal:</span>
-                    <span><strong>₦ 825,000.00</strong></span>
+                    <span><strong>{{ $invoice->currency }} {{ number_format($subtotal, 2) }}</strong></span>
                 </div>
 
-                <div class="totals-row">
-                    <span>Discount:</span>
-                    <span>-₦ 50,000.00</span>
-                </div>
-
-                <div class="totals-row">
-                    <span>After Discount:</span>
-                    <span><strong>₦ 775,000.00</strong></span>
-                </div>
+                @if ($invoice->discount > 0)
+                    <div class="totals-row">
+                        <span>Discount:</span>
+                        <span>-{{ $invoice->currency }} {{ number_format($invoice->discount, 2) }}</span>
+                    </div>
+                    <div class="totals-row">
+                        <span>After Discount:</span>
+                        <span><strong>{{ $invoice->currency }} {{ number_format($afterDiscount, 2) }}</strong></span>
+                    </div>
+                @endif
 
                 <div class="totals-vat">
-                    <div class="totals-row">
-                        <span>VAT (7.5%):</span>
-                        <span><strong>₦ 58,125.00</strong></span>
+                    <div class="totals-row" style="border-bottom: none;">
+                        <span>VAT ({{ $invoice->tax_rate ?? 7.5 }}%):</span>
+                        <span><strong>{{ $invoice->currency }} {{ number_format($vatAmount, 2) }}</strong></span>
                     </div>
                 </div>
 
                 <div class="totals-total">
-                    <div class="totals-row">
+                    <div class="totals-row" style="border-bottom: none;">
                         <span>Total Amount:</span>
-                        <span>₦ 833,125.00</span>
+                        <span>{{ $invoice->currency }} {{ number_format($totalAmount, 2) }}</span>
                     </div>
                 </div>
 
-                <div class="paid-amount">
-                    <div class="totals-row">
-                        <span>Amount Paid:</span>
-                        <span><strong>₦ 833,125.00</strong></span>
+                @if ($invoice->paid > 0)
+                    <div class="paid-amount">
+                        <div class="totals-row" style="border-bottom: none;">
+                            <span>Amount Paid:</span>
+                            <span><strong>{{ $invoice->currency }}
+                                    {{ number_format($invoice->paid, 2) }}</strong></span>
+                        </div>
                     </div>
-                </div>
+
+                    @if ($totalAmount - $invoice->paid > 0)
+                        <div class="due-amount">
+                            <div class="totals-row" style="border-bottom: none;">
+                                <span>Balance Due:</span>
+                                <span>{{ $invoice->currency }}
+                                    {{ number_format($totalAmount - $invoice->paid, 2) }}</span>
+                            </div>
+                        </div>
+                    @endif
+                @endif
             </div>
         </div>
 
         <!-- Notes -->
-        <div class="notes-container">
-            <div class="notes">
-                <strong>Notes:</strong>
-                <p>Payment received via bank transfer on January 20, 2024. Thank you for choosing our services. We appreciate your prompt payment and look forward to continuing our partnership.</p>
+        @if ($invoice->notes)
+            <div class="notes-container">
+                <div class="notes">
+                    <strong>Notes:</strong>
+                    <p>{{ $invoice->notes }}</p>
+                </div>
             </div>
-        </div>
+        @endif
+
+        @if ($invoice->payment_method)
+            <div class="notes-container">
+                <div class="notes">
+                    <strong>Payment Method:</strong>
+                    <p>{{ $invoice->payment_method }}</p>
+                </div>
+            </div>
+        @endif
 
         <!-- Footer with Logo -->
         <div class="footer">
@@ -565,16 +641,23 @@
                 <div class="footer-text">
                     <p>Thank you for your business!</p>
                     <p>This is a computer-generated invoice. No signature is required.</p>
-                    <p>If you have any questions, please contact us at hello@acmecorp.com</p>
+                    <p>If you have any questions, please contact us at
+                        {{ $invoice->user->company->email ?? $invoice->user->email ?? 'our support email' }}</p>
                 </div>
 
                 <div class="footer-logo-container">
-                    <div class="footer-logo-placeholder">
-                        <span>AC</span>
-                    </div>
+                    @if ($invoice->user && $invoice->user->logo_path)
+                        <img src="{{ asset('storage/' . $invoice->user->logo_path) }}"
+                            alt="{{ $invoice->user->company_name ?? 'Company Logo' }}" class="footer-logo">
+                    @else
+                        <div class="footer-logo-placeholder">
+                            <span>{{ substr($invoice->user->company_name ?? 'CO', 0, 2) }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </body>
+
 </html>
