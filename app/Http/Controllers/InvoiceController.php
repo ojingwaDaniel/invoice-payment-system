@@ -510,7 +510,7 @@ class InvoiceController extends Controller
         $invoice->paid_at = now();
         $invoice->save();
 
-        return redirect()->route("invoice.show.receipt");
+        return redirect()->route("invoice.show.receipt",$invoice);
     }
 
     /**
