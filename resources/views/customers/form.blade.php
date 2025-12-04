@@ -175,21 +175,6 @@
                                     </div>
                                 </div>
                             @endif
-
-                            <!-- Form Actions -->
-                            <div
-                                class="flex flex-col-reverse gap-4 border-t border-gray-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                                <a href="{{ route('customer.index') }}"
-                                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
-                                    <i class="fas fa-times"></i>
-                                    Cancel
-                                </a>
-                                <button type="submit"
-                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                    <i class="fas fa-save"></i>
-                                    {{ isset($customer) ? 'Update Customer' : 'Save Customer' }}
-                                </button>
-                            </div>
                             @if (auth()->user()->role === 'admin')
                                 <div>
                                     <label for="branch_id" class="mb-2 block text-sm font-medium text-gray-700">
@@ -213,6 +198,21 @@
                                     @enderror
                                 </div>
                             @endif
+
+                            <!-- Form Actions -->
+                            <div
+                                class="flex flex-col-reverse gap-4 border-t border-gray-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                                <a href="{{ route('customer.index') }}"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                                    <i class="fas fa-times"></i>
+                                    Cancel
+                                </a>
+                                <button type="submit"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    <i class="fas fa-save"></i>
+                                    {{ isset($customer) ? 'Update Customer' : 'Save Customer' }}
+                                </button>
+                            </div>
 
                         </form>
                     </div>
