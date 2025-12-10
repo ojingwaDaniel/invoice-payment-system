@@ -194,14 +194,15 @@ class CustomerController extends Controller
     /**
      * Log activity
      */
-    private function logActivity($action, Customer $customer, $oldValues = [])
+    private function logActivity($action, $modelInstance, $oldValues = [])
     {
         ActivityLog::create([
             'user_id' => auth()->id(),
             'action' => $action,
-            'customer_id' => $customer->id,
+            'model' => get_class($modelInstance),
+            'model_id' => $modelInstance->id,
             'old_values' => $oldValues,
-            'new_values' => $customer->toArray(),
+            'new_values' => $modelInstance->toArray(),
         ]);
     }
 }
