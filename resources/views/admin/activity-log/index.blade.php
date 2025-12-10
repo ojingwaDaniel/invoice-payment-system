@@ -89,12 +89,12 @@
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
                                         <span class="text-blue-600 font-semibold text-sm">
-                                            {{ strtoupper(substr($log->causer?->name ?? 'S', 0, 2)) }}
+                                            {{ strtoupper(substr($log->user->name ?? 'S', 0, 2)) }}
                                         </span>
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-semibold text-gray-900">{{ $log->causer?->name ?? 'System' }}</div>
-                                        <div class="text-xs text-gray-500">{{ $log->causer?->email ?? 'Automated Action' }}</div>
+                                        <div class="text-sm font-semibold text-gray-900">{{ $log->user?->name ?? 'System' }}</div>
+                                        <div class="text-xs text-gray-500">{{ $log->user->email ?? 'Automated Action' }}</div>
                                     </div>
                                 </div>
                             </td>
