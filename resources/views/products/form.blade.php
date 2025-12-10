@@ -61,6 +61,13 @@
             <div class="p-6" x-data="{ type: '{{ old('type', $product->type ?? 'product') }}' }">
 
                 <form action="{{ isset($product) ? route('product.update', $product->id) : route('product.store') }}"
+                    method="POST" enctype="multipart/form-data   x-data
+    x-on:submit="
+                    document.querySelectorAll('input[name=selling_price], input[name=purchase_price]').forEach(input=> {
+                    input.value = input.value.replace(/,/g, '');
+                    })
+                    "
+                    action="{{ isset($product) ? route('product.update', $product->id) : route('product.store') }}"
                     method="POST" enctype="multipart/form-data">
                     @csrf
                     @if (isset($product))
