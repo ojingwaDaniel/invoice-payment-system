@@ -535,14 +535,15 @@ class InvoiceController extends Controller
         return view('invoices.report', compact('report'));
     }
 
-    private function logActivity($action, Invoice $invoice, $oldValues = [], $newValues = [])
+    private function logActivity($action, $modelInstance, $oldValues = [])
     {
         ActivityLog::create([
             'user_id' => auth()->id(),
             'action' => $action,
-            'invoice_id' => $invoice->id,
+            'model' => get_class($modelInstance),
+            'model_id' => $modelInstance->id,
             'old_values' => $oldValues,
-            'new_values' => $newValues,
+            'new_values' => $modelInstance->toArray(),
         ]);
     }
 }
