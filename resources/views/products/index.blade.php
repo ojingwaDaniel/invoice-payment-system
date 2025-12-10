@@ -189,7 +189,7 @@
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                         {{ $product->unit }}
                                     </td>
-                                   @if ($product->type === "Product")
+                                   @if ($product->type == "Product")
                                          <td class="whitespace-nowrap px-6 py-4">
                                         <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium
                                             {{ $product->quantity > 50 ? 'bg-green-100 text-green-800' :
