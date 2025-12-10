@@ -227,10 +227,36 @@
                                                                 <div class="flex items-start">
                                                                     <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide min-w-[120px]">{{ str_replace('_', ' ', $key) }}:</span>
                                                                     <span class="text-sm text-gray-800 ml-2 break-all">
-                                                                        @if(is_null($value))
+                                                                        @if(is_null($value) || $value === '')
                                                                             <span class="text-gray-400 italic">empty</span>
                                                                         @elseif(is_bool($value))
                                                                             {{ $value ? 'Yes' : 'No' }}
+                                                                        @elseif($key === 'created_by')
+                                                                            @php
+                                                                                $creator = \App\Models\User::find($value);
+                                                                            @endphp
+                                                                            {{ $creator?->name ?? 'User #' . $value }}
+                                                                        @elseif($key === 'branch_id')
+                                                                            @php
+                                                                                $branch = \App\Models\Branch::find($value);
+                                                                            @endphp
+                                                                            {{ $branch?->name ?? 'Branch #' . $value }}
+                                                                        @elseif($key === 'customer_id')
+                                                                            @php
+                                                                                $customer = \App\Models\Customer::find($value);
+                                                                            @endphp
+                                                                            {{ $customer?->name ?? 'Customer #' . $value }}
+                                                                        @elseif(in_array($key, ['total_amount', 'paid', 'vat_amount', 'discount', 'amount', 'price', 'subtotal']))
+                                                                            {{ number_format($value, 2) }}
+                                                                        @elseif(in_array($key, ['issue_date', 'due_date', 'paid_at']) && $value)
+                                                                            @php
+                                                                                try {
+                                                                                    $date = \Carbon\Carbon::parse($value);
+                                                                                    echo $date->format('M d, Y');
+                                                                                } catch (\Exception $e) {
+                                                                                    echo $value;
+                                                                                }
+                                                                            @endphp
                                                                         @else
                                                                             {{ $value }}
                                                                         @endif
@@ -259,10 +285,36 @@
                                                                 <div class="flex items-start">
                                                                     <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide min-w-[120px]">{{ str_replace('_', ' ', $key) }}:</span>
                                                                     <span class="text-sm text-gray-800 ml-2 break-all font-medium">
-                                                                        @if(is_null($value))
+                                                                        @if(is_null($value) || $value === '')
                                                                             <span class="text-gray-400 italic">empty</span>
                                                                         @elseif(is_bool($value))
                                                                             {{ $value ? 'Yes' : 'No' }}
+                                                                        @elseif($key === 'created_by')
+                                                                            @php
+                                                                                $creator = \App\Models\User::find($value);
+                                                                            @endphp
+                                                                            {{ $creator?->name ?? 'User #' . $value }}
+                                                                        @elseif($key === 'branch_id')
+                                                                            @php
+                                                                                $branch = \App\Models\Branch::find($value);
+                                                                            @endphp
+                                                                            {{ $branch?->name ?? 'Branch #' . $value }}
+                                                                        @elseif($key === 'customer_id')
+                                                                            @php
+                                                                                $customer = \App\Models\Customer::find($value);
+                                                                            @endphp
+                                                                            {{ $customer?->name ?? 'Customer #' . $value }}
+                                                                        @elseif(in_array($key, ['total_amount', 'paid', 'vat_amount', 'discount', 'amount', 'price', 'subtotal']))
+                                                                            {{ number_format($value, 2) }}
+                                                                        @elseif(in_array($key, ['issue_date', 'due_date', 'paid_at']) && $value)
+                                                                            @php
+                                                                                try {
+                                                                                    $date = \Carbon\Carbon::parse($value);
+                                                                                    echo $date->format('M d, Y');
+                                                                                } catch (\Exception $e) {
+                                                                                    echo $value;
+                                                                                }
+                                                                            @endphp
                                                                         @else
                                                                             {{ $value }}
                                                                         @endif
