@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
@@ -43,12 +44,11 @@ class CustomerController extends Controller
         $query = Customer::where('company_id', $user->company_id)
             ->withCount('invoices');
 
-        // Branch users only see their branch
         if ($user->role !== 'admin') {
             $query->where('branch_id', $user->branch_id);
         }
 
-        // Search functionality
+        // Search
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -77,11 +77,9 @@ class CustomerController extends Controller
 
         $customers = $query->paginate(15);
 
-        // Build stats scoped to company + branch logic
+        // Stats
         $statsQuery = Customer::where('company_id', $user->company_id);
-        if ($user->role !== 'admin') {
-            $statsQuery->where('branch_id', $user->branch_id);
-        }
+        if ($user->role !== 'admin') $statsQuery->where('branch_id', $user->branch_id);
 
         $stats = [
             'active_customers' => $statsQuery->count(),
@@ -95,42 +93,37 @@ class CustomerController extends Controller
         return view('customers.index', compact('customers', 'stats'));
     }
 
-    /**
-     * Show create form
-     */
     public function create()
     {
         return view('customers.form');
     }
 
-    /**
-     * Store new customer
-     */
     public function store(Request $request)
     {
         $user = auth()->user();
 
-        // Validation
         $validated = $request->validate([
-            'name'       => 'required|string|max:255',
-            'email'      => 'required|email|unique:customers,email',
-            'phone'      => 'required|string|max:20',
-            'address'    => 'required|string|max:500',
-            'branch_id'  => $user->role === 'admin' ? 'required|exists:branches,id' : 'nullable',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customers,email',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:500',
+            'branch_id' => $user->role === 'admin' ? 'required|exists:branches,id' : 'nullable',
         ]);
 
         try {
-            Customer::create([
-                'name'       => $validated['name'],
-                'email'      => $validated['email'],
-                'phone'      => $validated['phone'],
-                'address'    => $validated['address'],
-                'user_id'    => $user->id,
+            $customer = Customer::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
+                'user_id' => $user->id,
                 'company_id' => $user->company_id,
-                'branch_id'  => $user->role === 'admin'
+                'branch_id' => $user->role === 'admin'
                     ? $validated['branch_id']
                     : $user->branch_id,
             ]);
+
+            $this->logActivity('created', $customer);
 
             return redirect()->route('customer.index')
                 ->with('success', 'Customer created successfully!');
@@ -140,47 +133,39 @@ class CustomerController extends Controller
         }
     }
 
-    /**
-     * Show single customer
-     */
     public function show(Customer $customer)
     {
         $this->authorizeCustomerAccess($customer);
 
         $customer->load([
-            'invoices' => function ($query) {
-                $query->latest()->take(10);
-            }
+            'invoices' => fn($q) => $q->latest()->take(10)
         ]);
 
         return view('customers.show', compact('customer'));
     }
 
-    /**
-     * Show edit form
-     */
     public function edit(Customer $customer)
     {
         $this->authorizeCustomerAccess($customer);
         return view('customers.form', compact('customer'));
     }
 
-    /**
-     * Update customer
-     */
     public function update(Request $request, Customer $customer)
     {
         $this->authorizeCustomerAccess($customer);
 
         $validated = $request->validate([
-            'name'    => 'required|string|max:255',
-            'email'   => 'required|email|unique:customers,email,' . $customer->id,
-            'phone'   => 'required|string|max:20',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customers,email,' . $customer->id,
+            'phone' => 'required|string|max:20',
             'address' => 'required|string|max:500',
         ]);
 
         try {
+            $oldValues = $customer->toArray();
             $customer->update($validated);
+
+            $this->logActivity('updated', $customer, $oldValues);
 
             return redirect()->route('customer.show', $customer)
                 ->with('success', 'Customer updated successfully!');
@@ -190,14 +175,12 @@ class CustomerController extends Controller
         }
     }
 
-    /**
-     * Delete customer
-     */
     public function destroy(Customer $customer)
     {
         $this->authorizeCustomerAccess($customer);
 
         try {
+            $this->logActivity('deleted', $customer);
             $customer->delete();
 
             return redirect()->route('customer.index')
@@ -206,5 +189,19 @@ class CustomerController extends Controller
             return back()
                 ->with('error', 'Failed to delete customer: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Log activity
+     */
+    private function logActivity($action, Customer $customer, $oldValues = [])
+    {
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => $action,
+            'customer_id' => $customer->id,
+            'old_values' => $oldValues,
+            'new_values' => $customer->toArray(),
+        ]);
     }
 }
