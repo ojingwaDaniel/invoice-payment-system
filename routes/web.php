@@ -149,6 +149,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{branch}/accountant', [BranchController::class, 'storeAccountant'])->name('accountant.store');
         Route::delete('/{branch}/accountant/{user}', [BranchController::class, 'destroyAccountant'])->name('accountant.destroy');
     });
+
+
+    // activity log
+    Route::get('/admin/activity-log', [ActivityLogController::class, 'index'])
+        ->name('activity.index');
 });
 
 /*
@@ -163,10 +168,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/upload-logo', [ProfileController::class, 'uploadLogo'])->name('profile.uploadLogo');
 });
 
-// activity log
-Route::get('/admin/activity-log', [ActivityLogController::class, 'index'])
-    ->name('activity.index')
-    ->middleware(['auth', 'admin']);
+
+
 
 
 /*
