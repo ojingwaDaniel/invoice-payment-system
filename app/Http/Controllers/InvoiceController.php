@@ -12,6 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use App\Mail\InvoiceMail;
+use App\Models\ActivityLog;
 
 class InvoiceController extends Controller
 {
@@ -26,41 +27,29 @@ class InvoiceController extends Controller
 
         $query = Invoice::with('customer')->where('company_id', $user->company_id);
 
-        // Branch-level users should only see their branch invoices
         if ($user->role !== 'admin') {
             $query->where('branch_id', $user->branch_id);
         }
 
-        // search by invoice number or customer name
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
-                    ->orWhereHas('customer', function ($c) use ($search) {
-                        $c->where('name', 'like', "%{$search}%");
-                    });
+                    ->orWhereHas('customer', fn($c) => $c->where('name', 'like', "%{$search}%"));
             });
         }
 
-        // Customer filter (make sure customer belongs to company)
         if ($request->filled('customer_id')) {
             $query->where('customer_id', $request->customer_id);
         }
 
-        // Date range
-        if ($request->filled('from')) {
-            $query->whereDate('issue_date', '>=', $request->from);
-        }
-        if ($request->filled('to')) {
-            $query->whereDate('issue_date', '<=', $request->to);
-        }
+        if ($request->filled('from')) $query->whereDate('issue_date', '>=', $request->from);
+        if ($request->filled('to')) $query->whereDate('issue_date', '<=', $request->to);
 
-        // Status filter
         if ($request->filled('status') && in_array($request->status, ['paid', 'unpaid', 'partial'])) {
             $query->where('status', $request->status);
         }
 
-        // Sorting
         $sort = $request->get('sort', 'latest');
         switch ($sort) {
             case 'oldest':
@@ -81,11 +70,8 @@ class InvoiceController extends Controller
 
         $invoices = $query->paginate(15)->withQueryString();
 
-        // Stats scoped to the same visibility (company + branch restriction)
         $statsQuery = Invoice::where('company_id', $user->company_id);
-        if ($user->role !== 'admin') {
-            $statsQuery->where('branch_id', $user->branch_id);
-        }
+        if ($user->role !== 'admin') $statsQuery->where('branch_id', $user->branch_id);
         $allInvoices = $statsQuery->get();
         $totalAmount = $allInvoices->sum('total_amount');
 
@@ -103,7 +89,6 @@ class InvoiceController extends Controller
             'partial_percentage' => $totalAmount > 0 ? ($allInvoices->where('status', 'partial')->sum('total_amount') / $totalAmount * 100) : 0,
         ];
 
-        // Customers for select dropdown: only company customers (and if branch user, you may want to scope to branch customers – keep company-wide for flexibility)
         $customers = Customer::where('company_id', $user->company_id)
             ->when($user->role !== 'admin', fn($q) => $q->where('branch_id', $user->branch_id))
             ->get();
@@ -111,10 +96,6 @@ class InvoiceController extends Controller
         return view('invoices.index', compact('invoices', 'stats', 'customers'));
     }
 
-    /**
-     * Show create form.
-     * Products/customers/units filtered by company (and branch when appropriate).
-     */
     public function create()
     {
         $user = auth()->user();
@@ -124,7 +105,6 @@ class InvoiceController extends Controller
             ->when($user->role !== 'admin', fn($q) => $q->where('branch_id', $user->branch_id))
             ->orderBy('name')->get();
 
-        // invoice number generation per company (keeps uniqueness within company)
         $last = Invoice::where('company_id', $user->company_id)->latest('id')->first();
         $nextNumber = $last ? $last->id + 1 : 1;
         $invoice_number = 'INV-' . date('Y') . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
@@ -132,10 +112,6 @@ class InvoiceController extends Controller
         return view('invoices.form', compact('products', 'customers', 'invoice_number'));
     }
 
-    /**
-     * Store invoice. assigns company_id, branch_id, user_id automatically.
-     * Validates items belong to the same company.
-     */
     public function store(Request $request)
     {
         $user = auth()->user();
@@ -158,11 +134,8 @@ class InvoiceController extends Controller
 
         DB::beginTransaction();
         try {
-            // ensure products exist and belong to the company
             $productIds = collect($validated['items'])->pluck('product_id')->unique()->values()->all();
-            $companyProductsCount = Product::whereIn('id', $productIds)
-                ->where('company_id', $user->company_id)
-                ->count();
+            $companyProductsCount = Product::whereIn('id', $productIds)->where('company_id', $user->company_id)->count();
 
             if ($companyProductsCount !== count($productIds)) {
                 throw new \Exception('One or more selected products are invalid or do not belong to your company.');
@@ -220,6 +193,7 @@ class InvoiceController extends Controller
             }
 
             DB::commit();
+            $this->logActivity('created', $invoice, [], $invoice->toArray());
 
             return redirect()->route('invoice.show', ['invoice' => $invoice])->with('success', 'Invoice created successfully!');
         } catch (\Throwable $e) {
@@ -228,13 +202,9 @@ class InvoiceController extends Controller
         }
     }
 
-    /**
-     * Edit invoice form.
-     */
     public function edit(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
-
         $invoice->load('items');
 
         $user = auth()->user();
@@ -247,9 +217,6 @@ class InvoiceController extends Controller
         return view('invoices.form', compact('invoice', 'products', 'customers'));
     }
 
-    /**
-     * Update invoice.
-     */
     public function update(Request $request, Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
@@ -274,7 +241,6 @@ class InvoiceController extends Controller
 
         DB::beginTransaction();
         try {
-            // Validate products belong to company
             $productIds = collect($validated['items'])->pluck('product_id')->unique()->values()->all();
             $companyProductsCount = Product::whereIn('id', $productIds)
                 ->where('company_id', $user->company_id)
@@ -302,6 +268,8 @@ class InvoiceController extends Controller
             $vatAmount = (float)($validated['vat_amount'] ?? 0);
             $total = round($afterDiscount + $vatAmount, 2);
 
+            $oldValues = $invoice->toArray();
+
             $invoice->update([
                 'customer_id' => $validated['customer_id'],
                 'issue_date' => $validated['issue_date'],
@@ -312,8 +280,8 @@ class InvoiceController extends Controller
                 'total_amount' => $total,
                 'vat_amount' => round($vatAmount, 2),
             ]);
+            $this->logActivity('updated', $invoice, $oldValues, $invoice->toArray());
 
-            // replace items
             $invoice->items()->delete();
             foreach ($items as $itemData) {
                 InvoiceItem::create([
@@ -339,9 +307,6 @@ class InvoiceController extends Controller
         }
     }
 
-    /**
-     * Show invoice.
-     */
     public function show(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
@@ -350,9 +315,6 @@ class InvoiceController extends Controller
         return view('invoices.show', compact('invoice'));
     }
 
-    /**
-     * Download invoice PDF.
-     */
     public function download(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
@@ -365,16 +327,11 @@ class InvoiceController extends Controller
             'invoice' => $invoice,
             'subtotal' => $subtotal,
             'taxTotal' => $taxTotal,
-        ]);
-
-        $pdf->setPaper('a4', 'portrait');
+        ])->setPaper('a4', 'portrait');
 
         return $pdf->download('invoice-' . $invoice->invoice_number . '.pdf');
     }
 
-    /**
-     * Stream PDF to browser.
-     */
     public function view(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
@@ -387,16 +344,11 @@ class InvoiceController extends Controller
             'invoice' => $invoice,
             'subtotal' => $subtotal,
             'taxTotal' => $taxTotal,
-        ]);
-
-        $pdf->setPaper('a4', 'portrait');
+        ])->setPaper('a4', 'portrait');
 
         return $pdf->stream('invoice-' . $invoice->invoice_number . '.pdf');
     }
 
-    /**
-     * Send invoice by email (with PDF attachment).
-     */
     public function send(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
@@ -439,9 +391,6 @@ class InvoiceController extends Controller
         }
     }
 
-    /**
-     * Delete invoice (with authorization).
-     */
     public function destroy(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
@@ -456,11 +405,6 @@ class InvoiceController extends Controller
         }
     }
 
-    /**
-     * Authorization helper:
-     * - invoice.company_id must equal user's company
-     * - if user is not admin -> invoice.branch_id must equal user's branch
-     */
     private function authorizeAccess(Invoice $invoice)
     {
         $user = auth()->user();
@@ -474,246 +418,131 @@ class InvoiceController extends Controller
         }
     }
 
-    /**
-     * Payment initialization (Paystack) — invoice must be accessible by user.
-     */
     public function pay(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
 
         $merchant = $invoice->user;
-
-        // Use merchant-provided Paystack keys (decrypt if stored encrypted)
         $paystackPublic = $merchant->paystack_public_key ? decrypt($merchant->paystack_public_key) : config('services.paystack.public');
         $paystackSecret = $merchant->paystack_secret_key ? decrypt($merchant->paystack_secret_key) : config('services.paystack.secret');
 
-        $paystack = new \Yabacon\Paystack($paystackSecret);
-        $response = $paystack->transaction->initialize([
-            'amount' => $invoice->total_amount * 100,
-            'email' => $invoice->customer->email,
-            'reference' => 'INV-' . $invoice->id . '-' . time(),
-            'callback_url' => route('invoice.callback', $invoice->id),
-        ]);
+        $invoice->load('customer');
 
-        return redirect($response->data->authorization_url);
+        return view('payment.paystack', compact('invoice', 'paystackPublic', 'paystackSecret'));
     }
 
-    /**
-     * Mark invoice fully paid (admin/accountant action).
-     */
+    public function publicPay(Invoice $invoice)
+    {
+        $invoice->load('customer');
+
+        $reference = 'INV-' . $invoice->id . '-' . uniqid();
+
+        return view('payment.public', compact('invoice', 'reference'));
+    }
+
+    public function handleCallback(Request $request, Invoice $invoice)
+    {
+        $invoice->load('customer');
+
+        try {
+            $invoice->update(['status' => 'paid', 'paid_at' => now()]);
+            $this->logActivity('paid', $invoice, [], $invoice->toArray());
+
+            return redirect()->route('invoice.show', $invoice)->with('success', 'Payment successful!');
+        } catch (\Throwable $e) {
+            return redirect()->route('invoice.show', $invoice)->with('error', 'Payment failed: ' . $e->getMessage());
+        }
+    }
+
+    public function publicCallback(Request $request, Invoice $invoice)
+    {
+        $invoice->load('customer');
+
+        try {
+            $invoice->update(['status' => 'paid', 'paid_at' => now()]);
+            $this->logActivity('paid_public', $invoice, [], $invoice->toArray());
+
+            return redirect()->route('invoice.show', $invoice)->with('success', 'Payment successful!');
+        } catch (\Throwable $e) {
+            return redirect()->route('invoice.show', $invoice)->with('error', 'Payment failed: ' . $e->getMessage());
+        }
+    }
+
     public function markPaid(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
 
-        $invoice->paid = $invoice->total_amount;
-        $invoice->status = 'paid';
-        $invoice->paid_at = now();
-        $invoice->save();
+        try {
+            $invoice->update(['status' => 'paid', 'paid_at' => now()]);
+            $this->logActivity('marked_paid', $invoice, [], $invoice->toArray());
 
-        return redirect()->route("invoice.show.receipt",$invoice);
+            return redirect()->back()->with('success', 'Invoice marked as paid.');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Failed to mark invoice as paid: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Record a partial payment.
-     */
     public function markPartial(Request $request, Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
 
-        $request->validate([
-            'partial_amount' => 'required|numeric|min:0.01|max:' . ($invoice->total_amount - $invoice->paid),
-            'payment_date' => 'nullable|date',
-            'payment_notes' => 'nullable|string|max:500'
+        $validated = $request->validate([
+            'partial_amount' => 'required|numeric|min:0.01|max:' . $invoice->total_amount,
         ]);
-
-        $partialAmount = $request->partial_amount;
-        $newPaidAmount = $invoice->paid + $partialAmount;
-
-        $invoice->paid = $newPaidAmount;
-        $invoice->status = $newPaidAmount >= $invoice->total_amount ? 'paid' : 'partial';
-        $invoice->save();
-
-        return redirect()->route('invoice.show', $invoice)
-            ->with('success', 'Partial payment of ' . $invoice->currency . ' ' . number_format($partialAmount, 2) . ' recorded successfully!');
-    }
-
-    /**
-     * Update Paystack keys for authenticated user
-     */
-    public function updatePaystackKeys(Request $request)
-    {
-        $request->validate([
-            'paystack_public_key' => 'nullable|string',
-            'paystack_secret_key' => 'nullable|string',
-        ]);
-
-        auth()->user()->update([
-            'paystack_public_key' => $request->paystack_public_key,
-            'paystack_secret_key' => $request->paystack_secret_key,
-        ]);
-
-        return back()->with('success', 'Paystack keys updated successfully!');
-    }
-
-    /**
-     * Handle Paystack callback for invoice payments.
-     */
-    public function handleCallback(Request $request, Invoice $invoice)
-    {
-        $this->authorizeAccess($invoice);
-
-        $merchant = $invoice->user;
-        $paystackSecret = $merchant->paystack_secret_key ? decrypt($merchant->paystack_secret_key) : config('services.paystack.secret');
-        $paystack = new \Yabacon\Paystack($paystackSecret);
-
-        $reference = $request->query('reference');
 
         try {
-            $tranx = $paystack->transaction->verify(['reference' => $reference]);
+            $oldValues = $invoice->toArray();
 
-            if ($tranx->data->status === 'success') {
-                $invoice->status = 'paid';
-                $invoice->paid = $invoice->total_amount;
-                $invoice->payment_method = 'paystack';
-                $invoice->paid_at = now();
-                $invoice->save();
+            $invoice->update([
+                'status' => 'partial',
+                'paid_amount' => $validated['partial_amount'],
+            ]);
 
-                return redirect()->route('invoice.paid', $invoice->id)->with('success', 'Payment successful! Invoice marked as paid.');
-            }
+            $this->logActivity('marked_partial', $invoice, $oldValues, $invoice->toArray());
 
-            return redirect()->route('invoice.show', $invoice->id)->with('error', 'Payment not successful. Please try again.');
-        } catch (\Exception $e) {
-            return redirect()->route('invoice.show', $invoice->id)->with('error', 'Payment verification failed: ' . $e->getMessage());
+            return redirect()->back()->with('success', 'Invoice marked as partially paid.');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Failed to mark invoice as partially paid: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Financial report scoped to company and branch access.
-     */
     public function financialReport(Request $request)
     {
         $user = auth()->user();
 
         $query = Invoice::where('company_id', $user->company_id);
-        if ($user->role !== 'admin') {
-            $query->where('branch_id', $user->branch_id);
-        }
+        if ($user->role !== 'admin') $query->where('branch_id', $user->branch_id);
+
+        if ($request->filled('from')) $query->whereDate('issue_date', '>=', $request->from);
+        if ($request->filled('to')) $query->whereDate('issue_date', '<=', $request->to);
+
+        $groupBy = $request->get('group_by', 'month');
+
         $invoices = $query->get();
 
-        // Group by month
-        $monthlySales = $invoices->groupBy(fn($i) => $i->issue_date->format('Y-m'))->map(fn($items) => [
-            'invoice_count' => $items->count(),
-            'total_amount' => $items->sum('total_amount'),
-            'paid_amount' => $items->where('status', 'paid')->sum('total_amount'),
+        $report = $invoices->groupBy(function ($invoice) use ($groupBy) {
+            return match ($groupBy) {
+                'day' => $invoice->issue_date->format('Y-m-d'),
+                'quarter' => 'Q' . ceil($invoice->issue_date->format('n') / 3) . '-' . $invoice->issue_date->format('Y'),
+                'year' => $invoice->issue_date->format('Y'),
+                default => $invoice->issue_date->format('Y-m'), // month
+            };
+        })->map(fn($group) => [
+            'count' => $group->count(),
+            'total' => $group->sum('total_amount'),
         ]);
 
-        // Quarter
-        $quarterlySales = $invoices->groupBy(function ($item) {
-            $month = (int)$item->issue_date->format('m');
-            $quarter = ceil($month / 3);
-            return $item->issue_date->format('Y') . '-Q' . $quarter;
-        })->map(fn($items) => [
-            'invoice_count' => $items->count(),
-            'total_amount' => $items->sum('total_amount'),
-            'paid_amount' => $items->where('status', 'paid')->sum('total_amount'),
+        return view('invoices.report', compact('report'));
+    }
+
+    private function logActivity($action, Invoice $invoice, $oldValues = [], $newValues = [])
+    {
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => $action,
+            'invoice_id' => $invoice->id,
+            'old_values' => $oldValues,
+            'new_values' => $newValues,
         ]);
-
-        // Yearly
-        $yearlySales = $invoices->groupBy(fn($i) => $i->issue_date->format('Y'))->map(fn($items) => [
-            'invoice_count' => $items->count(),
-            'total_amount' => $items->sum('total_amount'),
-            'paid_amount' => $items->where('status', 'paid')->sum('total_amount'),
-        ]);
-
-        $totalRevenue = $invoices->sum('total_amount');
-        $totalPaid = $invoices->where('status', 'paid')->sum('total_amount');
-
-        return view('invoices.report', compact('monthlySales', 'quarterlySales', 'yearlySales', 'totalRevenue', 'totalPaid'));
-    }
-
-    /**
-     * Public pay (for customers visiting payment link) - still ensure invoice is part of company
-     */
-    public function publicPay(Invoice $invoice)
-    {
-        // Do NOT require the authenticated user here: we only check invoice company/branch consistency if necessary.
-        // However, for security, ensure invoice belongs to a company (always true) and proceed with merchant's keys.
-        $merchant = $invoice->user;
-        $paystackSecret = $merchant->paystack_secret_key ? decrypt($merchant->paystack_secret_key) : config('services.paystack.secret');
-
-        $paystack = new \Yabacon\Paystack($paystackSecret);
-
-        $response = $paystack->transaction->initialize([
-            'amount' => $invoice->total_amount * 100,
-            'email' => $invoice->customer->email,
-            'reference' => 'INV-' . $invoice->id . '-' . time(),
-            'callback_url' => route('invoice.public.callback', $invoice->id),
-        ]);
-
-        return redirect($response->data->authorization_url);
-    }
-
-    /**
-     * Public callback for payment link.
-     */
-    public function publicCallback(Request $request, Invoice $invoice)
-    {
-        $merchant = $invoice->user;
-        $paystackSecret = $merchant->paystack_secret_key ? decrypt($merchant->paystack_secret_key) : config('services.paystack.secret');
-        $paystack = new \Yabacon\Paystack($paystackSecret);
-
-        $reference = $request->query('reference');
-
-        try {
-            $tranx = $paystack->transaction->verify(['reference' => $reference]);
-            if ($tranx->data->status === 'success') {
-                $invoice->update([
-                    'paid' => $invoice->total_amount,
-                    'status' => 'paid',
-                    'paid_at' => now(),
-                ]);
-
-                return view('invoices.payment-success', compact('invoice'));
-            }
-        } catch (\Exception $e) {
-            \Log::error('Public callback verification error', ['error' => $e->getMessage()]);
-        }
-
-        return view('invoices.payment-failed', compact('invoice'));
-    }
-
-    /**
-     * Payment success page
-     */
-    public function paymentSuccess(Invoice $invoice)
-    {
-        return view('invoices.payment-success', compact('invoice'));
-    }
-
-    /**
-     * Receipt view (paid invoices only)
-     */
-    public function receipt(Invoice $invoice)
-    {
-        $this->authorizeAccess($invoice);
-        $user = auth()->user();
-
-        if (!$invoice->paid) {
-            abort(404, 'Receipt not available for unpaid invoices');
-        }
-
-        $invoice->load(['customer', 'items.product', 'user', 'branch']);
-
-        // FIXED: Add 'user' to PDF view
-        if (request()->has('download')) {
-            $pdf = Pdf::loadView('invoices.receipt-pdf', compact('invoice', 'user'))
-                ->setPaper('a4', 'portrait');
-
-            return $pdf->download('receipt-' . $invoice->invoice_number . '.pdf');
-        }
-
-
-        // FIXED: user already included here
-        return view('invoices.receipt', compact('invoice', 'user'));
     }
 }
