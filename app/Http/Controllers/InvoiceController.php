@@ -440,13 +440,37 @@ class InvoiceController extends Controller
         return view('payment.public', compact('invoice', 'reference'));
     }
 
+    private function processPayment(Invoice $invoice, float $amount, string $action = 'paid')
+    {
+        $this->authorizeAccess($invoice);
+
+        $oldValues = $invoice->toArray();
+
+        // Update paid amount
+        $newPaid = $invoice->paid + $amount;
+
+        // Determine status
+        $status = $newPaid >= $invoice->total_amount ? 'paid' : 'partial';
+
+        $invoice->update([
+            'paid' => $newPaid,
+            'status' => $status,
+            'paid_at' => now(),
+        ]);
+
+        // Log activity
+        $this->logActivity($action, $invoice, $oldValues, $invoice->toArray());
+    }
+
     public function handleCallback(Request $request, Invoice $invoice)
     {
         $invoice->load('customer');
 
         try {
-            $invoice->update(['status' => 'paid', 'paid_at' => now()]);
-            $this->logActivity('paid', $invoice, [], $invoice->toArray());
+            // Assume $request->amount is in cents; adjust if needed
+            $amount = isset($request->amount) ? $request->amount / 100 : $invoice->total_amount;
+
+            $this->processPayment($invoice, $amount, 'paid');
 
             return redirect()->route('invoice.show', $invoice)->with('success', 'Payment successful!');
         } catch (\Throwable $e) {
@@ -459,8 +483,10 @@ class InvoiceController extends Controller
         $invoice->load('customer');
 
         try {
-            $invoice->update(['status' => 'paid', 'paid_at' => now()]);
-            $this->logActivity('paid_public', $invoice, [], $invoice->toArray());
+            // Assume $request->amount is in cents; adjust if needed
+            $amount = isset($request->amount) ? $request->amount / 100 : $invoice->total_amount;
+
+            $this->processPayment($invoice, $amount, 'paid_public');
 
             return redirect()->route('invoice.show', $invoice)->with('success', 'Payment successful!');
         } catch (\Throwable $e) {
@@ -468,19 +494,28 @@ class InvoiceController extends Controller
         }
     }
 
+
     public function markPaid(Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
 
         try {
-            $invoice->update(['status' => 'paid', 'paid_at' => now()]);
-            $this->logActivity('marked_paid', $invoice, [], $invoice->toArray());
+            $oldValues = $invoice->toArray();
+
+            $invoice->update([
+                'paid' => $invoice->total_amount,
+                'status' => 'paid',
+                'paid_at' => now(),
+            ]);
+
+            $this->logActivity('marked_paid', $invoice, $oldValues, $invoice->toArray());
 
             return redirect()->back()->with('success', 'Invoice marked as paid.');
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Failed to mark invoice as paid: ' . $e->getMessage());
         }
     }
+
     public function markPartial(Request $request, Invoice $invoice)
     {
         $this->authorizeAccess($invoice);
