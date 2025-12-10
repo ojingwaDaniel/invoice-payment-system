@@ -486,16 +486,21 @@ class InvoiceController extends Controller
     {
         $this->authorizeAccess($invoice);
 
+        $remainingAmount = $invoice->total_amount - $invoice->paid_amount;
+
         $validated = $request->validate([
-            'partial_amount' => 'required|numeric|min:0.01|max:' . $invoice->total_amount,
+            'partial_amount' => 'required|numeric|min:0.01|max:' . $remainingAmount,
         ]);
 
         try {
             $oldValues = $invoice->toArray();
 
+            // Add the partial payment to the existing paid amount
+            $newPaidAmount = $invoice->paid_amount + $validated['partial_amount'];
+
             $invoice->update([
-                'status' => 'partial',
-                'paid_amount' => $validated['partial_amount'],
+                'status' => $newPaidAmount >= $invoice->total_amount ? 'paid' : 'partial',
+                'paid_amount' => $newPaidAmount,
             ]);
 
             $this->logActivity('marked_partial', $invoice, $oldValues, $invoice->toArray());
@@ -505,6 +510,7 @@ class InvoiceController extends Controller
             return redirect()->back()->with('error', 'Failed to mark invoice as partially paid: ' . $e->getMessage());
         }
     }
+
 
     public function financialReport(Request $request)
     {
