@@ -5,14 +5,11 @@
 
             <!-- Success Message -->
             @if (session('success'))
-                <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4"
-                     x-data="{ show: true }"
-                     x-show="show"
-                     x-transition
-                     x-init="setTimeout(() => show = false, 5000)">
+                <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4" x-data="{ show: true }" x-show="show"
+                    x-transition x-init="setTimeout(() => show = false, 5000)">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                            <i class="fas fa-check-circle mr-2 text-green-400"></i>
                             <p class="text-sm text-green-700">{{ session('success') }}</p>
                         </div>
                         <button type="button" @click="show = false" class="text-green-600 hover:text-green-800">
@@ -33,21 +30,22 @@
                         <!-- Export Dropdown -->
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open"
-                                    class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                                class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
                                 <i class="fas fa-download text-gray-500"></i>
                                 Export
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
 
-                            <div x-show="open"
-                                 @click.away="open = false"
-                                 class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                            <div x-show="open" @click.away="open = false"
+                                class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
                                 <div class="py-1">
-                                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <a href="#"
+                                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <i class="fas fa-file-pdf mr-3 text-red-500"></i>
                                         Download as PDF
                                     </a>
-                                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <a href="#"
+                                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <i class="fas fa-file-excel mr-3 text-green-500"></i>
                                         Download as Excel
                                     </a>
@@ -57,7 +55,7 @@
 
                         <!-- New Product Button -->
                         <a href="{{ route('product.create') }}"
-                           class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
+                            class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
                             <i class="fas fa-plus"></i>
                             New Product
                         </a>
@@ -66,7 +64,7 @@
             </div>
 
             <!-- Search and Filter Section -->
-            <div class="mb-6 rounded-xl bg-white p-6 shadow-sm border border-gray-200">
+            <div class="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <!-- Search Bar -->
                     <div class="lg:col-span-2">
@@ -75,15 +73,15 @@
                                 <i class="fas fa-search text-gray-400"></i>
                             </div>
                             <input type="text"
-                                   class="block w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500"
-                                   placeholder="Search products...">
+                                class="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-blue-500"
+                                placeholder="Search products...">
                         </div>
                     </div>
 
                     <!-- Sort Dropdown -->
                     <div class="relative" x-data="{ open: false, selected: 'Latest' }">
                         <button @click="open = !open"
-                                class="flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            class="flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
                             <div class="flex items-center gap-2">
                                 <i class="fas fa-sort text-gray-500"></i>
                                 <span x-text="selected"></span>
@@ -91,22 +89,21 @@
                             <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': open }"></i>
                         </button>
 
-                        <div x-show="open"
-                             @click.away="open = false"
-                             class="absolute left-0 right-0 z-10 mt-2 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                        <div x-show="open" @click.away="open = false"
+                            class="absolute left-0 right-0 z-10 mt-2 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
                             <div class="py-1">
                                 <a href="javascript:void(0);"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                   @click="selected = 'Latest'; open = false">Latest</a>
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    @click="selected = 'Latest'; open = false">Latest</a>
                                 <a href="javascript:void(0);"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                   @click="selected = 'Oldest'; open = false">Oldest</a>
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    @click="selected = 'Oldest'; open = false">Oldest</a>
                                 <a href="javascript:void(0);"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                   @click="selected = 'Name (A-Z)'; open = false">Name (A-Z)</a>
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    @click="selected = 'Name (A-Z)'; open = false">Name (A-Z)</a>
                                 <a href="javascript:void(0);"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                   @click="selected = 'Name (Z-A)'; open = false">Name (Z-A)</a>
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    @click="selected = 'Name (Z-A)'; open = false">Name (Z-A)</a>
                             </div>
                         </div>
                     </div>
@@ -114,16 +111,15 @@
             </div>
 
             <!-- Products Table -->
-            <div class="rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
                 <!-- Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    <input type="checkbox"
-                                           id="select-all"
-                                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <input type="checkbox" id="select-all"
+                                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Code
@@ -159,17 +155,18 @@
                                 <tr class="hover:bg-gray-50">
                                     <td class="whitespace-nowrap px-6 py-4">
                                         <input type="checkbox"
-                                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        <span class="inline-flex rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                                        <span
+                                            class="inline-flex rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
                                             {{ $product->code }}
                                         </span>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
                                         <div class="flex items-center">
                                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-                                                <i class="fas fa-box text-blue-600 text-sm"></i>
+                                                <i class="fas fa-box text-sm text-blue-600"></i>
                                             </div>
                                             <div class="ml-4">
                                                 <div class="font-medium text-gray-900">{{ $product->name }}</div>
@@ -178,8 +175,8 @@
                                         </div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium
-                                            {{ $product->type === 'product' ? 'bg-blue-100 text-blue-800' : 'bg-cyan-100 text-cyan-800' }}">
+                                        <span
+                                            class="{{ $product->type === 'product' ? 'bg-blue-100 text-blue-800' : 'bg-cyan-100 text-cyan-800' }} inline-flex rounded-full px-3 py-1 text-xs font-medium">
                                             {{ ucfirst($product->type) }}
                                         </span>
                                     </td>
@@ -189,23 +186,25 @@
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                         {{ $product->unit }}
                                     </td>
-                                   @if ($product->type == "Product")
-                                         <td class="whitespace-nowrap px-6 py-4">
-                                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium
-                                            {{ $product->quantity > 50 ? 'bg-green-100 text-green-800' :
-                                               ($product->quantity > 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                            {{ $product->quantity }} {{ $product->unit }}
-                                        </span>
-                                    </td>
+                                    @if (strtolower($product->type) === 'product')
+                                        <td class="whitespace-nowrap px-6 py-4">
+                                            <span
+                                                class="{{ $product->quantity > 50
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : ($product->quantity > 10
+                                                        ? 'bg-yellow-100 text-yellow-800'
+                                                        : 'bg-red-100 text-red-800') }} inline-flex rounded-full px-3 py-1 text-xs font-medium">
+                                                {{ $product->quantity }} {{ $product->unit }}
+                                            </span>
+                                        </td>
                                     @else
-                                       <td class="whitespace-nowrap px-6 py-4">
-                                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium">
-                                             Null
-                                        </span>
-                                    </td>
+                                        <td class="whitespace-nowrap px-6 py-4">
+                                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium">
+                                                N/A
+                                            </span>
+                                        </td>
+                                    @endif
 
-
-                                   @endif
                                     <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                                         ₦{{ number_format($product->selling_price, 2) }}
                                     </td>
@@ -213,20 +212,19 @@
                                         ₦{{ number_format($product->purchase_price, 2) }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                                        <div class="flex justify-end items-center gap-2">
+                                        <div class="flex items-center justify-end gap-2">
                                             <a href="{{ route('product.edit', $product->id) }}"
-                                               class="rounded-lg bg-gray-100 p-2 text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900"
-                                               title="Edit">
+                                                class="rounded-lg bg-gray-100 p-2 text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900"
+                                                title="Edit">
                                                 <i class="fas fa-edit text-sm"></i>
                                             </a>
-                                            <form action="{{ route('product.destroy', $product->id) }}"
-                                                  method="POST"
-                                                  onsubmit="return confirm('Are you sure you want to delete this product?')">
+                                            <form action="{{ route('product.destroy', $product->id) }}" method="POST"
+                                                onsubmit="return confirm('Are you sure you want to delete this product?')">
                                                 @method('DELETE')
                                                 @csrf
                                                 <button type="submit"
-                                                        class="rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-900"
-                                                        title="Delete">
+                                                    class="rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-900"
+                                                    title="Delete">
                                                     <i class="fas fa-trash text-sm"></i>
                                                 </button>
                                             </form>
@@ -237,11 +235,12 @@
                                 <tr>
                                     <td colspan="11" class="px-6 py-12 text-center">
                                         <div class="text-gray-500">
-                                            <i class="fas fa-box text-4xl mb-4 opacity-20"></i>
-                                            <p class="text-lg font-medium text-gray-900 mb-2">No Products Yet</p>
-                                            <p class="text-sm text-gray-600 mb-4">Get started by adding your first product to the inventory</p>
+                                            <i class="fas fa-box mb-4 text-4xl opacity-20"></i>
+                                            <p class="mb-2 text-lg font-medium text-gray-900">No Products Yet</p>
+                                            <p class="mb-4 text-sm text-gray-600">Get started by adding your first product
+                                                to the inventory</p>
                                             <a href="{{ route('product.create') }}"
-                                               class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                                                class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
                                                 <i class="fas fa-plus mr-2"></i>
                                                 Add Your First Product
                                             </a>
