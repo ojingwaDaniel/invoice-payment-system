@@ -94,6 +94,23 @@
                             </td>
 
                             <td class="px-6 py-4">
+                                <div class="font-medium">{{ $log->user?->name ?? 'System' }}</div>
+                                <div class="text-xs text-gray-500">{{ $log->user?->role }}</div>
+                            </td>
+
+                            <td class="px-6 py-4">
+                                {{ $log->action }}
+                            </td>
+
+                            <td class="px-6 py-4">
+                                {{ $log->model }}
+                            </td>
+
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {{ $log->created_at->diffForHumans() }}
+                            </td>
+
+                            <td class="px-6 py-4">
                                 <button onclick="toggleDetails('{{ $log->id }}')"
                                     class="text-sm text-blue-600 hover:underline">
                                     View
@@ -102,27 +119,26 @@
                                 <div id="details-{{ $log->id }}"
                                     class="mt-3 hidden rounded-lg bg-gray-100 p-4 text-sm">
                                     @php
-                                        $properties = collect($log->properties ?? []);
+                                        $oldValues = $log->old_values ?? [];
+                                        $newValues = $log->new_values ?? [];
                                     @endphp
 
-                                    @if ($properties->has('old') || $properties->has('attributes'))
+                                    @if ($oldValues || $newValues)
                                         <div class="grid grid-cols-2 gap-4">
 
-                                            <!-- Old Values -->
                                             <div>
                                                 <h4 class="mb-2 font-bold">Old Values</h4>
                                                 <ul class="text-xs text-gray-700">
-                                                    @foreach ($log->properties['old'] ?? [] as $key => $value)
+                                                    @foreach ($oldValues as $key => $value)
                                                         <li><strong>{{ $key }}:</strong> {{ $value }}</li>
                                                     @endforeach
                                                 </ul>
                                             </div>
 
-                                            <!-- New Values -->
                                             <div>
                                                 <h4 class="mb-2 font-bold">New Values</h4>
                                                 <ul class="text-xs text-gray-700">
-                                                    @foreach ($log->properties['attributes'] ?? [] as $key => $value)
+                                                    @foreach ($newValues as $key => $value)
                                                         <li><strong>{{ $key }}:</strong> {{ $value }}</li>
                                                     @endforeach
                                                 </ul>
@@ -132,10 +148,9 @@
                                     @else
                                         <div class="text-xs text-gray-500">No details available.</div>
                                     @endif
-
                                 </div>
-
                             </td>
+
                         </tr>
 
                     @empty
