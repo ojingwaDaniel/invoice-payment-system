@@ -189,13 +189,23 @@
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                         {{ $product->unit }}
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4">
+                                   @if ($product->type === "Product")
+                                         <td class="whitespace-nowrap px-6 py-4">
                                         <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium
                                             {{ $product->quantity > 50 ? 'bg-green-100 text-green-800' :
                                                ($product->quantity > 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
                                             {{ $product->quantity }} {{ $product->unit }}
                                         </span>
                                     </td>
+                                    @else
+                                       <td class="whitespace-nowrap px-6 py-4">
+                                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium">
+                                             Null
+                                        </span>
+                                    </td>
+
+
+                                   @endif
                                     <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                                         ₦{{ number_format($product->selling_price, 2) }}
                                     </td>
