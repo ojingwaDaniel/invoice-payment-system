@@ -311,6 +311,24 @@
                                     <span class="font-medium">Create Branch</span>
                                 </a>
                             </li>
+                            <!-- Activity Log -->
+                            <li>
+                                <a href="{{ route('activity.index') }}"
+                                    class="{{ request()->routeIs('activity.index') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-700 hover:bg-gray-50' }} group flex items-center rounded-xl px-3 py-3 transition-all duration-200">
+                                    <svg class="{{ request()->routeIs('activity.index') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }} mr-3 h-5 w-5"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 17v-6a2 2 0 012-2h6m4 0v6a2 2 0 01-2 2h-6m-4 0H5a2 2 0 01-2-2v-6a2 2 0 012-2h6z" />
+                                    </svg>
+                                    <span class="font-medium">Activity Log</span>
+
+                                    @if (request()->routeIs('activity.index'))
+                                        <span
+                                            class="bg-primary-100 text-primary-800 ml-auto rounded-full px-2 py-1 text-xs">Active</span>
+                                    @endif
+                                </a>
+                            </li>
+
                         </ul>
                     </li>
                 @endif

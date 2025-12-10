@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\InvoiceController;
@@ -161,6 +162,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/paystack', [ProfileController::class, 'updatePaystackKeys'])->name('profile.updatePaystackKeys');
     Route::post('/profile/upload-logo', [ProfileController::class, 'uploadLogo'])->name('profile.uploadLogo');
 });
+
+// activity log
+Route::get('/admin/activity-log', [ActivityLogController::class, 'index'])
+    ->name('activity.index')
+    ->middleware(['auth', 'admin']);
+
 
 /*
 |--------------------------------------------------------------------------
