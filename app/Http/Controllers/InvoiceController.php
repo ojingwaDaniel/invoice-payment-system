@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use App\Mail\InvoiceMail;
 use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Http;
 
 class InvoiceController extends Controller
 {
@@ -418,18 +419,35 @@ class InvoiceController extends Controller
         }
     }
 
-    public function pay(Invoice $invoice)
-    {
-        $this->authorizeAccess($invoice);
+   public function pay(Invoice $invoice)
+{
+    $invoice->load('customer');
 
-        $merchant = $invoice->user;
-        $paystackPublic = $merchant->paystack_public_key ? decrypt($merchant->paystack_public_key) : config('services.paystack.public');
-        $paystackSecret = $merchant->paystack_secret_key ? decrypt($merchant->paystack_secret_key) : config('services.paystack.secret');
+    $reference = 'INV-' . $invoice->id . '-' . uniqid();
 
-        $invoice->load('customer');
+    // Amount in kobo
+    $amount = $invoice->total_amount * 100;
 
-        return view('payment.paystack', compact('invoice', 'paystackPublic', 'paystackSecret'));
+    $paystackSecret = decrypt(auth()->user()->merchant->paystack_secret_key);
+
+    // Call Paystack initialize endpoint
+    $response = Http::withToken($paystackSecret)->post('https://api.paystack.co/transaction/initialize', [
+        'email' => $invoice->customer->email,
+        'amount' => $amount,
+        'reference' => $reference,
+        'callback_url' => route('invoice.callback', $invoice->id)
+    ]);
+
+    $data = $response->json();
+
+    if (!$data['status']) {
+        return back()->withErrors('Unable to initialize payment.');
     }
+
+    // Redirect user to paystack page
+    return redirect()->away($data['data']['authorization_url']);
+}
+
 
     public function publicPay(Invoice $invoice)
     {
