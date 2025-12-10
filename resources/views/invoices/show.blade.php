@@ -423,7 +423,27 @@
 
         <!-- Partial Payment Modal (keeping your existing modal) -->
         <div id="partialPaymentModal"
-            class="fixed inset-0 z-[9999] hidden items-start justify-center overflow-y-auto bg-black bg-opacity-50 p-4 pb-20 pt-20">
+            class="fixed inset-0 z-[9999] hidden items-start justify-center overflow-y-auto bg-black bg-opacity-50 p-4 pb-20 pt-20"
+            x-data="{
+                displayAmount: '',
+                rawAmount: '',
+                maxAmount: {{ $invoice->total_amount - $invoice->paid }},
+                formatAmount(event) {
+                    // Remove commas
+                    let value = event.target.value.replace(/,/g, '');
+                    // Limit to maxAmount
+                    if (!isNaN(value) && value !== '') {
+                        if (parseFloat(value) > this.maxAmount) value = this.maxAmount.toString();
+                        let parts = value.split('.');
+                        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        this.displayAmount = parts.join('.');
+                        this.rawAmount = value;
+                    } else {
+                        this.displayAmount = '';
+                        this.rawAmount = '';
+                    }
+                }
+            }">
             <div class="relative w-full max-w-md transform rounded-2xl bg-white shadow-2xl transition-all">
                 <div class="rounded-t-2xl bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-4">
                     <div class="flex items-center justify-between">
@@ -469,10 +489,13 @@
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                                     <span class="font-medium text-gray-500">{{ $invoice->currency }}</span>
                                 </div>
-                                <input type="number" name="partial_amount" id="partial_amount" step="0.01"
-                                    min="0.01" max="{{ $invoice->total_amount - $invoice->paid }}" required
+                                <!-- Visible input -->
+                                <input type="text" x-model="displayAmount" @input="formatAmount($event)"
+                                    placeholder="0.00"
                                     class="block w-full rounded-lg border border-gray-300 py-3 pl-16 pr-4 text-gray-900 placeholder-gray-400 transition-colors focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500"
-                                    placeholder="0.00">
+                                    required>
+                                <!-- Hidden input for submission -->
+                                <input type="hidden" name="partial_amount" :value="rawAmount">
                             </div>
                         </div>
 
@@ -508,6 +531,7 @@
                 </form>
             </div>
         </div>
+
     </div>
 
     <style>
@@ -637,21 +661,6 @@
             if (e.target === this) {
                 closePartialPaymentModal();
             }
-        });
-
-        const partialAmountInput = document.getElementById('partial_amount');
-
-        partialAmountInput.addEventListener('input', function(e) {
-            let value = this.value;
-
-            // Remove any non-digit characters except the decimal point
-            value = value.replace(/,/g, '');
-
-            // Split integer and decimal parts
-            const parts = value.split('.');
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-            this.value = parts.join('.');
         });
     </script>
 @endsection
