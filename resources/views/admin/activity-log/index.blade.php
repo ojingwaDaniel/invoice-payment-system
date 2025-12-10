@@ -94,7 +94,7 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-semibold text-gray-900">{{ $log->causer?->name ?? 'System' }}</div>
-                                        <div class="text-xs text-gray-500">{{ $log->causer?->role ?? 'Automated' }}</div>
+                                        <div class="text-xs text-gray-500">{{ $log->causer?->email ?? 'Automated Action' }}</div>
                                     </div>
                                 </div>
                             </td>
@@ -144,13 +144,16 @@
 
                             <!-- Actions -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <button onclick="toggleDetails('{{ $log->id }}')"
+                                <button onclick="toggleDetails('{{ $log->id }}')" id="btn-{{ $log->id }}"
                                     class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 mr-1 view-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
-                                    View Details
+                                    <svg class="w-4 h-4 mr-1 close-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    <span class="btn-text">View Details</span>
                                 </button>
                             </td>
                         </tr>
@@ -159,6 +162,45 @@
                         <tr id="details-row-{{ $log->id }}" class="hidden">
                             <td colspan="5" class="px-6 py-4 bg-gray-50">
                                 <div class="rounded-lg bg-white p-6 shadow-inner border border-gray-200">
+
+                                    <!-- Activity Summary Section -->
+                                    <div class="mb-6 pb-6 border-b border-gray-200">
+                                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Activity Summary</h3>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                                                <div class="text-xs font-semibold text-blue-600 uppercase mb-1">Performed By</div>
+                                                <div class="text-sm font-bold text-gray-900">{{ $log->causer?->name ?? 'System' }}</div>
+                                                <div class="text-xs text-gray-600">{{ $log->causer?->email ?? 'Automated' }}</div>
+                                                @if($log->causer?->role)
+                                                    <div class="mt-1">
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                            {{ $log->causer->role }}
+                                                        </span>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            <div class="bg-purple-50 rounded-lg p-4 border border-purple-100">
+                                                <div class="text-xs font-semibold text-purple-600 uppercase mb-1">Action Type</div>
+                                                <div class="text-sm font-bold text-gray-900">{{ ucfirst($log->event ?? $log->description) }}</div>
+                                                <div class="text-xs text-gray-600">{{ class_basename($log->subject_type ?? $log->model) }} Module</div>
+                                            </div>
+
+                                            <div class="bg-green-50 rounded-lg p-4 border border-green-100">
+                                                <div class="text-xs font-semibold text-green-600 uppercase mb-1">Timestamp</div>
+                                                <div class="text-sm font-bold text-gray-900">{{ $log->created_at->format('M d, Y h:i A') }}</div>
+                                                <div class="text-xs text-gray-600">{{ $log->created_at->diffForHumans() }}</div>
+                                            </div>
+                                        </div>
+
+                                        @if($log->subject_id)
+                                            <div class="mt-4 bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                                <span class="text-xs font-semibold text-gray-600 uppercase">Record ID:</span>
+                                                <span class="text-sm font-mono text-gray-900 ml-2">#{{ $log->subject_id }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+
                                     @php
                                         $oldValues = $log->properties['old'] ?? $log->old_values ?? [];
                                         $newValues = $log->properties['attributes'] ?? $log->new_values ?? [];
@@ -181,18 +223,20 @@
                                                     </div>
                                                     <div class="space-y-2 pl-11">
                                                         @foreach ($oldValues as $key => $value)
-                                                            <div class="flex items-start">
-                                                                <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide min-w-[120px]">{{ str_replace('_', ' ', $key) }}:</span>
-                                                                <span class="text-sm text-gray-800 ml-2 break-all">
-                                                                    @if(is_null($value))
-                                                                        <span class="text-gray-400 italic">empty</span>
-                                                                    @elseif(is_bool($value))
-                                                                        {{ $value ? 'Yes' : 'No' }}
-                                                                    @else
-                                                                        {{ $value }}
-                                                                    @endif
-                                                                </span>
-                                                            </div>
+                                                            @if(!in_array($key, ['user_id', 'company_id', 'created_at', 'updated_at']))
+                                                                <div class="flex items-start">
+                                                                    <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide min-w-[120px]">{{ str_replace('_', ' ', $key) }}:</span>
+                                                                    <span class="text-sm text-gray-800 ml-2 break-all">
+                                                                        @if(is_null($value))
+                                                                            <span class="text-gray-400 italic">empty</span>
+                                                                        @elseif(is_bool($value))
+                                                                            {{ $value ? 'Yes' : 'No' }}
+                                                                        @else
+                                                                            {{ $value }}
+                                                                        @endif
+                                                                    </span>
+                                                                </div>
+                                                            @endif
                                                         @endforeach
                                                     </div>
                                                 </div>
@@ -211,18 +255,20 @@
                                                     </div>
                                                     <div class="space-y-2 pl-11">
                                                         @foreach ($newValues as $key => $value)
-                                                            <div class="flex items-start">
-                                                                <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide min-w-[120px]">{{ str_replace('_', ' ', $key) }}:</span>
-                                                                <span class="text-sm text-gray-800 ml-2 break-all font-medium">
-                                                                    @if(is_null($value))
-                                                                        <span class="text-gray-400 italic">empty</span>
-                                                                    @elseif(is_bool($value))
-                                                                        {{ $value ? 'Yes' : 'No' }}
-                                                                    @else
-                                                                        {{ $value }}
-                                                                    @endif
-                                                                </span>
-                                                            </div>
+                                                            @if(!in_array($key, ['user_id', 'company_id', 'created_at', 'updated_at']))
+                                                                <div class="flex items-start">
+                                                                    <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide min-w-[120px]">{{ str_replace('_', ' ', $key) }}:</span>
+                                                                    <span class="text-sm text-gray-800 ml-2 break-all font-medium">
+                                                                        @if(is_null($value))
+                                                                            <span class="text-gray-400 italic">empty</span>
+                                                                        @elseif(is_bool($value))
+                                                                            {{ $value ? 'Yes' : 'No' }}
+                                                                        @else
+                                                                            {{ $value }}
+                                                                        @endif
+                                                                    </span>
+                                                                </div>
+                                                            @endif
                                                         @endforeach
                                                     </div>
                                                 </div>
@@ -235,7 +281,7 @@
                                                 <h4 class="text-sm font-bold text-gray-900 mb-3">Changed Fields Summary</h4>
                                                 <div class="flex flex-wrap gap-2">
                                                     @foreach ($newValues as $key => $value)
-                                                        @if(isset($oldValues[$key]) && $oldValues[$key] != $value)
+                                                        @if(!in_array($key, ['user_id', 'company_id', 'created_at', 'updated_at']) && isset($oldValues[$key]) && $oldValues[$key] != $value)
                                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
                                                                 {{ str_replace('_', ' ', ucfirst($key)) }}
                                                             </span>
@@ -279,7 +325,22 @@
     <script>
         function toggleDetails(id) {
             const detailsRow = document.getElementById("details-row-" + id);
+            const button = document.getElementById("btn-" + id);
+            const btnText = button.querySelector('.btn-text');
+            const viewIcon = button.querySelector('.view-icon');
+            const closeIcon = button.querySelector('.close-icon');
+
             detailsRow.classList.toggle("hidden");
+
+            if (detailsRow.classList.contains("hidden")) {
+                btnText.textContent = "View Details";
+                viewIcon.classList.remove("hidden");
+                closeIcon.classList.add("hidden");
+            } else {
+                btnText.textContent = "Close Details";
+                viewIcon.classList.add("hidden");
+                closeIcon.classList.remove("hidden");
+            }
         }
     </script>
 @endsection
