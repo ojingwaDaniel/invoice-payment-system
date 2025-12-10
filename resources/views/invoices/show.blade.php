@@ -638,5 +638,20 @@
                 closePartialPaymentModal();
             }
         });
+
+        const partialAmountInput = document.getElementById('partial_amount');
+
+        partialAmountInput.addEventListener('input', function(e) {
+            let value = this.value;
+
+            // Remove any non-digit characters except the decimal point
+            value = value.replace(/,/g, '');
+
+            // Split integer and decimal parts
+            const parts = value.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+            this.value = parts.join('.');
+        });
     </script>
 @endsection
