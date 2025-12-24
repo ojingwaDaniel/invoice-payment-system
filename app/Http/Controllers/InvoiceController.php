@@ -419,43 +419,55 @@ class InvoiceController extends Controller
         }
     }
 
-    public function pay(Invoice $invoice)
+    protected function initializePaystack(Invoice $invoice)
     {
         $invoice->load('customer');
+
+        if ($invoice->status === 'paid') {
+            abort(403, 'Invoice already paid');
+        }
 
         $reference = 'INV-' . $invoice->id . '-' . uniqid();
 
         // Amount in kobo
-        $amount = $invoice->total_amount * 100;
+        $amount = (int) ($invoice->total_amount * 100);
 
-        $paystackSecret = decrypt(auth()->user()->merchant->paystack_secret_key);
+        // IMPORTANT: use invoice owner, not auth user
+        $paystackSecret = decrypt(
+            $invoice->company->merchant->paystack_secret_key
+        );
 
-        // Call Paystack initialize endpoint
-        $response = Http::withToken($paystackSecret)->post('https://api.paystack.co/transaction/initialize', [
-            'email' => $invoice->customer->email,
-            'amount' => $amount,
-            'reference' => $reference,
-            'callback_url' => route('invoice.callback', $invoice->id)
-        ]);
+        $response = Http::withToken($paystackSecret)
+            ->post('https://api.paystack.co/transaction/initialize', [
+                'email'        => $invoice->customer->email,
+                'amount'       => $amount,
+                'reference'    => $reference,
+                'callback_url' => route('invoice.callback', $invoice),
+                'metadata'     => [
+                    'invoice_id' => $invoice->id,
+                ],
+            ]);
 
         $data = $response->json();
 
-        if (!$data['status']) {
-            return back()->withErrors('Unable to initialize payment.');
+        if (!($data['status'] ?? false)) {
+            abort(500, 'Unable to initialize payment');
         }
 
-        // Redirect user to paystack page
         return redirect()->away($data['data']['authorization_url']);
     }
 
 
+    public function pay(Invoice $invoice)
+    {
+        return $this->initializePaystack($invoice);
+    }
+
+
+
     public function publicPay(Invoice $invoice)
     {
-        $invoice->load('customer');
-
-        $reference = 'INV-' . $invoice->id . '-' . uniqid();
-
-        return view('payment.public', compact('invoice', 'reference'));
+        return $this->initializePaystack($invoice);
     }
 
     private function processPayment(Invoice $invoice, float $amount, string $action = 'paid')
