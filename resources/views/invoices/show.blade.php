@@ -6,31 +6,15 @@
 
             <!-- Flash Messages -->
             @if (session('success'))
-                <div class="animate-fade-in mb-6 rounded-lg border border-green-200 bg-green-50 p-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check-circle text-green-600"></i>
-                            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
-                        </div>
-                        <button type="button" class="text-green-500 hover:text-green-700">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
+            @if (session('warning'))
+                <div class="alert alert-warning">{{ session('warning') }}</div>
             @endif
 
             @if (session('error'))
-                <div class="animate-fade-in mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-exclamation-circle text-red-600"></i>
-                            <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
-                        </div>
-                        <button type="button" class="text-red-500 hover:text-red-700">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
+                <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
             <!-- Main Invoice Card -->

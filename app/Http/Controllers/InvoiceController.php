@@ -367,11 +367,9 @@ class InvoiceController extends Controller
             'company',
         ]);
 
-        // Check if company has Paystack configured
         $canPayOnline = !empty($invoice->company?->paystack_secret_key);
 
         $subtotal = $invoice->items->sum('amount');
-
         $taxTotal = $invoice->items->sum(
             fn($item) => ($item->quantity * $item->rate * $item->tax_percent) / 100
         );
@@ -399,20 +397,16 @@ class InvoiceController extends Controller
                 'can_pay_online' => $canPayOnline,
             ]);
 
-            /**
-             * 👇 IMPORTANT PART
-             * Warn the company user if online payment is not configured
-             */
+            // Prepare flash messages
+            $flashMessage = [
+                'success' => 'Invoice sent successfully to ' . $invoice->customer->email,
+            ];
+
             if (!$canPayOnline) {
-                return redirect()->back()->with([
-                    'warning' =>
-                    'Invoice was sent successfully, but ONLINE PAYMENT IS NOT ENABLED. '
-                        . 'Configure Paystack to allow customers to pay online.',
-                ]);
+                $flashMessage['warning'] = 'ONLINE PAYMENT IS NOT ENABLED. Configure Paystack to allow customers to pay online.';
             }
 
-            return redirect()->back()
-                ->with('success', 'Invoice sent successfully to ' . $invoice->customer->email);
+            return redirect()->back()->with($flashMessage);
         } catch (\Throwable $e) {
 
             \Log::error('Failed to send invoice email', [
@@ -424,6 +418,8 @@ class InvoiceController extends Controller
                 ->with('error', 'Failed to send invoice. Please try again.');
         }
     }
+
+
 
 
     public function destroy(Invoice $invoice)
