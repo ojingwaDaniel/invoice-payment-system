@@ -354,43 +354,77 @@ class InvoiceController extends Controller
     {
         $this->authorizeAccess($invoice);
 
-        if (!$invoice->customer->email) {
-            return redirect()->back()->with('error', 'Customer does not have an email address.');
+        if (!$invoice->customer?->email) {
+            return redirect()->back()
+                ->with('error', 'Customer does not have an email address.');
         }
 
-        $invoice->load(['customer', 'items.product', 'user', 'branch']);
+        $invoice->load([
+            'customer',
+            'items.product',
+            'user',
+            'branch',
+            'company',
+        ]);
+
+        // Check if company has Paystack configured
+        $canPayOnline = !empty($invoice->company?->paystack_secret_key);
 
         $subtotal = $invoice->items->sum('amount');
-        $taxTotal = $invoice->items->sum(fn($item) => ($item->quantity * $item->rate * $item->tax_percent) / 100);
+
+        $taxTotal = $invoice->items->sum(
+            fn($item) => ($item->quantity * $item->rate * $item->tax_percent) / 100
+        );
 
         $pdf = Pdf::loadView('invoices.pdf', [
-            'invoice' => $invoice,
+            'invoice'  => $invoice,
             'subtotal' => $subtotal,
             'taxTotal' => $taxTotal,
         ]);
 
         try {
-            Mail::to($invoice->customer->email)
-                ->send(new InvoiceMail($invoice, $pdf->output()));
+            Mail::to($invoice->customer->email)->send(
+                new InvoiceMail(
+                    $invoice,
+                    $pdf->output(),
+                    $canPayOnline
+                )
+            );
 
             $invoice->update(['is_sent' => true]);
 
             \Log::info('Invoice email sent', [
-                'invoice_id' => $invoice->id,
+                'invoice_id'     => $invoice->id,
                 'customer_email' => $invoice->customer->email,
-                'sent_at' => now(),
+                'can_pay_online' => $canPayOnline,
             ]);
 
-            return redirect()->back()->with('success', 'Invoice sent successfully to ' . $invoice->customer->email);
-        } catch (\Exception $e) {
+            /**
+             * 👇 IMPORTANT PART
+             * Warn the company user if online payment is not configured
+             */
+            if (!$canPayOnline) {
+                return redirect()->back()->with([
+                    'warning' =>
+                    'Invoice was sent successfully, but ONLINE PAYMENT IS NOT ENABLED. '
+                        . 'Configure Paystack to allow customers to pay online.',
+                ]);
+            }
+
+            return redirect()->back()
+                ->with('success', 'Invoice sent successfully to ' . $invoice->customer->email);
+        } catch (\Throwable $e) {
+
             \Log::error('Failed to send invoice email', [
                 'invoice_id' => $invoice->id,
-                'error' => $e->getMessage(),
+                'error'      => $e->getMessage(),
             ]);
 
-            return redirect()->back()->with('error', 'Failed to send invoice: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Failed to send invoice. Please try again.');
         }
     }
+
 
     public function destroy(Invoice $invoice)
     {
@@ -419,22 +453,46 @@ class InvoiceController extends Controller
         }
     }
 
+    protected function paymentNotConfiguredResponse()
+    {
+        // Public payment link
+        if (request()->routeIs('invoice.public.pay')) {
+            return response()->view('payment.unavailable', [
+                'message' => 'This merchant has not enabled online payments yet.'
+            ], 403);
+        }
+
+        // Authenticated dashboard user
+        return redirect()
+            ->back()
+            ->with('error', 'Paystack is not configured for this company.');
+    }
+
     protected function initializePaystack(Invoice $invoice)
     {
-        $invoice->load('customer');
+        $invoice->load(['customer', 'company']);
+
+
 
         if ($invoice->status === 'paid') {
             abort(403, 'Invoice already paid');
         }
 
+        if (
+            !$invoice->company ||
+            empty($invoice->company->paystack_secret_key)
+        ) {
+            return $this->paymentNotConfiguredResponse();
+        }
+
+
+
         $reference = 'INV-' . $invoice->id . '-' . uniqid();
 
-        // Amount in kobo
         $amount = (int) ($invoice->total_amount * 100);
 
-        // IMPORTANT: use invoice owner, not auth user
         $paystackSecret = decrypt(
-            $invoice->company->merchant->paystack_secret_key
+            $invoice->company->paystack_secret_key
         );
 
         $response = Http::withToken($paystackSecret)
@@ -451,11 +509,12 @@ class InvoiceController extends Controller
         $data = $response->json();
 
         if (!($data['status'] ?? false)) {
-            abort(500, 'Unable to initialize payment');
+            return back()->withErrors('Unable to initialize payment.');
         }
 
         return redirect()->away($data['data']['authorization_url']);
     }
+
 
 
     public function pay(Invoice $invoice)

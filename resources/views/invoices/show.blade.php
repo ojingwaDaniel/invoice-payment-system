@@ -371,11 +371,16 @@
                         </button>
                     </form>
 
-                    <a href="{{ route('invoice.pay', $invoice->id) }}"
-                        class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-700">
-                        <i class="fas fa-credit-card"></i>
-                        Pay Invoice
-                    </a>
+                    @if (!empty($invoice->company?->paystack_secret_key))
+                        <form action="{{ route('invoice.pay', $invoice) }}" method="POST">
+                            @csrf
+                            <button class="btn btn-primary">Pay Now</button>
+                        </form>
+                    @else
+                        <span class="text-sm text-red-600">
+                            Online payment not configured
+                        </span>
+                    @endif
 
                     <form method="POST" action="{{ route('invoice.markPaid', $invoice) }}" class="inline"
                         onsubmit="return confirm('Are you sure the customer has paid in full?')">

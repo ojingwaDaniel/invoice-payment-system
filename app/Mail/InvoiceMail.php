@@ -11,16 +11,21 @@ class InvoiceMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $invoice;
-    public $pdfData;
+    public Invoice $invoice;
+    public string $pdfData;
+    public bool $canPayOnline;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Invoice $invoice, $pdfData)
-    {
+    public function __construct(
+        Invoice $invoice,
+        string $pdfData,
+        bool $canPayOnline = false
+    ) {
         $this->invoice = $invoice;
         $this->pdfData = $pdfData;
+        $this->canPayOnline = $canPayOnline;
     }
 
     /**

@@ -582,14 +582,20 @@
                     </div>
                 @endif
             </div>
-
             <div class="action-buttons">
-                <a href="{{ route('invoice.public.pay', $invoice->id) }}"
-                    style="background:#1a56db;color:#ffffff;padding:14px 28px;
-          text-decoration:none;border-radius:8px;font-weight:600;
-          display:inline-block;font-size:15px;">
-                    Pay Now
-                </a>
+                @if ($canPayOnline)
+                    <a href="{{ URL::signedRoute('invoice.public.pay', $invoice) }}"
+                        style="background:#1a56db;color:#ffffff;padding:14px 28px;
+                  text-decoration:none;border-radius:8px;font-weight:600;
+                  display:inline-block;font-size:15px;">
+                        Pay Now
+                    </a>
+                @else
+                    <p style="color:#6b7280;font-size:14px;">
+                        Online payment is not available for this invoice at the moment.
+                        Please contact the merchant for payment instructions.
+                    </p>
+                @endif
             </div>
 
             <p style="text-align: center; margin-top: 30px;">Thank you for your business!</p>
