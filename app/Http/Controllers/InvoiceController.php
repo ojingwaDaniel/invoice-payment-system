@@ -419,34 +419,34 @@ class InvoiceController extends Controller
         }
     }
 
-   public function pay(Invoice $invoice)
-{
-    $invoice->load('customer');
+    public function pay(Invoice $invoice)
+    {
+        $invoice->load('customer');
 
-    $reference = 'INV-' . $invoice->id . '-' . uniqid();
+        $reference = 'INV-' . $invoice->id . '-' . uniqid();
 
-    // Amount in kobo
-    $amount = $invoice->total_amount * 100;
+        // Amount in kobo
+        $amount = $invoice->total_amount * 100;
 
-    $paystackSecret = decrypt(auth()->user()->merchant->paystack_secret_key);
+        $paystackSecret = decrypt(auth()->user()->merchant->paystack_secret_key);
 
-    // Call Paystack initialize endpoint
-    $response = Http::withToken($paystackSecret)->post('https://api.paystack.co/transaction/initialize', [
-        'email' => $invoice->customer->email,
-        'amount' => $amount,
-        'reference' => $reference,
-        'callback_url' => route('invoice.callback', $invoice->id)
-    ]);
+        // Call Paystack initialize endpoint
+        $response = Http::withToken($paystackSecret)->post('https://api.paystack.co/transaction/initialize', [
+            'email' => $invoice->customer->email,
+            'amount' => $amount,
+            'reference' => $reference,
+            'callback_url' => route('invoice.callback', $invoice->id)
+        ]);
 
-    $data = $response->json();
+        $data = $response->json();
 
-    if (!$data['status']) {
-        return back()->withErrors('Unable to initialize payment.');
+        if (!$data['status']) {
+            return back()->withErrors('Unable to initialize payment.');
+        }
+
+        // Redirect user to paystack page
+        return redirect()->away($data['data']['authorization_url']);
     }
-
-    // Redirect user to paystack page
-    return redirect()->away($data['data']['authorization_url']);
-}
 
 
     public function publicPay(Invoice $invoice)
@@ -571,29 +571,66 @@ class InvoiceController extends Controller
         $user = auth()->user();
 
         $query = Invoice::where('company_id', $user->company_id);
-        if ($user->role !== 'admin') $query->where('branch_id', $user->branch_id);
 
-        if ($request->filled('from')) $query->whereDate('issue_date', '>=', $request->from);
-        if ($request->filled('to')) $query->whereDate('issue_date', '<=', $request->to);
+        if ($user->role !== 'admin') {
+            $query->where('branch_id', $user->branch_id);
+        }
 
-        $groupBy = $request->get('group_by', 'month');
+        if ($request->filled('from')) {
+            $query->whereDate('issue_date', '>=', $request->from);
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('issue_date', '<=', $request->to);
+        }
 
         $invoices = $query->get();
 
-        $report = $invoices->groupBy(function ($invoice) use ($groupBy) {
-            return match ($groupBy) {
-                'day' => $invoice->issue_date->format('Y-m-d'),
-                'quarter' => 'Q' . ceil($invoice->issue_date->format('n') / 3) . '-' . $invoice->issue_date->format('Y'),
-                'year' => $invoice->issue_date->format('Y'),
-                default => $invoice->issue_date->format('Y-m'), // month
-            };
+        /* =========================
+       SUMMARY TOTALS
+    ========================= */
+        $totalRevenue = $invoices->sum('total_amount');
+        $totalPaid    = $invoices->sum('paid_amount');
+
+        /* =========================
+       MONTHLY SALES
+    ========================= */
+        $monthlySales = $invoices->groupBy(function ($invoice) {
+            return $invoice->issue_date->format('Y-m');
         })->map(fn($group) => [
-            'count' => $group->count(),
-            'total' => $group->sum('total_amount'),
+            'total_amount' => $group->sum('total_amount')
         ]);
 
-        return view('invoices.report', compact('report'));
+        /* =========================
+       QUARTERLY SALES
+    ========================= */
+        $quarterlySales = $invoices->groupBy(function ($invoice) {
+            return 'Q' . ceil($invoice->issue_date->format('n') / 3)
+                . '-' . $invoice->issue_date->format('Y');
+        })->map(fn($group) => [
+            'total_amount' => $group->sum('total_amount')
+        ]);
+
+        /* =========================
+       YEARLY BREAKDOWN
+    ========================= */
+        $yearlySales = $invoices->groupBy(function ($invoice) {
+            return $invoice->issue_date->format('Y');
+        })->map(fn($group) => [
+            'invoice_count' => $group->count(),
+            'total_amount'  => $group->sum('total_amount'),
+            'paid_amount'   => $group->sum('paid_amount'),
+        ]);
+
+        return view('invoices.report', compact(
+            'totalRevenue',
+            'totalPaid',
+            'monthlySales',
+            'quarterlySales',
+            'yearlySales'
+        ));
     }
+
 
     private function logActivity($action, $modelInstance, $oldValues = [])
     {
