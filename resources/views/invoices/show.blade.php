@@ -5,17 +5,39 @@
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
 
             <!-- Flash Messages -->
-            @if (session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
+            <div class="space-y-4">
+                @if (session('success'))
+                    <div
+                        class="flex items-start rounded-xl border border-green-200 bg-green-50 p-4 text-green-800 shadow-sm">
+                        <svg class="mr-3 h-6 w-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <p class="text-sm font-medium">{{ session('success') }}</p>
+                    </div>
+                @endif
 
-            @if (session('warning'))
-                <div class="alert alert-warning">{{ session('warning') }}</div>
-            @endif
+                @if (session('warning'))
+                    <div
+                        class="flex items-start rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-yellow-800 shadow-sm">
+                        <svg class="mr-3 h-6 w-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-sm font-medium">{{ session('warning') }}</p>
+                    </div>
+                @endif
 
-            @if (session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
-            @endif
+                @if (session('error'))
+                    <div class="flex items-start rounded-xl border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm">
+                        <svg class="mr-3 h-6 w-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        <p class="text-sm font-medium">{{ session('error') }}</p>
+                    </div>
+                @endif
+            </div>
 
             <!-- Main Invoice Card -->
             <div class="overflow-hidden rounded-lg bg-white shadow-sm">
